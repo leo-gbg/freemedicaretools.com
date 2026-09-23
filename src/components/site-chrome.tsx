@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PoweredBy } from "@/components/powered-by";
+import { Wordmark } from "@/components/wordmark";
 import { BRAND } from "@/lib/brand";
 import { btnAmber, consultMailto } from "@/lib/visual";
 
 const LINKS = [
-  { href: "/tools", label: "Tool kit" },
+  { href: "/tools", label: "Tools" },
   { href: "/glossary", label: "Glossary" },
-  { href: "/research", label: "Why these tools" },
+  { href: "/#who", label: "Who we are" },
 ];
 
 export function SiteHeader() {
@@ -19,13 +20,8 @@ export function SiteHeader() {
   return (
     <header className="relative z-20 border-b border-[var(--brand-line)] bg-[var(--brand-paper)]/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="min-w-0" onClick={() => setOpen(false)}>
-          <span className="flex min-w-0 items-baseline gap-1.5">
-            <span className="truncate font-[family-name:var(--font-display)] text-xl tracking-tight text-[var(--brand-ink)] sm:text-2xl">
-              FreeMedicareTools
-            </span>
-            <span className="hidden text-base text-[var(--brand-teal-deep)] sm:inline">.com</span>
-          </span>
+        <Link href="/" className="min-w-0 shrink" onClick={() => setOpen(false)}>
+          <Wordmark className="h-9 sm:h-11" />
         </Link>
 
         <nav className="hidden items-center gap-5 md:flex" aria-label="Primary">
@@ -96,7 +92,8 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-[var(--brand-line)] bg-[var(--brand-paper)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-base text-[var(--brand-ink-soft)] sm:px-6 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-1">
+        <div className="space-y-2">
+          <Wordmark className="h-8" />
           <p>
             © {new Date().getFullYear()} {BRAND.domain}
           </p>

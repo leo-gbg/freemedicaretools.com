@@ -176,7 +176,17 @@ export function IepTimelineTool() {
       {result && (
         <div className="space-y-4">
           <div className={`${cardClass} p-5 sm:p-6`}>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--brand-surface)] px-4 text-base text-[var(--brand-ink)]">
+                {formatLongDate(result.birthDate)}
+                <button
+                  type="button"
+                  className="rounded-full bg-[var(--brand-ink)] px-3 py-1 text-sm text-white"
+                  onClick={() => setSubmitted(false)}
+                >
+                  Update
+                </button>
+              </span>
               <span className="rounded-full bg-[var(--brand-teal-tint)] px-3 py-1 text-sm font-medium text-[var(--brand-teal-deep)]">
                 {badge}
               </span>

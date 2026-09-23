@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AgencyLink, PoweredBy } from "@/components/powered-by";
+import { Wordmark } from "@/components/wordmark";
 import { buttonVariants } from "@/components/ui/button";
 import { BRAND } from "@/lib/brand";
 import {
@@ -134,21 +135,27 @@ export function ClientWorksheetPrintDocument() {
         </div>
       </div>
 
-      <header className="border-b border-[var(--brand-line)] pb-4">
-        <p className="text-xs tracking-[0.16em] text-[var(--brand-teal)] uppercase">
-          {BRAND.domain}
-        </p>
-        <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl tracking-tight">
-          Medicare client consult worksheet
-        </h1>
-        <p className="mt-2 text-sm text-[var(--brand-ink-soft)]">
-          Bring this to your appointment with{" "}
-          <AgencyLink className="font-medium" />. Prepared {data.completedAt}.
-        </p>
-        <p className="mt-1 text-xs text-[var(--brand-ink-soft)]">
-          <PoweredBy />
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-[var(--brand-ink)] pb-4">
+        <div>
+          <Wordmark className="h-10" />
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl tracking-tight">
+            Medicare Client Consult Worksheet
+          </h1>
+          <p className="mt-1 text-base text-[var(--brand-ink-soft)]">
+            Bring this page to your appointment with <AgencyLink className="font-medium" />.
+          </p>
+        </div>
+        <div className="text-sm text-[var(--brand-ink-soft)] sm:text-right">
+          <p>Prepared {data.completedAt || "—"}</p>
+          <p className="mt-1">
+            <PoweredBy />
+          </p>
+        </div>
       </header>
+      <p className="mt-3 rounded-xl bg-[var(--brand-teal-tint)] px-3 py-2 text-sm text-[var(--brand-teal-deep)]">
+        This printout stays with you. Do not email medications, date of birth, Medicaid, VA
+        benefits, a Medicare number, or a Social Security number.
+      </p>
 
       <section className="mt-5">
         <h2 className="text-sm font-semibold tracking-wide text-[var(--brand-teal)] uppercase">

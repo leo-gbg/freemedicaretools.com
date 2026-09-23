@@ -2,11 +2,22 @@ import Link from "next/link";
 import { ConsultCta } from "@/components/consult-cta";
 import { DeadlineCard } from "@/components/deadline-card";
 import { getTool } from "@/lib/medicare/tools";
-import { btnInk, btnOutline, ENROLLED_SLUGS, TURNING_SLUGS } from "@/lib/visual";
+import { ENROLLED_SLUGS, TURNING_SLUGS } from "@/lib/visual";
 
 const TURNING = TURNING_SLUGS.map((slug) => getTool(slug)!);
 const ENROLLED = ENROLLED_SLUGS.map((slug) => getTool(slug)!);
 const WORKSHEET = getTool("client-worksheet")!;
+
+const YOU_GET: Record<string, string> = {
+  "iep-timeline": "your 7-month window with exact dates",
+  "working-past-65": "whether your job coverage lets you wait",
+  "path-quiz": "your lean, Medigap or Medicare Advantage",
+  "penalty-estimator": "the penalty in dollars for one year",
+  "period-finder": "what you are allowed to change today",
+  "aep-checklist": "a re-shop list for Oct 15–Dec 7",
+  "irmaa-checker": "whether your income raises your premium",
+  "med-supp-compare": "Plans G, N, and F side by side",
+};
 
 export default function HomePage() {
   return (
@@ -21,15 +32,29 @@ export default function HomePage() {
               Know your Medicare deadlines before they cost you.
             </h1>
             <p className="mt-4 max-w-xl text-lg leading-relaxed text-[var(--brand-ink-soft)]">
-              Deadlines, penalties, and coverage tradeoffs in plain English. The tools stay on
-              this site. Talk to a licensed agent only if you want to.
+              Plain-English tools for people turning 65 and for anyone re-shopping during AEP or
+              OEP. Find your window, see your penalty in dollars, and talk to a licensed agent only
+              if you want to.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a href="#turning-65" className={btnInk}>
-                I&apos;m turning 65
+            <p className="mt-6 text-sm font-medium tracking-[0.12em] text-[var(--brand-text-3)] uppercase">
+              Start with your situation
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <a
+                href="#turning-65"
+                className="inline-flex min-h-14 flex-col items-start justify-center rounded-xl bg-[var(--brand-ink)] px-5 py-3 text-left text-base font-medium text-white hover:bg-[#163544]"
+              >
+                <span>I&apos;m turning 65</span>
+                <span className="text-sm font-normal text-white/75">Windows, penalties, first choices</span>
               </a>
-              <a href="#already-on-medicare" className={btnOutline}>
-                I&apos;m already on Medicare
+              <a
+                href="#already-on-medicare"
+                className="inline-flex min-h-14 flex-col items-start justify-center rounded-xl border border-[var(--brand-input)] bg-white px-5 py-3 text-left text-base font-medium text-[var(--brand-ink)]"
+              >
+                <span>I&apos;m already on Medicare</span>
+                <span className="text-sm font-normal text-[var(--brand-text-3)]">
+                  Re-shop, IRMAA, Medigap letters
+                </span>
               </a>
             </div>
           </div>
@@ -41,11 +66,16 @@ export default function HomePage() {
         <h2 className="max-w-3xl font-[family-name:var(--font-display)] text-3xl text-balance text-[var(--brand-ink)] sm:text-4xl">
           Nine tools. Each one answers a single question.
         </h2>
+        <p className="mt-3 max-w-2xl text-lg text-[var(--brand-ink-soft)]">
+          Pick the question you have. You&apos;ll get a clear answer with your own dates and dollar
+          amounts, not a wall of rules.
+        </p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
-          <ToolColumn id="turning-65" title="Turning 65" tools={TURNING} tone="teal" />
+          <ToolColumn id="turning-65" n={1} title="Turning 65" tools={TURNING} tone="teal" />
           <ToolColumn
             id="already-on-medicare"
+            n={2}
             title="Already on Medicare"
             tools={ENROLLED}
             tone="amber"
@@ -64,14 +94,16 @@ export default function HomePage() {
               {WORKSHEET.title}
             </span>
             <span className="mt-1 block text-base text-[var(--brand-ink-soft)]">
-              You get: {WORKSHEET.blurb}
+              Your drugs, must-keep doctors, and ZIP on one page, so the call goes faster.
             </span>
           </span>
-          <Chevron />
+          <span className="shrink-0 text-base font-medium text-[var(--brand-teal-deep)]">
+            Fill it out →
+          </span>
         </Link>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+      <section id="who" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-6 sm:px-6">
         <div className="grid items-center gap-8 rounded-[24px] border border-[var(--brand-line)] bg-white p-6 sm:p-8 lg:grid-cols-[262px_minmax(0,1fr)]">
           <div className="relative mx-auto h-[322px] w-[262px] shrink-0">
             <div
@@ -115,18 +147,29 @@ export default function HomePage() {
 
 function ToolColumn({
   id,
+  n,
   title,
   tools,
   tone,
 }: {
   id: string;
+  n: number;
   title: string;
   tools: { slug: string; shortTitle: string; blurb: string }[];
   tone: "teal" | "amber";
 }) {
   return (
     <div id={id} className="scroll-mt-24">
-      <h3 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
+      <h3 className="flex items-center gap-3 font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
+        <span
+          className={`inline-flex size-8 items-center justify-center rounded-full text-base ${
+            tone === "teal"
+              ? "bg-[var(--brand-ink)] text-white"
+              : "bg-[var(--brand-amber)] text-[var(--brand-ink)]"
+          }`}
+        >
+          {n}
+        </span>
         {title}
       </h3>
       <ul className="mt-4 space-y-3">
@@ -142,7 +185,7 @@ function ToolColumn({
                   {tool.shortTitle}
                 </span>
                 <span className="mt-1 block text-base text-[var(--brand-ink-soft)]">
-                  You get: {tool.blurb}
+                  You get: {YOU_GET[tool.slug] ?? tool.blurb}
                 </span>
               </span>
               <Chevron />

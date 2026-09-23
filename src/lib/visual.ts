@@ -56,7 +56,7 @@ export function aepCountdown(asOf = new Date()): AepPhase {
       phase: "open",
       days,
       headline: days === 1 ? "1 day left in AEP" : `${days} days left in AEP`,
-      detail: "Open through December 7. Coverage changes usually start January 1.",
+      detail: "Annual Enrollment runs Oct 15 – Dec 7. Changes start Jan 1.",
     };
   }
 
@@ -67,7 +67,7 @@ export function aepCountdown(asOf = new Date()): AepPhase {
     phase: "upcoming",
     days,
     headline: days === 1 ? "AEP opens tomorrow" : `${days} days until AEP opens`,
-    detail: "Annual Enrollment Period opens October 15 and runs through December 7.",
+    detail: "Annual Enrollment runs Oct 15 – Dec 7. Changes start Jan 1.",
   };
 }
 
