@@ -162,7 +162,7 @@ export function ClientWorksheetTool() {
                 <textarea
                   className={areaClass}
                   rows={5}
-                  placeholder="Surgeries coming up, preferred language, hearing needs, who should be on the call…"
+                  placeholder="Surgeries coming up, preferred language, hearing needs, who should join the consult…"
                   value={data.notesForAgent}
                   onChange={(event) => patch({ notesForAgent: event.target.value })}
                 />

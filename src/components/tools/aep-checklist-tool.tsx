@@ -15,7 +15,7 @@ const ITEMS = [
   "If on Original + Medigap + Part D: re-shop Part D for drug costs.",
   "Ask whether Extra Help / state programs could lower costs.",
   "Note OEP (Jan 1–Mar 31) only helps if you stay in Advantage on Jan 1.",
-  "Schedule a free consult before Dec 7 if anything looks uncertain.",
+  "Request a free consult before Dec 7 if anything looks uncertain.",
 ];
 
 const GROUPS = [

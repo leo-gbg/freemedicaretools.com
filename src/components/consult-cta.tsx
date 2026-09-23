@@ -1,44 +1,25 @@
 import Link from "next/link";
 import { PoweredBy } from "@/components/powered-by";
-import { btnAmber, btnOutline, consultMailto, PHONE_PLACEHOLDER } from "@/lib/visual";
+import { btnAmber, btnOutline, consultMailto } from "@/lib/visual";
 import { cn } from "@/lib/utils";
 
 type ConsultCtaProps = {
   context?: string;
   compact?: boolean;
+  label?: string;
 };
 
-export function PhonePlaceholder({
-  className,
-  onDark = false,
-}: {
-  className?: string;
-  onDark?: boolean;
-}) {
-  return (
-    <span
-      role="note"
-      aria-label="Placeholder. A phone number is not published on this site."
-      className={cn(
-        "inline-flex min-h-12 items-center justify-center rounded-xl px-5 text-base font-medium",
-        onDark
-          ? "border border-white/35 text-white"
-          : "border border-[var(--brand-input)] text-[var(--brand-ink-soft)]",
-        className
-      )}
-    >
-      Call {PHONE_PLACEHOLDER}
-    </span>
-  );
-}
-
-export function ConsultCta({ context, compact = false }: ConsultCtaProps) {
+export function ConsultCta({
+  context,
+  compact = false,
+  label = "Request a free consult",
+}: ConsultCtaProps) {
   const href = consultMailto(context);
 
   if (compact) {
     return (
       <a href={href} className={cn(btnAmber, "px-4")}>
-        Book a free consult
+        Request a free consult
       </a>
     );
   }
@@ -49,7 +30,7 @@ export function ConsultCta({ context, compact = false }: ConsultCtaProps) {
         Next step
       </p>
       <h2 className="mt-2 max-w-xl font-[family-name:var(--font-display)] text-3xl leading-snug text-balance text-white md:text-4xl">
-        The tools explain the rules. A free call applies them to you.
+        The tools explain the rules. A free consult applies them to you.
       </h2>
       <p className="mt-3 max-w-lg text-base leading-relaxed text-white/80">
         Bring your tool results. A licensed agent can look at your doctors, drugs, and budget with
@@ -62,9 +43,8 @@ export function ConsultCta({ context, compact = false }: ConsultCtaProps) {
       </p>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <a href={href} className={btnAmber}>
-          Book a free consult
+          {label}
         </a>
-        <PhonePlaceholder onDark />
         <Link href="/tools" className={cn(btnOutline, "border-white/30 bg-transparent text-white hover:bg-white/10")}>
           Browse all tools
         </Link>

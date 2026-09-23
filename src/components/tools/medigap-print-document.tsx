@@ -104,7 +104,7 @@ export function MedigapPrintDocument() {
       <footer className="mt-6 border-t border-[var(--brand-line)] pt-3 text-[8pt] text-[var(--brand-ink-soft)]">
         Educational comparison only—not Medicare, CMS, or Social Security advice. Not affiliated with
         the U.S. government. {BRAND.domain} · <PoweredBy className="inline" linkClassName="text-[var(--brand-ink-soft)]" />.
-        For personalized quotes, book a free consult with a licensed agent.
+        For personalized quotes, request a free consult with a licensed agent.
       </footer>
     </div>
   );

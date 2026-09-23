@@ -35,7 +35,7 @@ export function SiteHeader() {
             </Link>
           ))}
           <a href={mailto} className={btnAmber}>
-            Book a free consult
+            Request a free consult
           </a>
         </nav>
 
@@ -78,7 +78,7 @@ export function SiteHeader() {
             ))}
             <li className="pt-2">
               <a href={mailto} className={`${btnAmber} w-full`}>
-                Book a free consult
+                Request a free consult
               </a>
             </li>
           </ul>
