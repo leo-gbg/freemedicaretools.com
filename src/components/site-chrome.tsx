@@ -50,8 +50,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-[var(--brand-ink-soft)] sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="space-y-1">
           <p>
-            © {new Date().getFullYear()} {BRAND.domain} · Educational lead-magnet tools for Medicare
-            navigation.
+            © {new Date().getFullYear()} {BRAND.domain} · Educational tools for Medicare navigation.
           </p>
           <p className="font-medium text-[var(--brand-ink)]">
             <PoweredBy linkClassName="font-medium text-[var(--brand-ink)] hover:text-[var(--brand-teal)]" />

@@ -128,7 +128,10 @@ export const CURRENT_COVERAGE_OPTIONS = [
   "Other / not sure",
 ] as const;
 
-/** Human-readable summary for mailto / CRM notes. */
+/**
+ * Local plain-text summary for a printout the person keeps.
+ * Do not place this string in a mailto URL or email body.
+ */
 export function worksheetToPlainText(data: ClientWorksheet): string {
   const yn = (v: boolean | null) =>
     v === true ? "Yes" : v === false ? "No" : "—";
@@ -188,8 +191,8 @@ export function worksheetToPlainText(data: ClientWorksheet): string {
 
   lines.push(
     "",
-    "CRM payload: attach saved PDF + optional JSON export from FreeMedicareTools worksheet.",
-    "Do not include MBI/SSN in email."
+    "Local print summary only. Do not paste this into email.",
+    "Do not include a Medicare number (MBI) or SSN."
   );
 
   return lines.join("\n");

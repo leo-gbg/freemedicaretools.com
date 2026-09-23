@@ -41,7 +41,7 @@ const PAINS = [
   {
     title: "Enrollees sleepwalk through AEP",
     detail:
-      "Most people do not re-shop even when formularies, networks, and premiums change. An annual checklist creates a reason to engage every October—prime time for agent representation.",
+      "Most people do not re-shop even when formularies, networks, and premiums change. An annual checklist is a way to read the notice of change before December 7.",
     tool: "/tools/aep-checklist",
   },
 ];
@@ -53,7 +53,7 @@ export default function ResearchPage() {
         Why these tools
       </h1>
       <p className="mt-4 text-base leading-relaxed text-[var(--brand-ink-soft)]">
-        Alex Hormozi’s lead-magnet pattern: find an expensive, urgent, recurring problem; give away a tool that diagnoses it; invite the prospect to hire you for the solution. Medicare enrollment and yearly re-enrollment are perfect fits—high stakes, deadline-driven, and broker-assisted by design.
+        These pages explain why the tools exist: Medicare timing and plan types are easy to mix up. Nothing here signs you up for coverage. A consult is optional, by email, if you want to talk through a result.
       </p>
       <p className="mt-3 text-sm text-[var(--brand-ink-soft)]">
         Research themes drawn from MedPAC focus groups, KFF beneficiary interviews, and CMS enrollment-period rules (2026 cost figures where tools show dollars).

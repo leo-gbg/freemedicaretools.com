@@ -330,7 +330,7 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
       lean: "mixed",
       title: "Your answers point both ways",
       summary:
-        "Budget extras (dental/vision, $0 premiums) tug toward Medicare Advantage. Provider freedom and travel tug toward Original Medicare + Medigap + Part D. The right call usually needs a side-by-side of your doctors, drugs, and ZIP code.",
+        "Budget extras (dental, vision, or a lower monthly premium) tug toward Medicare Advantage. Provider freedom and travel tug toward Original Medicare + Medigap + Part D. The right call usually needs a side-by-side of your doctors, drugs, and ZIP code.",
       nextSteps: [
         "List your doctors, hospitals, and top 5 prescriptions.",
         "Compare network fit vs. Medigap premium for your state.",

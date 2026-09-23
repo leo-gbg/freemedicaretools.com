@@ -204,7 +204,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     term: "Premium",
     category: "costs",
     short: "The amount you pay—usually monthly—to keep a plan or Medicare Part in force.",
-    long: "Premiums are the “membership fee” for coverage. Examples include the Part B premium, a Medigap premium, a Part D plan premium, or a Medicare Advantage premium (sometimes $0 before IRMAA or plan add-ons).",
+    long: "Premiums are the “membership fee” for coverage. Examples include the Part B premium, a Medigap premium, a Part D plan premium, or a Medicare Advantage premium. Plan premiums differ, and an income-related adjustment (IRMAA) or optional extras can change what you pay.",
   },
   {
     id: "deductible",

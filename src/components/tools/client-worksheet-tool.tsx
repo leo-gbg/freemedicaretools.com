@@ -65,10 +65,15 @@ export function ClientWorksheetTool() {
     <div className="space-y-8">
       <div className="rounded-2xl border border-[var(--brand-line)] bg-white/70 p-5 text-sm leading-relaxed text-[var(--brand-ink-soft)]">
         <p>
-          Fill this worksheet, then create a printable PDF to bring to your consult—or email it to
-          your agent. Answers about ZIP, doctors, drugs, and travel shape which Medicare Advantage,
-          Part D, and Medigap options fit. We do <strong>not</strong> ask for your Medicare number
-          or Social Security number here.
+          Fill this worksheet, then print or save a PDF to bring with you. Answers about ZIP,
+          doctors, drugs, and travel are for that printout only.
+        </p>
+        <p className="mt-2">
+          <strong>Privacy:</strong> nothing you type is posted to a server. A copy is kept only in
+          this browser tab so the print page can open. We do not ask for a Medicare number (MBI) or
+          Social Security number — do not type those in the notes. If you email anyone, do not put
+          medications, date of birth, Medicaid, VA benefits, or other health details in the message.
+          Attach a PDF you saved yourself only if you choose to.
         </p>
       </div>
 
@@ -186,7 +191,7 @@ export function ClientWorksheetTool() {
         </h2>
         <p className="text-sm text-[var(--brand-ink-soft)]">
           ZIP/county, current coverage, pharmacy, travel, tobacco, and extra benefits (dental /
-          vision / hearing) all affect which Advantage, Part D, and Medigap quotes your agent can
+          vision / hearing) all affect which Advantage, Part D, and Medigap plan options your agent can
           show.
         </p>
         <Field label="Current coverage">
@@ -502,8 +507,8 @@ export function ClientWorksheetTool() {
         </Button>
       </div>
       <p className="text-xs text-[var(--brand-ink-soft)]">
-        Next screen: Print / Save as PDF, then email the PDF to your agent. Form fields use stable
-        CRM keys for a future import—nothing is uploaded from this browser session.
+        Next screen: Print / Save as PDF. The email button does not include this worksheet. Nothing
+        is uploaded from this browser.
       </p>
     </div>
   );

@@ -284,7 +284,7 @@ export function MedSuppCompareTool() {
       </section>
 
       <div className="rounded-2xl border border-[var(--brand-line)] bg-[var(--brand-mist)]/60 p-5 text-sm text-[var(--brand-ink-soft)]">
-        <p className="font-medium text-[var(--brand-ink)]">Before you enroll</p>
+        <p className="font-medium text-[var(--brand-ink)]">Before you choose</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>Compare premiums for the same letter across carriers in your state and ZIP.</li>
           <li>Ask how the company rates age (attained-age, issue-age, or community-rated).</li>

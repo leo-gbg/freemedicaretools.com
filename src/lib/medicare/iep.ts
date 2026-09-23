@@ -18,12 +18,17 @@ function startOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
 
+/** Last instant of the calendar month, so the IEP stays open through that whole day. */
 function endOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
 }
 
-function addMonths(d: Date, n: number): Date {
-  return new Date(d.getFullYear(), d.getMonth() + n, d.getDate());
+/** Move by calendar months (day 1). Avoids Date overflow when the source day is 29–31. */
+function shiftMonth(d: Date, deltaMonths: number): Date {
+  const total = d.getFullYear() * 12 + d.getMonth() + deltaMonths;
+  const year = Math.floor(total / 12);
+  const month = total - year * 12;
+  return new Date(year, month, 1);
 }
 
 function monthsBetween(from: Date, to: Date): number {
@@ -69,22 +74,43 @@ export function toIsoDate(year: number, month: number, day: number): string | nu
   return `${year}-${mm}-${dd}`;
 }
 
+function partBStartTip(birthdayOnFirst: boolean): string {
+  const when = birthdayOnFirst
+    ? "the month Medicare treats you as eligible (the month before a birthday on the 1st)"
+    : "your birthday month";
+  return `If you sign up during ${when} or in the last 3 months of your IEP, Part B starts on the first day of the next month.`;
+}
+
+function coverageHint(birthdayOnFirst: boolean): string {
+  if (birthdayOnFirst) {
+    return "Your birthday is on the 1st, so Medicare eligibility — and this 7-month window — starts the month before that birthday. Signing up in the first 3 months starts Part B in the eligibility month. Signing up during the eligibility month or the last 3 months starts Part B on the first day of the next month.";
+  }
+  return "Signing up in the first 3 months of your IEP starts Part B the month you turn 65. Signing up during your birthday month or the last 3 months starts Part B on the first day of the next month.";
+}
+
 export function calculateIep(birthDateIso: string, asOf = new Date()): IepResult {
   const birthDate = new Date(birthDateIso + "T12:00:00");
   if (Number.isNaN(birthDate.getTime())) {
     throw new Error("Enter a valid birth date.");
   }
 
-  // Medicare age 65: IEP is 3 months before birth month, birth month, 3 months after.
+  // Calendar 65th birthday. The 7-month IEP is centered on the Medicare eligibility
+  // month: the birthday month, or the prior month when the birthday is the 1st
+  // (SSA treats age as attained the day before the birthday).
+  // Part B start, for signups on or after Jan 1, 2023: first 3 months of the IEP
+  // → eligibility month; eligibility month or the last 3 months → the 1st of the
+  // next month. Medicare.gov “When does Medicare coverage start?”; SSA 2023 IEP notice.
   const sixtyFifth = new Date(
     birthDate.getFullYear() + 65,
     birthDate.getMonth(),
     birthDate.getDate()
   );
-  const birthMonthStart = startOfMonth(sixtyFifth);
-  const birthMonthEnd = endOfMonth(sixtyFifth);
-  const iepStart = startOfMonth(addMonths(sixtyFifth, -3));
-  const iepEnd = endOfMonth(addMonths(sixtyFifth, 3));
+  const birthdayOnFirst = birthDate.getDate() === 1;
+  const eligibilityMonth = birthdayOnFirst ? shiftMonth(sixtyFifth, -1) : startOfMonth(sixtyFifth);
+  const birthMonthStart = eligibilityMonth;
+  const birthMonthEnd = endOfMonth(eligibilityMonth);
+  const iepStart = shiftMonth(eligibilityMonth, -3);
+  const iepEnd = endOfMonth(shiftMonth(eligibilityMonth, 3));
   const ageYears = wholeYearsBetween(birthDate, asOf);
 
   let status: IepResult["status"] = "upcoming";
@@ -115,7 +141,7 @@ export function calculateIep(birthDateIso: string, asOf = new Date()): IepResult
   } else if (status === "open") {
     tips.push("Your IEP is open now—this is the highest-leverage window for first-time Medicare decisions.");
     tips.push("Enrolling in the first 3 months of your IEP usually gives the earliest Part B start date.");
-    tips.push("If you wait until your birth month or later, Part B coverage can be delayed by 1–3 months.");
+    tips.push(partBStartTip(birthdayOnFirst));
     tips.push(
       "Still working with qualifying employer coverage? You may be able to delay Part B without a penalty—confirm creditable coverage first."
     );
@@ -125,7 +151,7 @@ export function calculateIep(birthDateIso: string, asOf = new Date()): IepResult
     );
   } else {
     tips.push("Enrolling in the first 3 months of your IEP usually gives the earliest Part B start date.");
-    tips.push("If you wait until your birth month or later, Part B coverage can be delayed by 1–3 months.");
+    tips.push(partBStartTip(birthdayOnFirst));
     tips.push(
       "Still working with qualifying employer coverage? You may be able to delay Part B without a penalty—confirm creditable coverage first."
     );
@@ -149,7 +175,7 @@ export function calculateIep(birthDateIso: string, asOf = new Date()): IepResult
     earliestCoverageHint:
       status === "ended"
         ? "Your IEP is historical. The tools below help with current Medicare navigation (AEP, OEP, penalties)."
-        : "Signing up in the first three months of the IEP typically starts Part B the month you turn 65 (rules can vary if your birthday is on the 1st).",
+        : coverageHint(birthdayOnFirst),
     tips,
     nextTools,
   };

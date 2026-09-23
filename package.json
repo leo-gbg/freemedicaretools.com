@@ -6,7 +6,8 @@
     "dev": "next dev -p 43127",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types --test src/lib/medicare/iep.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
