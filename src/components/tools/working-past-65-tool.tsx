@@ -1,115 +1,122 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { assessWorkingPast65 } from "@/lib/medicare/decisions";
+import { useMemo, useState } from "react";
+import { assessWorkingPast65, findEnrollmentWindows } from "@/lib/medicare/decisions";
+import { cardClass, checkClass } from "@/lib/visual";
+
+const QUESTIONS = [
+  {
+    key: "coveredByEmployer",
+    label: "I have health coverage from my current employer (or I am actively employed)",
+  },
+  {
+    key: "spouseCovering",
+    label: "I am covered as a spouse/dependent on a current employer plan",
+  },
+  {
+    key: "employerHas20Plus",
+    label: "The employer providing coverage has 20 or more employees",
+  },
+  {
+    key: "wantsHsa",
+    label: "I contribute to (or want to keep) an HSA",
+  },
+] as const;
+
+type Key = (typeof QUESTIONS)[number]["key"];
 
 export function WorkingPast65Tool() {
-  const [coveredByEmployer, setCoveredByEmployer] = useState(false);
-  const [employerHas20Plus, setEmployerHas20Plus] = useState(false);
-  const [wantsHsa, setWantsHsa] = useState(false);
-  const [spouseCovering, setSpouseCovering] = useState(false);
-  const [result, setResult] = useState<ReturnType<typeof assessWorkingPast65> | null>(null);
+  const [answers, setAnswers] = useState<Record<Key, boolean>>({
+    coveredByEmployer: false,
+    employerHas20Plus: false,
+    wantsHsa: false,
+    spouseCovering: false,
+  });
+
+  const result = useMemo(() => assessWorkingPast65(answers), [answers]);
+  const sepLabel = useMemo(() => {
+    const windows = findEnrollmentWindows({
+      turning65Soon: false,
+      alreadyOnMedicare: false,
+      onAdvantage: false,
+      missedIep: false,
+      losingEmployerCoverage: true,
+    });
+    return windows.find((window) => window.id === "sep")?.windowLabel;
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4 rounded-2xl border border-[var(--brand-line)] bg-white/70 p-5">
-        <Toggle
-          id="emp"
-          checked={coveredByEmployer}
-          onChange={setCoveredByEmployer}
-          label="I have health coverage from my current employer (or I am actively employed)"
-        />
-        <Toggle
-          id="spouse"
-          checked={spouseCovering}
-          onChange={setSpouseCovering}
-          label="I am covered as a spouse/dependent on a current employer plan"
-        />
-        <Toggle
-          id="size"
-          checked={employerHas20Plus}
-          onChange={setEmployerHas20Plus}
-          label="The employer providing coverage has 20 or more employees"
-        />
-        <Toggle
-          id="hsa"
-          checked={wantsHsa}
-          onChange={setWantsHsa}
-          label="I contribute to (or want to keep) an HSA"
-        />
-        <Button
-          type="button"
-          className="bg-[var(--brand-teal)] text-white hover:bg-[var(--brand-teal-deep)]"
-          onClick={() =>
-            setResult(
-              assessWorkingPast65({
-                coveredByEmployer,
-                employerHas20Plus,
-                wantsHsa,
-                spouseCovering,
-              })
-            )
-          }
-        >
-          Check delay risk
-        </Button>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {QUESTIONS.map((question) => {
+          const on = answers[question.key];
+          return (
+            <label
+              key={question.key}
+              className={`${cardClass} flex min-h-20 cursor-pointer items-start gap-3 p-4 ${
+                on ? "border-[var(--brand-teal)]" : ""
+              }`}
+            >
+              <input
+                type="checkbox"
+                className={`${checkClass} mt-0.5`}
+                checked={on}
+                onChange={(event) =>
+                  setAnswers((prev) => ({ ...prev, [question.key]: event.target.checked }))
+                }
+              />
+              <span className="text-base leading-snug text-[var(--brand-ink)]">{question.label}</span>
+            </label>
+          );
+        })}
       </div>
 
-      {result && (
-        <div
-          className={`rounded-2xl border p-5 ${
-            result.canLikelyDelayPartB
-              ? "border-[var(--brand-sea)] bg-[var(--brand-sea)]/15"
-              : "border-amber-300 bg-amber-50"
-          }`}
-        >
-          <h3 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
-            {result.title}
-          </h3>
-          <ul className="mt-4 space-y-2 text-sm text-[var(--brand-ink)]">
-            {result.guidance.map((g) => (
-              <li key={g} className="flex gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand-teal)]" />
-                <span>{g}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-xs tracking-[0.12em] text-[var(--brand-teal)] uppercase">
-            Watch-outs
-          </p>
-          <ul className="mt-2 space-y-2 text-sm text-[var(--brand-ink-soft)]">
-            {result.watchouts.map((w) => (
-              <li key={w}>• {w}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
+      <div
+        className={`rounded-[24px] p-5 sm:p-6 ${
+          result.canLikelyDelayPartB
+            ? "bg-[var(--brand-teal-tint)] text-[var(--brand-ink)]"
+            : "bg-[var(--brand-amber-tint)] text-[var(--brand-ink)]"
+        }`}
+      >
+        <p className="text-sm font-medium tracking-[0.14em] uppercase">
+          {result.canLikelyDelayPartB ? "Check" : "Risk"}
+        </p>
+        <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl text-balance">
+          {result.title}
+        </h2>
+      </div>
 
-function Toggle({
-  id,
-  checked,
-  onChange,
-  label,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-}) {
-  return (
-    <label htmlFor={id} className="flex cursor-pointer items-start gap-3 text-sm leading-snug text-[var(--brand-ink)]">
-      <input
-        id={id}
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="mt-0.5 size-4 shrink-0 rounded border border-input accent-[var(--brand-teal)]"
-      />
-      <span>{label}</span>
-    </label>
+      {sepLabel && (
+        <aside className="rounded-[20px] border border-[var(--brand-teal)]/30 bg-white p-4">
+          <p className="text-sm font-medium tracking-[0.12em] text-[var(--brand-teal-deep)] uppercase">
+            Part B and Part D timing
+          </p>
+          <p className="mt-2 text-lg text-[var(--brand-ink)]">{sepLabel}</p>
+        </aside>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <section className={`${cardClass} p-5`}>
+          <h3 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
+            Do this next
+          </h3>
+          <ol className="mt-3 list-decimal space-y-2 pl-5 text-base text-[var(--brand-ink)]">
+            {result.guidance.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </section>
+        <section className={`${cardClass} p-5`}>
+          <h3 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
+            Watch out for
+          </h3>
+          <ul className="mt-3 space-y-2 text-base text-[var(--brand-ink-soft)]">
+            {result.watchouts.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
   );
 }
