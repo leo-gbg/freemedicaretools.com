@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { assessWorkingPast65 } from "@/lib/medicare/decisions";
 
 export function WorkingPast65Tool() {
-  const [coveredByEmployer, setCoveredByEmployer] = useState(true);
-  const [employerHas20Plus, setEmployerHas20Plus] = useState(true);
+  const [coveredByEmployer, setCoveredByEmployer] = useState(false);
+  const [employerHas20Plus, setEmployerHas20Plus] = useState(false);
   const [wantsHsa, setWantsHsa] = useState(false);
   const [spouseCovering, setSpouseCovering] = useState(false);
   const [result, setResult] = useState<ReturnType<typeof assessWorkingPast65> | null>(null);

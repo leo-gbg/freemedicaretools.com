@@ -77,7 +77,7 @@ export default function HomePage() {
             One job per tool
           </h2>
           <p className="mt-2 max-w-2xl text-[var(--brand-ink-soft)]">
-            Hormozi-style lead magnets: give away the diagnosis for free. Keep the enrollment representation for when it counts.
+            Each tool answers one question — a deadline, a penalty, or a coverage tradeoff — so the rules are easier to see.
           </p>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {TOOLS.map((tool, i) => (

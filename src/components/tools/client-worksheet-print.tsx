@@ -8,7 +8,6 @@ import { BRAND } from "@/lib/brand";
 import {
   loadWorksheet,
   worksheetToCrmJson,
-  worksheetToPlainText,
   type ClientWorksheet,
 } from "@/lib/medicare/client-worksheet";
 import { cn } from "@/lib/utils";
@@ -24,30 +23,34 @@ export function ClientWorksheetPrintDocument() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setData(loadWorksheet());
-    setReady(true);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setData(loadWorksheet());
+      setReady(true);
+    });
     document.body.classList.add("client-worksheet-print-page");
-    return () => document.body.classList.remove("client-worksheet-print-page");
+    return () => {
+      cancelled = true;
+      document.body.classList.remove("client-worksheet-print-page");
+    };
   }, []);
 
   const mailtoHref = useMemo(() => {
-    if (!data) return `mailto:${BRAND.email}`;
-    const subject = encodeURIComponent(
-      `Medicare client worksheet — ${data.fullName || "Prospect"}`
-    );
+    const subject = encodeURIComponent("Medicare consult worksheet");
     const body = encodeURIComponent(
       [
         "Hello,",
         "",
-        "Please find my Medicare consult worksheet below. I will also attach the PDF from Print → Save as PDF.",
-        "",
-        worksheetToPlainText(data),
+        "I used the FreeMedicareTools worksheet and saved a PDF on my own device.",
+        "This message does not include my worksheet.",
+        "I will not put medications, date of birth, Medicaid, VA benefits, or similar details in email.",
         "",
         `Sent via ${BRAND.domain}`,
       ].join("\n")
     );
     return `mailto:${BRAND.email}?subject=${subject}&body=${body}`;
-  }, [data]);
+  }, []);
 
   function downloadJson() {
     if (!data) return;
@@ -94,33 +97,40 @@ export function ClientWorksheetPrintDocument() {
         >
           ← Edit worksheet
         </Link>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className={cn(
-              buttonVariants({ size: "lg" }),
-              "bg-[var(--brand-teal)] text-white hover:bg-[var(--brand-teal-deep)]"
-            )}
-          >
-            Print / Save as PDF
-          </button>
-          <a
-            href={mailtoHref}
-            className={cn(
-              buttonVariants({ size: "lg", variant: "outline" }),
-              "border-[var(--brand-line)]"
-            )}
-          >
-            Email to agent
-          </a>
-          <button
-            type="button"
-            onClick={downloadJson}
-            className={cn(buttonVariants({ size: "lg", variant: "ghost" }))}
-          >
-            Download CRM JSON
-          </button>
+        <div className="flex max-w-xl flex-col items-stretch gap-2 sm:items-end">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "bg-[var(--brand-teal)] text-white hover:bg-[var(--brand-teal-deep)]"
+              )}
+            >
+              Print / Save as PDF
+            </button>
+            <a
+              href={mailtoHref}
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                "border-[var(--brand-line)]"
+              )}
+            >
+              Email to agent
+            </a>
+            <button
+              type="button"
+              onClick={downloadJson}
+              className={cn(buttonVariants({ size: "lg", variant: "ghost" }))}
+            >
+              Download CRM JSON
+            </button>
+          </div>
+          <p className="text-xs text-[var(--brand-ink-soft)] sm:text-right">
+            The email does not include your worksheet. Do not add medications, date of birth,
+            Medicaid, VA benefits, or similar details to the message. The JSON file stays on your
+            device.
+          </p>
         </div>
       </div>
 

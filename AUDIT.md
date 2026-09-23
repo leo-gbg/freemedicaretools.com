@@ -6,6 +6,22 @@
 **Scope:** Read-only audit of every page and tool. No product code was changed.  
 **Decision this report asks for:** Approve the Must list as the pre-AEP patch. Should and Nice can wait.
 
+## Implementation status (23 September 2026)
+
+Leo approved the Must list. Must items 1–6 are implemented in product code on this branch. Must item 7 is deferred on purpose.
+
+| Item | Status |
+| --- | --- |
+| 1. IEP last day and birthday on the 1st | Implemented in `src/lib/medicare/iep.ts`. The window stays open through the last calendar day, a birthday on the 1st is centered on the prior month, and month math no longer spills a 31st birthday into the next month. Covered by `src/lib/medicare/iep.test.ts` (`npm test`). |
+| 2. Part B start-date tip (post-2023 rule) | Implemented in the same file. The “delayed by 1–3 months” sentence is gone. |
+| 3. AEP checklist ANOC year | Implemented. The checklist now points at this fall’s notice for **2027** plan changes. |
+| 4. Working-past-65 defaults | Implemented. Employer coverage and “20 or more employees” start unchecked. |
+| 5. Worksheet PHI out of email | Implemented. Mailto subject and body do not include the worksheet. MBI/SSN are still not collected. Data stays in this browser tab (`sessionStorage`) only so the print page can open; it is not posted to a server. On-form and print-page notices say so, and say not to put drugs, date of birth, Medicaid, or VA details in email. |
+| 6. Public copy on `/` and `/research` | Implemented. Home, research, the shared consult card, and the footer no longer use “lead magnet,” “hire you,” or “helps you enroll.” The button label remains “Book a free consult.” The footer non-affiliation line is unchanged. |
+| 7. License, phone, calendar | Deferred. Leo: this site is a general educational tool, not a licensed enrollment product. License identity, NPN, and state boundaries stay blank. Phone stays hidden. Consult stays the existing mailto. Identity and consult can be built later. |
+
+Still open from the original Should / Nice lists (not this change): IRMAA exact $500,000 / $750,000 edge, Medigap high-deductible F/G and MA/MN/WI, `$0` wording on the path quiz, glossary, and mixed-path result, robots/sitemap, privacy page, and the other SEO notes above.
+
 AEP opens **15 October 2026** (about three weeks from this audit). The 2026 dollar tables are in good shape. Three calculator behaviors and the client-worksheet email path are the items that can mislead a person before that window.
 
 ---

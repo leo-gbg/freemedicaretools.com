@@ -41,11 +41,11 @@ export function ConsultCta({ context, compact = false }: ConsultCtaProps) {
         Next step
       </p>
       <h3 className="mt-2 max-w-xl font-[family-name:var(--font-display)] text-2xl leading-snug text-white md:text-3xl">
-        Free tools diagnose the problem. A licensed agent helps you enroll with confidence.
+        Free tools explain the rules. A consult is there if you want to talk them through.
       </h3>
       <p className="mt-3 max-w-lg text-sm leading-relaxed text-[var(--brand-mist)]/80">
-        During IEP, AEP, or OEP, walk through your doctors, drugs, and deadlines together—no
-        pressure, compliance-safe guidance.{" "}
+        Questions about IEP, AEP, or OEP can go in a free consult. This site is educational and
+        does not sign you up for a plan.{" "}
         <PoweredBy
           className="text-[var(--brand-mist)]/80"
           linkClassName="text-[var(--brand-sea)] hover:text-white"

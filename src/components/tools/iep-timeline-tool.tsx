@@ -187,7 +187,7 @@ export function IepTimelineTool() {
               Turned / turns 65: {formatLongDate(result.turned65On)}
             </p>
             <p className="mt-1 text-sm text-[var(--brand-ink-soft)]">
-              Birth month at 65: {formatLongDate(result.birthMonthStart)} –{" "}
+              Medicare eligibility month: {formatLongDate(result.birthMonthStart)} –{" "}
               {formatLongDate(result.birthMonthEnd)}
             </p>
           </div>

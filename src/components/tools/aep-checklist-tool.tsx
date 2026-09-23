@@ -6,7 +6,7 @@ const ITEMS = [
   "Confirm AEP dates: October 15 – December 7 (coverage usually Jan 1).",
   "List every doctor, hospital, and specialist you actually use.",
   "List all prescriptions with dosage—check formulary + pharmacy tiers.",
-  "Compare your current plan’s 2026 Annual Notice of Change (ANOC).",
+  "Compare this fall’s Annual Notice of Change (ANOC). It describes your plan’s 2027 changes.",
   "Check premium, deductible, max out-of-pocket, and referral rules.",
   "If on Advantage: verify network changes didn’t drop your doctors.",
   "If on Original + Medigap + Part D: re-shop Part D for drug costs.",
