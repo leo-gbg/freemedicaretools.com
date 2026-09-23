@@ -23,7 +23,7 @@ const PAINS = [
   {
     title: "Late penalties are lifelong and abstract",
     detail:
-      "Part B and Part D late enrollment penalties can follow someone for life. Until the monthly and 10-year dollars are visible, “I’ll deal with it later” feels safe.",
+      "Part B and Part D late enrollment penalties can follow someone for life. Until the monthly extra is visible, “I’ll deal with it later” feels safe.",
     tool: "/tools/penalty-estimator",
   },
   {

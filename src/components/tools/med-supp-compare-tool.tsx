@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { withAcronymTips } from "@/components/acronym-tip";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   coverageLabel,
@@ -15,11 +15,9 @@ import {
   type MedigapPlanLetter,
   type MedSuppAnswers,
 } from "@/lib/medicare/medigap";
+import { btnInk, cardClass } from "@/lib/visual";
 
-const QUESTIONS: {
-  key: keyof MedSuppAnswers;
-  prompt: string;
-}[] = [
+const QUESTIONS: { key: keyof MedSuppAnswers; prompt: string }[] = [
   {
     key: "newlyEligible",
     prompt: "I became (or will become) eligible for Medicare on or after January 1, 2020.",
@@ -70,16 +68,19 @@ export function MedSuppCompareTool() {
     setSelected((prev) => {
       if (prev.includes(letter)) {
         if (prev.length <= 2) return prev;
-        return prev.filter((l) => l !== letter);
+        return prev.filter((item) => item !== letter);
       }
       if (prev.length >= 4) return [...prev.slice(1), letter];
       return [...prev, letter];
     });
   }
 
+  const letters = [...MEDIGAP_PLANS].sort((a, b) => a.letter.localeCompare(b.letter));
+  const lead = result?.primary[0];
+
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl border border-[var(--brand-line)] bg-white/70 p-5 text-sm leading-relaxed text-[var(--brand-ink-soft)]">
+      <div className={`${cardClass} p-5 text-base leading-relaxed text-[var(--brand-ink-soft)]`}>
         <p>
           {withAcronymTips(
             "Medigap (Medicare Supplement) plans are standardized by letter. Plan G from Company A covers the same benefits as Plan G from Company B—premiums, discounts, and household rules differ. This tool compares letters, not carrier prices."
@@ -92,42 +93,46 @@ export function MedSuppCompareTool() {
         </p>
       </div>
 
-      <section className="space-y-4 rounded-2xl border border-[var(--brand-line)] bg-white/70 p-5">
-        <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--brand-ink)]">
-          1 · What matters to you?
+      <section className={`${cardClass} space-y-4 p-5`}>
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
+          What matters to you?
         </h2>
-        {QUESTIONS.map((q) => (
-          <fieldset key={q.key} className="space-y-2">
-            <legend className="text-sm font-medium text-[var(--brand-ink)]">{q.prompt}</legend>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name={q.key}
-                  checked={answers[q.key] === true}
-                  onChange={() => setAnswers((prev) => ({ ...prev, [q.key]: true }))}
-                />
-                Yes
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name={q.key}
-                  checked={answers[q.key] === false}
-                  onChange={() => setAnswers((prev) => ({ ...prev, [q.key]: false }))}
-                />
-                No
-              </label>
+        {QUESTIONS.map((question) => (
+          <fieldset key={question.key} className="space-y-2">
+            <legend className="text-base font-medium text-[var(--brand-ink)]">{question.prompt}</legend>
+            <div className="flex flex-wrap gap-2">
+              {[true, false].map((value) => {
+                const on = answers[question.key] === value;
+                return (
+                  <label
+                    key={String(value)}
+                    className={`inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border px-4 text-base ${
+                      on
+                        ? "border-[var(--brand-ink)] bg-[var(--brand-ink)] text-white"
+                        : "border-[var(--brand-input)] bg-white"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      className="size-6"
+                      name={question.key}
+                      checked={on}
+                      onChange={() => setAnswers((prev) => ({ ...prev, [question.key]: value }))}
+                    />
+                    {value ? "Yes" : "No"}
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
         ))}
-        {error && <p className="text-sm text-red-700">{error}</p>}
-        <Button
+        {error && <p className="text-base text-[var(--brand-red-text)]">{error}</p>}
+        <button
           type="button"
-          className="bg-[var(--brand-teal)] text-white hover:bg-[var(--brand-teal-deep)]"
+          className={btnInk}
           onClick={() => {
-            const complete = QUESTIONS.every((q) => typeof answers[q.key] === "boolean");
-            if (!complete) {
+            const done = QUESTIONS.every((question) => typeof answers[question.key] === "boolean");
+            if (!done) {
               setError("Answer every question to see a letter lean.");
               setResult(null);
               return;
@@ -139,121 +144,124 @@ export function MedSuppCompareTool() {
           }}
         >
           See my Medigap letter lean
-        </Button>
+        </button>
       </section>
 
-      {result && (
-        <section className="rounded-2xl border border-[var(--brand-teal)] bg-[var(--brand-sea)]/15 p-5">
-          <p className="text-xs tracking-[0.14em] text-[var(--brand-teal)] uppercase">
-            Directional result · not a carrier recommendation
-          </p>
-          <h2 className="mt-2 font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
-            {result.title}
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--brand-ink-soft)]">
-            {result.summary}
-          </p>
-          <p className="mt-3 text-sm text-[var(--brand-ink)]">
-            <span className="font-medium">Letters to study: </span>
-            {result.primary.map((l) => `Plan ${l}`).join(", ")}
-          </p>
-          <ul className="mt-3 space-y-2 text-sm text-[var(--brand-ink)]">
-            {result.why.map((w) => (
-              <li key={w} className="flex gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand-teal)]" />
-                <span>{withAcronymTips(w)}</span>
-              </li>
-            ))}
-          </ul>
+      {result && lead && (
+        <section className="flex flex-col gap-4 rounded-[24px] bg-[var(--brand-ink)] p-5 text-white sm:flex-row sm:items-center sm:p-6">
+          <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand-amber)] font-[family-name:var(--font-display)] text-4xl text-[var(--brand-ink)]">
+            {lead}
+          </div>
+          <div>
+            <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-amber)] uppercase">
+              Directional result · not a carrier recommendation
+            </p>
+            <h2 className="mt-1 font-[family-name:var(--font-display)] text-3xl text-balance">{result.title}</h2>
+            <p className="mt-2 text-base leading-relaxed text-white/80">{result.summary}</p>
+            <p className="mt-2 text-base">
+              Letters to study: {result.primary.map((letter) => `Plan ${letter}`).join(", ")}
+            </p>
+            <ul className="mt-3 space-y-2 text-base text-white/85">
+              {result.why.map((reason) => (
+                <li key={reason}>{withAcronymTips(reason)}</li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
       <section className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--brand-ink)]">
-              2 · Compare plan letters
+            <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
+              Compare plan letters
             </h2>
-            <p className="mt-1 text-sm text-[var(--brand-ink-soft)]">
-              Select 2–4 letters. Highlighted cells show where plans differ from Plan G (a common
-              reference).
+            <p className="mt-1 text-base text-[var(--brand-ink-soft)]">
+              Select 2–4 letters. Plan G is the reference. Amber cells differ from G.
             </p>
           </div>
           <Link
             href="/tools/med-supp-compare/print"
-            className={cn(
-              buttonVariants({ size: "default" }),
-              "shrink-0 bg-[var(--brand-teal)] text-white hover:bg-[var(--brand-teal-deep)]"
-            )}
+            className={cn(buttonVariants({ size: "default" }), "bg-[var(--brand-ink)] text-white hover:bg-[#163544]")}
           >
             Print full chart (PDF)
           </Link>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {[...MEDIGAP_PLANS]
-            .sort((a, b) => a.letter.localeCompare(b.letter))
-            .map((plan) => {
-              const on = selected.includes(plan.letter);
-              return (
-                <button
-                  key={plan.letter}
-                  type="button"
-                  onClick={() => togglePlan(plan.letter)}
-                  className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                    on
-                      ? "bg-[var(--brand-teal)] text-white"
-                      : "bg-white text-[var(--brand-ink-soft)] ring-1 ring-[var(--brand-line)] hover:text-[var(--brand-ink)]"
-                  }`}
-                >
-                  Plan {plan.letter}
-                  {!plan.newlyEligible ? " *" : ""}
-                </button>
-              );
-            })}
+          {letters.map((plan) => {
+            const on = selected.includes(plan.letter);
+            return (
+              <button
+                key={plan.letter}
+                type="button"
+                aria-pressed={on}
+                onClick={() => togglePlan(plan.letter)}
+                className={`inline-flex size-[60px] items-center justify-center rounded-2xl text-lg font-medium ${
+                  on
+                    ? "bg-[var(--brand-teal)] text-white"
+                    : "border border-[var(--brand-input)] bg-white text-[var(--brand-ink)]"
+                }`}
+              >
+                {plan.letter}
+                {!plan.newlyEligible ? "*" : ""}
+              </button>
+            );
+          })}
         </div>
-        <p className="text-xs text-[var(--brand-ink-soft)]">
+        <p className="text-sm text-[var(--brand-text-3)]">
           * Plans C and F: generally only if first eligible before Jan 1, 2020.
         </p>
+        <p className="text-sm text-[var(--brand-text-3)]">
+          Legend: ✓ covered · — not covered · 50%, 75%, Copays, and Limited stay as words.
+        </p>
 
-        <div className="overflow-x-auto rounded-2xl border border-[var(--brand-line)] bg-white/90">
-          <table className="min-w-[40rem] w-full border-collapse text-left text-sm">
+        <div className="max-w-full overflow-x-auto rounded-[20px] border border-[var(--brand-line)] bg-white">
+          <table className="w-full min-w-[36rem] border-collapse text-left text-base">
             <thead>
-              <tr className="border-b border-[var(--brand-line)] bg-[var(--brand-mist)]/80">
-                <th className="sticky left-0 z-10 bg-[var(--brand-mist)] px-3 py-3 font-medium text-[var(--brand-ink)]">
-                  Benefit
-                </th>
+              <tr className="border-b border-[var(--brand-line)]">
+                <th className="sticky left-0 z-10 bg-[var(--brand-mist)] px-3 py-3 font-medium">Benefit</th>
                 {selectedPlans.map((plan) => (
                   <th
                     key={plan.letter}
-                    className="px-3 py-3 text-center font-[family-name:var(--font-display)] text-base text-[var(--brand-ink)]"
+                    className={`px-3 py-3 text-center ${
+                      plan.letter === "G" ? "bg-[var(--brand-teal-tint)]" : ""
+                    }`}
                   >
-                    Plan {plan.letter}
+                    <span className="block font-[family-name:var(--font-display)] text-xl">
+                      {plan.letter}
+                    </span>
+                    {plan.letter === "G" && (
+                      <span className="text-sm font-medium text-[var(--brand-teal-deep)]">Reference</span>
+                    )}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {MEDIGAP_BENEFITS.map((benefit) => (
-                <tr key={benefit.id} className="border-b border-[var(--brand-line)]/70">
-                  <th className="sticky left-0 z-10 bg-white/95 px-3 py-3 text-left font-medium text-[var(--brand-ink)]">
+                <tr key={benefit.id} className="border-b border-[var(--brand-line)]">
+                  <th className="sticky left-0 z-10 bg-white px-3 py-3 text-left font-medium">
                     <span>{withAcronymTips(benefit.label)}</span>
-                    <span className="mt-0.5 block text-xs font-normal text-[var(--brand-ink-soft)]">
+                    <span className="mt-1 block text-sm font-normal text-[var(--brand-text-3)]">
                       {benefit.plain}
                     </span>
                   </th>
                   {selectedPlans.map((plan) => {
                     const value = plan.coverage[benefit.id];
-                    const gValue = getPlan("G").coverage[benefit.id];
-                    const differs = value !== gValue;
+                    const differs = value !== getPlan("G").coverage[benefit.id];
                     return (
                       <td
                         key={`${plan.letter}-${benefit.id}`}
-                        className={`px-3 py-3 text-center tabular-nums ${
-                          differs ? "bg-[var(--brand-sea)]/20 font-medium" : "text-[var(--brand-ink)]"
+                        className={`px-3 py-3 text-center ${
+                          plan.letter === "G"
+                            ? "bg-[var(--brand-teal-tint)]"
+                            : differs
+                              ? "bg-[var(--brand-amber-tint)] font-medium"
+                              : ""
                         }`}
                       >
-                        <CoverageCell value={value} />
+                        <CoverageMark value={value} />
                       </td>
                     );
                   })}
@@ -265,25 +273,22 @@ export function MedSuppCompareTool() {
 
         <ul className="grid gap-3 sm:grid-cols-2">
           {selectedPlans.map((plan) => (
-            <li
-              key={plan.letter}
-              className="rounded-2xl border border-[var(--brand-line)] bg-white/80 p-4"
-            >
-              <p className="font-[family-name:var(--font-display)] text-lg text-[var(--brand-ink)]">
+            <li key={plan.letter} className={`${cardClass} p-4`}>
+              <p className="font-[family-name:var(--font-display)] text-xl text-[var(--brand-ink)]">
                 Plan {plan.letter}
               </p>
-              <p className="mt-1 text-xs tracking-[0.08em] text-[var(--brand-teal)] uppercase">
+              <p className="mt-1 text-sm text-[var(--brand-teal-deep)]">
                 Typical premium: {plan.premiumTendency}
                 {!plan.newlyEligible ? " · legacy eligibility" : ""}
               </p>
-              <p className="mt-2 text-sm text-[var(--brand-ink-soft)]">{plan.summary}</p>
-              <p className="mt-2 text-xs text-[var(--brand-ink-soft)]">{plan.popularityNote}</p>
+              <p className="mt-2 text-base text-[var(--brand-ink-soft)]">{plan.summary}</p>
+              <p className="mt-2 text-sm text-[var(--brand-text-3)]">{plan.popularityNote}</p>
             </li>
           ))}
         </ul>
       </section>
 
-      <div className="rounded-2xl border border-[var(--brand-line)] bg-[var(--brand-mist)]/60 p-5 text-sm text-[var(--brand-ink-soft)]">
+      <div className="rounded-[20px] bg-[var(--brand-surface)] p-5 text-base text-[var(--brand-ink-soft)]">
         <p className="font-medium text-[var(--brand-ink)]">Before you choose</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>Compare premiums for the same letter across carriers in your state and ZIP.</li>
@@ -296,13 +301,20 @@ export function MedSuppCompareTool() {
   );
 }
 
-function CoverageCell({ value }: { value: CoverageValue }) {
-  const label = coverageLabel(value);
-  const title =
-    value === "copay"
-      ? "Part B coinsurance covered except for set office/ER copays"
-      : value === "partial"
-        ? "Limited foreign travel emergency benefits after a deductible; caps apply"
-        : undefined;
-  return <span title={title}>{label}</span>;
+function CoverageMark({ value }: { value: CoverageValue }) {
+  if (value === "yes") {
+    return (
+      <span aria-label="Covered" className="text-xl text-[var(--brand-teal-deep)]">
+        ✓
+      </span>
+    );
+  }
+  if (value === "no") {
+    return (
+      <span aria-label="Not covered" className="text-xl text-[var(--brand-text-3)]">
+        —
+      </span>
+    );
+  }
+  return <span>{coverageLabel(value)}</span>;
 }

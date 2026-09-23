@@ -128,8 +128,8 @@ CMS uses the **individual** table when the person lived apart from their spouse 
 **“Single” omits other individual filers.**  
 Head of household and qualifying surviving spouse use the individual IRMAA column. The control only says “Single.”
 
-**Penalty marketing still says 10 years; the math shows 1 year.**  
-`src/lib/medicare/tools.ts` (“10-year dollar total”) and `src/app/research/page.tsx` (“monthly and 10-year dollars”) describe a total the estimator does not calculate. The tool and `README.md` correctly say one year. Align the public sentences with the 1-year box.
+**Penalty marketing used to imply a multi-year dollar total; the math shows 1 year.**  
+Public sentences in `src/lib/medicare/tools.ts` and `src/app/research/page.tsx` now match the estimator: one year of extra cost, and the notes that penalties are typically lifelong. No cumulative multi-year total is shown.
 
 **Part A late penalty is absent.**  
 People who pay a Part A premium can owe 10% for twice the number of years they delayed. The estimator is Part B and Part D only. Say that on the tool so a buy-in Part A case is not read as “$0 penalty.”
@@ -313,7 +313,7 @@ Gaps:
 ### Should — next, still this season if time allows
 
 8. IRMAA: exact $500,000 / $750,000 belongs in the top tier. Say that married-filing-separately compression applies when the person lived with their spouse at any time that tax year. Mention head of household uses the individual column. Files: `constants.ts`, `decisions.ts`, `irmaa-checker-tool.tsx`.
-9. Penalty page: one sentence that Part A premium penalties are not estimated; align the “10-year” blurbs in `tools.ts` and `research/page.tsx` with the 1-year result.
+9. Penalty page: one sentence that Part A premium penalties are not estimated. Public blurbs now match the 1-year result.
 10. Medigap: caveat for MA / MN / WI; note high-deductible F and G exist and are omitted; Plan N ER copay waived if admitted.
 11. Working-past-65 caveats: disability uses 100 employees; whose employer the “20+” box refers to; Part A retroactivity and HSA.
 12. SEO: 301 `www` → apex (or the reverse, then match `BRAND.url`), canonical link, `robots.txt`, sitemap of the public tools, `noindex` on both print routes, unique meta descriptions for `/tools` and `/research`.

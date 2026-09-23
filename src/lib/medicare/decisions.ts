@@ -307,6 +307,9 @@ export type PathResult = {
   title: string;
   summary: string;
   nextSteps: string[];
+  /** Point totals already used to choose `lean`. Display only. */
+  advantage: number;
+  original: number;
 };
 
 export function scoreCoveragePath(a: PathAnswers): PathResult {
@@ -324,6 +327,7 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
   if (!a.okWithReferrals) original += 1;
   if (!a.wantsLowPremium) original += 1;
 
+  const scores = { advantage, original };
   const diff = advantage - original;
   if (Math.abs(diff) <= 1) {
     return {
@@ -336,6 +340,7 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
         "Compare network fit vs. Medigap premium for your state.",
         "Book a free consult before your enrollment window closes.",
       ],
+      ...scores,
     };
   }
 
@@ -350,6 +355,7 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
         "Compare max out-of-pocket and prior-authorization rules.",
         "Review again every AEP—benefits change yearly.",
       ],
+      ...scores,
     };
   }
 
@@ -358,11 +364,12 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
     title: "Your answers lean Original Medicare + Medigap",
     summary:
       "You prioritize seeing preferred providers, traveling, or avoiding referral friction. That path usually means Part A/B, a Medigap (supplement) plan, and separate Part D—higher premiums, more predictability.",
-      nextSteps: [
-        "Open the Medigap (Med-Supp) Plan Letter Guide to compare G vs N (and other letters).",
-        "Shop Part D for your exact medications.",
-        "Medigap is easiest at first eligibility—timing matters.",
-      ],
+    nextSteps: [
+      "Open the Medigap (Med-Supp) Plan Letter Guide to compare G vs N (and other letters).",
+      "Shop Part D for your exact medications.",
+      "Medigap is easiest at first eligibility—timing matters.",
+    ],
+    ...scores,
   };
 }
 
