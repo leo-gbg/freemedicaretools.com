@@ -38,7 +38,7 @@ export function ToolShell({
         {withAcronymTips(tool.blurb)}
       </p>
 
-      <div className="mt-8">{children}</div>
+      <div className="mt-8 min-w-0">{children}</div>
 
       <div className="mt-10 grid gap-4 lg:grid-cols-2">
         {place.next && (

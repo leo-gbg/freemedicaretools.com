@@ -68,9 +68,10 @@ export function ClientWorksheetTool() {
   ];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <div>
-        <ol className="mb-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+    <div className="grid w-full max-w-full grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <div className="min-w-0 max-w-full">
+        <div className="mb-4 w-full max-w-full overflow-x-auto lg:hidden">
+        <ol className="flex w-max gap-2 pb-1">
           {STEPS.map((label, index) => (
             <li key={label}>
               <button
@@ -85,8 +86,9 @@ export function ClientWorksheetTool() {
             </li>
           ))}
         </ol>
+        </div>
 
-        <div className="grid gap-4 lg:grid-cols-[9rem_minmax(0,1fr)]">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-[9rem_minmax(0,1fr)]">
           <ol className="hidden lg:block">
             {STEPS.map((label, index) => (
               <li key={label}>

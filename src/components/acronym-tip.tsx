@@ -62,7 +62,7 @@ export function AcronymTip({
       </button>
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-[calc(100%+0.4rem)] left-1/2 z-30 w-64 -translate-x-1/2 rounded-lg border border-[var(--brand-line)] bg-[var(--brand-ink)] px-3 py-2 text-left text-xs leading-snug font-normal tracking-normal text-[var(--brand-mist)] opacity-0 shadow-lg transition-opacity duration-150 group-hover/tip:opacity-100 group-focus-within/tip:opacity-100"
+        className="pointer-events-none absolute bottom-[calc(100%+0.4rem)] left-1/2 z-30 hidden w-64 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border border-[var(--brand-line)] bg-[var(--brand-ink)] px-3 py-2 text-left text-sm leading-snug font-normal tracking-normal text-white shadow-lg group-hover/tip:block group-focus-within/tip:block"
       >
         <span className="font-medium text-[var(--brand-sea)]">{label}</span>
         <span className="mt-1 block">{tip}</span>
