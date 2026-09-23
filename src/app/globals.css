@@ -173,6 +173,11 @@
     margin: 0.5in;
   }
 
+  @page worksheet-letter {
+    size: letter;
+    margin: 0;
+  }
+
   @page medigap-landscape {
     size: landscape;
     margin: 0.4in;
@@ -207,6 +212,7 @@
   body.client-worksheet-print-page {
     background: white !important;
     background-image: none !important;
+    page: worksheet-letter;
   }
 
   body.client-worksheet-print-page > header,
@@ -222,5 +228,22 @@
   .client-worksheet-print-root {
     max-width: none !important;
     padding: 0 !important;
+    background: white !important;
+  }
+
+  .worksheet-sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    width: 8.5in !important;
+    height: 11in !important;
+    max-width: none !important;
+    overflow: hidden !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .worksheet-sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
   }
 }
