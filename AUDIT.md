@@ -332,7 +332,7 @@ Owner: Leo (approve). Implementation later = Cloud Agent, not a Bot deep-dive.
 Outcome: Leo approves or edits the Must list before any product change. AEP is 15 Oct 2026.
 Sources: repo src/ at main 303efc3; CMS fact sheet 14 Nov 2025 (Part B $202.90, deductible $283, IRMAA table); Medicare.gov 2026 costs booklet (Part D base premium $38.99); Medicare.gov / SSA on IEP effective dates after 1 Jan 2023; live fetch 23 Sep 2026 (Hostinger, apex and www both 200, robots/sitemap/privacy/terms 404).
 Constraints: Audit only this round. No MBI/SSN on public forms. PHI stays in Kizen, not in a mailto body. CTA stays “Book a free consult.” No $0, no “we enroll you,” no carrier endorsement. Do not invent NPN, phone, states, or calendar URL — Leo supplies those.
-Deliverable: AUDIT.md on branch cursor/freemedicaretools-audit-0876 and the PR that carries this report. Agent run: https://cursor.com/agents/bc-33b6119e-81fd-5e2b-813c-90d521fd0876
+Deliverable: AUDIT.md on branch cursor/freemedicaretools-audit-0876 and the PR that carries this report.
 Stop: Do not implement the Must list until Leo replies with approval (and the license/consult facts for item 7).
 Failure: If Leo’s license states, NPN, phone, or calendar/Kizen URL are not in this repo, they are blank on purpose. Live TLS failures on other networks were not reproduced here; Hostinger edge is the place to check if ERR_CONNECTION_CLOSED continues.
 Must (short): (1) IEP last day + birthday on the 1st, (2) drop the 1–3 month delay tip, (3) ANOC year = upcoming plan year, (4) working-past-65 boxes start unchecked, (5) worksheet PHI out of mailto + on-form notice, (6) strip $0 / enroll-you / Hormozi lead-magnet copy from public pages, (7) Leo adds who is licensed and where the consult actually goes.
