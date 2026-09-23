@@ -131,4 +131,4 @@ export const IRMAA_BRACKETS_2026: IrmaaBracket[] = [
 ];
 
 export const DISCLAIMER =
-  "Educational estimates only—not Medicare, CMS, or Social Security advice. Figures use published 2026 reference amounts and can change. A licensed agent can review your situation before you enroll or re-enroll.";
+  "Educational estimates only—not Medicare, CMS, or Social Security advice. Figures use published 2026 reference amounts and can change. A licensed agent can review your situation before you choose or change coverage.";

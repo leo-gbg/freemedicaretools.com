@@ -191,7 +191,7 @@ export function ClientWorksheetTool() {
         </h2>
         <p className="text-sm text-[var(--brand-ink-soft)]">
           ZIP/county, current coverage, pharmacy, travel, tobacco, and extra benefits (dental /
-          vision / hearing) all affect which Advantage, Part D, and Medigap quotes your agent can
+          vision / hearing) all affect which Advantage, Part D, and Medigap plan options your agent can
           show.
         </p>
         <Field label="Current coverage">

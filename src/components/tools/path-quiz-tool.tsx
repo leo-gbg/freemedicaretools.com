@@ -9,7 +9,7 @@ const QUESTIONS: {
   prompt: string;
 }[] = [
   { key: "travelOften", prompt: "I travel or split time across states often." },
-  { key: "wantsLowPremium", prompt: "A low (or $0) monthly plan premium matters most." },
+  { key: "wantsLowPremium", prompt: "A lower monthly plan premium matters most." },
   { key: "needsSpecificDoctors", prompt: "I need to keep specific doctors or specialists." },
   { key: "takesManyRx", prompt: "I take several ongoing prescriptions." },
   { key: "wantsDentalVision", prompt: "Dental / vision extras would meaningfully help." },

@@ -20,7 +20,9 @@ Leo approved the Must list. Must items 1–6 are implemented in product code on 
 | 6. Public copy on `/` and `/research` | Implemented. Home, research, the shared consult card, and the footer no longer use “lead magnet,” “hire you,” or “helps you enroll.” The button label remains “Book a free consult.” The footer non-affiliation line is unchanged. |
 | 7. License, phone, calendar | Deferred. Leo: this site is a general educational tool, not a licensed enrollment product. License identity, NPN, and state boundaries stay blank. Phone stays hidden. Consult stays the existing mailto. Identity and consult can be built later. |
 
-Still open from the original Should / Nice lists (not this change): IRMAA exact $500,000 / $750,000 edge, Medigap high-deductible F/G and MA/MN/WI, `$0` wording on the path quiz, glossary, and mixed-path result, robots/sitemap, privacy page, and the other SEO notes above.
+Compliance follow-up: the three bare `$0` premium strings are removed (path quiz prompt, mixed path-quiz result, glossary premium entry). Also softened: “Before you choose,” the shared disclaimer (“choose or change coverage”), and the worksheet “plan options” line. Penalty math may still show `$0.00` when a late penalty is zero; that is a calculated result, not a premium claim.
+
+Still open from the original Should / Nice lists: IRMAA exact $500,000 / $750,000 edge, Medigap high-deductible F/G and MA/MN/WI, robots/sitemap, privacy page, and the other SEO notes above.
 
 AEP opens **15 October 2026** (about three weeks from this audit). The 2026 dollar tables are in good shape. Three calculator behaviors and the client-worksheet email path are the items that can mislead a person before that window.
 
