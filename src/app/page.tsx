@@ -109,28 +109,38 @@ export default function HomePage() {
             <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-teal-deep)] uppercase">
               Who built these tools
             </p>
-            <span
-              aria-hidden
-              className="mx-auto mt-4 block h-1 w-12 rounded-full bg-[var(--brand-amber)]"
-            />
-            <blockquote className="mt-5 font-[family-name:var(--font-display)] text-2xl leading-snug text-balance text-[var(--brand-ink)] sm:text-3xl">
-              Medicare shouldn&apos;t take a meeting to understand. Start with the tools, and reach
-              out if you want help with the next step.
-            </blockquote>
-            <p className="mt-5 text-base text-[var(--brand-ink-soft)]">
-              <span className="block font-medium text-[var(--brand-ink)] sm:inline">
-                Leopoldo Adaoag
+            <figure className="mt-6">
+              <span
+                aria-hidden
+                className="block h-12 font-[family-name:var(--font-display)] text-[6rem] leading-[0.9] text-[var(--brand-amber)] select-none sm:h-14 sm:text-[7rem]"
+              >
+                &ldquo;
               </span>
-              <span aria-hidden className="hidden sm:inline">
-                {" · "}
-              </span>
-              <span className="block sm:inline">Licensed insurance agent</span>
-              <span aria-hidden className="hidden sm:inline">
-                {" · "}
-              </span>
-              <span className="block sm:inline">Guardian Benefits Group</span>
-            </p>
-            <ul className="mt-5 flex flex-wrap justify-center gap-2">
+              <blockquote className="font-[family-name:var(--font-display)] text-[1.75rem] leading-snug text-balance text-[var(--brand-ink)] italic sm:text-[2.5rem] sm:leading-[1.2]">
+                <p>
+                  Medicare shouldn&apos;t take a meeting to understand. Start with the tools, and
+                  reach out if you want help with the next step.
+                </p>
+              </blockquote>
+              <figcaption className="mt-6 text-base text-[var(--brand-ink-soft)]">
+                <span
+                  aria-hidden
+                  className="mx-auto mb-4 block h-px w-12 bg-[var(--brand-amber)]"
+                />
+                <span className="block font-medium text-[var(--brand-ink)] sm:inline">
+                  Leopoldo Adaoag
+                </span>
+                <span aria-hidden className="hidden sm:inline">
+                  {" · "}
+                </span>
+                <span className="block sm:inline">Licensed insurance agent</span>
+                <span aria-hidden className="hidden sm:inline">
+                  {" · "}
+                </span>
+                <span className="block sm:inline">Guardian Benefits Group</span>
+              </figcaption>
+            </figure>
+            <ul className="mt-6 flex flex-wrap justify-center gap-2">
               <li className="rounded-full bg-[var(--brand-teal-tint)] px-3 py-2 text-sm text-[var(--brand-teal-deep)]">
                 Educational only, no plan sign-ups on this site
               </li>
