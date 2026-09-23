@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { withAcronymTips } from "@/components/acronym-tip";
-import { PhonePlaceholder } from "@/components/consult-cta";
 import { DISCLAIMER } from "@/lib/medicare/constants";
 import type { ToolMeta } from "@/lib/medicare/tools";
 import { btnAmber, cardClass, consultMailto, toolPlacement } from "@/lib/visual";
@@ -68,9 +67,8 @@ export function ToolShell({
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <a href={consultMailto(tool.shortTitle)} className={btnAmber}>
-              Book a free consult
+              Request a free consult
             </a>
-            <PhonePlaceholder onDark />
           </div>
         </aside>
       </div>

@@ -2,9 +2,6 @@ import { BRAND } from "@/lib/brand";
 import { AEP } from "@/lib/medicare/constants";
 import { getTool, type ToolMeta } from "@/lib/medicare/tools";
 
-/** Visible stand-in. Not a real number and not a tel: link. */
-export const PHONE_PLACEHOLDER = "[YOUR PHONE]";
-
 export const TURNING_SLUGS = [
   "iep-timeline",
   "working-past-65",
@@ -21,7 +18,7 @@ export const ENROLLED_SLUGS = [
 
 export function consultMailto(context?: string): string {
   const subject = encodeURIComponent(
-    context ? `Free Medicare consult — ${context}` : "Book a free Medicare consult"
+    context ? `Free Medicare consult — ${context}` : "Request a free Medicare consult"
   );
   return `mailto:${BRAND.email}?subject=${subject}`;
 }

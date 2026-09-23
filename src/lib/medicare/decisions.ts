@@ -338,7 +338,7 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
       nextSteps: [
         "List your doctors, hospitals, and top 5 prescriptions.",
         "Compare network fit vs. Medigap premium for your state.",
-        "Book a free consult before your enrollment window closes.",
+        "Request a free consult before your enrollment window closes.",
       ],
       ...scores,
     };

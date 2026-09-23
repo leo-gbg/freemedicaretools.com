@@ -21,7 +21,7 @@ export default function GlossaryPage() {
       <p className="mt-4 text-base leading-relaxed text-[var(--brand-ink-soft)]">
         Medicare conversations are full of shorthand. This glossary explains the enrollment
         windows, plan types, cost terms, and coverage words you will see across{" "}
-        {BRAND.name}—so the free tools make more sense before you book a consult.
+        {BRAND.name}—so the free tools make more sense before you request a consult.
       </p>
       <p className="mt-3 text-sm text-[var(--brand-ink-soft)]">
         Prefer to start with a calculator?{" "}

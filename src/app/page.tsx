@@ -94,7 +94,7 @@ export default function HomePage() {
               {WORKSHEET.title}
             </span>
             <span className="mt-1 block text-base text-[var(--brand-ink-soft)]">
-              Your drugs, must-keep doctors, and ZIP on one page, so the call goes faster.
+              Your drugs, must-keep doctors, and ZIP on one page, so the consult goes faster.
             </span>
           </span>
           <span className="shrink-0 text-base font-medium text-[var(--brand-teal-deep)]">
@@ -104,29 +104,33 @@ export default function HomePage() {
       </section>
 
       <section id="who" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-6 sm:px-6">
-        <div className="grid items-center gap-8 rounded-[24px] border border-[var(--brand-line)] bg-white p-6 sm:p-8 lg:grid-cols-[262px_minmax(0,1fr)]">
-          <div className="relative mx-auto h-[322px] w-[262px] shrink-0">
-            <div
-              aria-hidden
-              className="absolute top-3 left-3 h-full w-full rounded-t-[131px] bg-[var(--brand-amber)]"
-            />
-            <div className="relative flex h-full w-full items-center justify-center rounded-t-[131px] bg-[var(--brand-teal-tint)] px-6 text-center text-base font-medium text-[var(--brand-teal-deep)]">
-              [PHOTO: Leopoldo]
-            </div>
-          </div>
-          <div>
+        <div className="rounded-[24px] border border-[var(--brand-line)] bg-white px-6 py-10 sm:px-10 sm:py-12">
+          <div className="mx-auto max-w-3xl text-center">
             <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-teal-deep)] uppercase">
-              Who built this
+              Who built these tools
             </p>
-            <blockquote className="mt-3 font-[family-name:var(--font-display)] text-2xl leading-snug text-balance text-[var(--brand-ink)] sm:text-3xl">
-              Medicare shouldn&apos;t take a meeting to understand. Start with the tools, and call
-              me if you want help with the next step.
+            <span
+              aria-hidden
+              className="mx-auto mt-4 block h-1 w-12 rounded-full bg-[var(--brand-amber)]"
+            />
+            <blockquote className="mt-5 font-[family-name:var(--font-display)] text-2xl leading-snug text-balance text-[var(--brand-ink)] sm:text-3xl">
+              Medicare shouldn&apos;t take a meeting to understand. Start with the tools, and reach
+              out if you want help with the next step.
             </blockquote>
-            <p className="mt-4 text-lg font-medium text-[var(--brand-ink)]">Leopoldo Adaoag</p>
-            <p className="text-base text-[var(--brand-ink-soft)]">
-              Licensed insurance agent · Guardian Benefits Group
+            <p className="mt-5 text-base text-[var(--brand-ink-soft)]">
+              <span className="block font-medium text-[var(--brand-ink)] sm:inline">
+                Leopoldo Adaoag
+              </span>
+              <span aria-hidden className="hidden sm:inline">
+                {" · "}
+              </span>
+              <span className="block sm:inline">Licensed insurance agent</span>
+              <span aria-hidden className="hidden sm:inline">
+                {" · "}
+              </span>
+              <span className="block sm:inline">Guardian Benefits Group</span>
             </p>
-            <ul className="mt-4 flex flex-wrap gap-2">
+            <ul className="mt-5 flex flex-wrap justify-center gap-2">
               <li className="rounded-full bg-[var(--brand-teal-tint)] px-3 py-2 text-sm text-[var(--brand-teal-deep)]">
                 Educational only, no plan sign-ups on this site
               </li>
@@ -139,7 +143,7 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <ConsultCta />
+        <ConsultCta label="Request a free consult by email" />
       </section>
     </div>
   );

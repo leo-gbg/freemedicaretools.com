@@ -13,7 +13,7 @@ import {
   type WorksheetPrescription,
   type WorksheetProvider,
 } from "@/lib/medicare/client-worksheet";
-import { PHONE_PLACEHOLDER } from "@/lib/visual";
+import { worksheetLayout, worksheetTier, type WorksheetTier } from "@/lib/medicare/worksheet-layout";
 import { cn } from "@/lib/utils";
 
 const BRING = ["Medicare card", "Pill bottles or label photos", "Current plan cards", "Annual Notice of Change"];
@@ -87,6 +87,7 @@ export function ClientWorksheetPrintDocument() {
   const genericCount = rxs.filter((row) => row.genericsOk).length;
   const mustKeep = docs.filter((row) => row.mustKeep === true).length;
   const prepared = data.completedAt || "—";
+  const layout = worksheetLayout(rxs, docs);
 
   return (
     <div className="client-worksheet-print-root bg-[#e7eeeb] px-4 py-6 print:bg-white print:p-0">
@@ -118,8 +119,35 @@ export function ClientWorksheetPrintDocument() {
       </div>
 
       <div className="mx-auto flex w-[8.5in] flex-col gap-8 print:gap-0">
-        <PageOne data={data} prepared={prepared} rxCount={rxs.length} genericCount={genericCount} docCount={docs.length} mustKeep={mustKeep} />
-        <PageTwo data={data} prepared={prepared} rxs={rxs} docs={docs} genericCount={genericCount} mustKeep={mustKeep} />
+        <PageOne
+          data={data}
+          prepared={prepared}
+          pageCount={layout.pageCount}
+          rxCount={rxs.length}
+          genericCount={genericCount}
+          docCount={docs.length}
+          mustKeep={mustKeep}
+        />
+        <PageTwo
+          data={data}
+          prepared={prepared}
+          pageCount={layout.pageCount}
+          tier={layout.tier}
+          rxs={layout.pageTwoRx}
+          docs={layout.pageTwoDocs}
+          rxTotal={rxs.length}
+          docTotal={docs.length}
+          genericCount={genericCount}
+          mustKeep={mustKeep}
+        />
+        {layout.pageCount === 3 && (
+          <PageThree
+            prepared={prepared}
+            rxs={layout.overflowRx}
+            docs={layout.overflowDocs}
+            rxOffset={layout.pageTwoRx.length}
+          />
+        )}
       </div>
     </div>
   );
@@ -128,6 +156,7 @@ export function ClientWorksheetPrintDocument() {
 function PageOne({
   data,
   prepared,
+  pageCount,
   rxCount,
   genericCount,
   docCount,
@@ -135,6 +164,7 @@ function PageOne({
 }: {
   data: ClientWorksheet;
   prepared: string;
+  pageCount: number;
   rxCount: number;
   genericCount: number;
   docCount: number;
@@ -142,8 +172,8 @@ function PageOne({
 }) {
   const goesBy = data.preferredName.trim();
   return (
-    <article className="worksheet-sheet flex h-[11in] w-[8.5in] flex-col overflow-hidden bg-white px-[0.48in] py-[0.42in] text-[var(--brand-ink)] shadow-[0_12px_40px_-24px_rgba(12,36,48,0.45)] print:shadow-none">
-      <SheetHeader prepared={prepared} page={1} />
+    <article className={sheetClass}>
+      <SheetHeader prepared={prepared} page={1} pageCount={pageCount} />
       <h1 className="mt-3 font-[family-name:var(--font-display)] text-[1.7rem] leading-tight">
         {data.fullName.trim() || "Name"}
       </h1>
@@ -208,119 +238,85 @@ function PageOne({
 function PageTwo({
   data,
   prepared,
+  pageCount,
+  tier,
   rxs,
   docs,
+  rxTotal,
+  docTotal,
   genericCount,
   mustKeep,
 }: {
   data: ClientWorksheet;
   prepared: string;
+  pageCount: number;
+  tier: WorksheetTier;
   rxs: WorksheetPrescription[];
   docs: WorksheetProvider[];
+  rxTotal: number;
+  docTotal: number;
   genericCount: number;
   mustKeep: number;
 }) {
-  const rxRows = rowsWithBlank(rxs, rxs.length + docs.length);
-  const docRows = rowsWithBlank(docs, rxs.length + docs.length);
+  const continued = pageCount === 3 ? " · more on page 3" : "";
 
   return (
-    <article className="worksheet-sheet flex h-[11in] w-[8.5in] flex-col overflow-hidden bg-white px-[0.48in] py-[0.42in] text-[var(--brand-ink)] shadow-[0_12px_40px_-24px_rgba(12,36,48,0.45)] print:shadow-none">
-      <SheetHeader prepared={prepared} page={2} />
-
-      <div className="mt-3 flex min-h-0 flex-1 flex-col">
-        <section className="contents">
-          <SectionHeading n={3} title="Prescriptions" meta={`${rxs.length} medication${rxs.length === 1 ? "" : "s"} · ${genericCount} generic OK`} />
-          <div className="mt-1 grid shrink-0 grid-cols-[1.5rem_1.4fr_0.7fr_0.9fr_0.8fr] gap-2 border-b border-[var(--brand-line)] pb-1 text-[10px] font-medium tracking-[0.08em] text-[var(--brand-text-3)] uppercase">
-            <span>#</span>
-            <span>Drug name</span>
-            <span>Dosage</span>
-            <span>How often</span>
-            <span>Generic</span>
-          </div>
-          {rxRows.map((row, index) => (
-            <div
-              key={row?.id ?? "rx-blank"}
-              className="grid min-h-0 grid-cols-[1.5rem_1.4fr_0.7fr_0.9fr_0.8fr] items-center gap-2 overflow-hidden border-b border-[var(--brand-line)]/80 text-[14px] leading-tight"
-              style={rowFlex}
-            >
-              <span className="text-[var(--brand-text-3)]">{index + 1}</span>
-              <span className="truncate">{row?.name || ""}</span>
-              <span className="truncate">{row?.dosage || ""}</span>
-              <span className="truncate">{row?.frequency || ""}</span>
-              <span className="truncate">{row ? (row.genericsOk ? "Generic OK" : "Brand only") : ""}</span>
-            </div>
-          ))}
-        </section>
-
-        <section className="contents">
-          <div className="mt-3 shrink-0">
-            <SectionHeading
-              n={4}
-              title="Doctors & specialists"
-              meta={`${docs.length} provider${docs.length === 1 ? "" : "s"} · ${mustKeep} must keep`}
-            />
-          </div>
-          <div className="mt-1 grid shrink-0 grid-cols-[1.2fr_1.1fr_0.8fr_0.7fr_0.7fr] gap-2 border-b border-[var(--brand-line)] pb-1 text-[10px] font-medium tracking-[0.08em] text-[var(--brand-text-3)] uppercase">
-            <span>Doctor</span>
-            <span>Practice / clinic</span>
-            <span>Specialty</span>
-            <span>City</span>
-            <span>Keep?</span>
-          </div>
-          {docRows.map((row) => (
-            <div
-              key={row?.id ?? "doc-blank"}
-              className="grid min-h-0 grid-cols-[1.2fr_1.1fr_0.8fr_0.7fr_0.7fr] items-center gap-2 overflow-hidden border-b border-[var(--brand-line)]/80 text-[14px] leading-tight"
-              style={rowFlex}
-            >
-              <span className="truncate">{row?.name || ""}</span>
-              <span className="truncate">{row?.practice || ""}</span>
-              <span className="truncate">{row?.specialistType || ""}</span>
-              <span className="truncate">{row?.address || ""}</span>
-              <span>
-                {row?.mustKeep === true && (
-                  <span className="rounded-full bg-[var(--brand-amber-tint)] px-2 py-0.5 text-[11px] font-medium text-[var(--brand-amber-text)]">
-                    Must keep
-                  </span>
-                )}
-                {row?.mustKeep === false && (
-                  <span className="rounded-full bg-[var(--brand-surface)] px-2 py-0.5 text-[11px] text-[var(--brand-text-3)]">
-                    Flexible
-                  </span>
-                )}
-              </span>
-            </div>
-          ))}
-        </section>
-      </div>
+    <article className={sheetClass}>
+      <SheetHeader prepared={prepared} page={2} pageCount={pageCount} />
 
       <section className="mt-3 shrink-0">
+        <SectionHeading
+          n={3}
+          title="Prescriptions"
+          meta={`${rxTotal} medication${rxTotal === 1 ? "" : "s"} · ${genericCount} generic OK${rxTotal > rxs.length ? continued : ""}`}
+        />
+        <RxTable rows={rxs} tier={tier} blank={tier.blankRxRow || rxs.length === 0} />
+      </section>
+
+      <section className="mt-4 shrink-0">
+        <SectionHeading
+          n={4}
+          title="Doctors & specialists"
+          meta={`${docTotal} provider${docTotal === 1 ? "" : "s"} · ${mustKeep} must keep${docTotal > docs.length ? continued : ""}`}
+        />
+        <DocTable rows={docs} tier={tier} blank={tier.blankDocRow || docs.length === 0} />
+      </section>
+
+      <section className="mt-4 shrink-0">
         <SectionHeading n={5} title="Notes for your agent" />
         <p className="mt-1 max-h-[0.95in] overflow-hidden text-[13px] leading-snug whitespace-pre-wrap">
           {data.notesForAgent.trim() || " "}
         </p>
+        {tier.noteLine && <div className="mt-6 border-b border-[var(--brand-line)]" />}
       </section>
 
-      <div className="mt-3 grid shrink-0 grid-cols-2 gap-4">
-        <section>
-          <h3 className="text-[11px] font-medium tracking-[0.12em] text-[var(--brand-ink)] uppercase">
-            Bring to your consult
-          </h3>
-          <ul className="mt-2 space-y-1.5 text-[13px]">
-            {BRING.map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <span className="inline-block size-3.5 rounded-[3px] border border-[var(--brand-ink)]" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-        <section className="rounded-xl border-2 border-[var(--brand-ink)] px-3 py-2.5">
-          <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase">Your Consult</h3>
-          <p className="mt-3 text-[13px]">Date & time</p>
-          <div className="mt-5 border-b border-[var(--brand-ink)]" />
-          <p className="mt-3 text-[13px]">Book or call: {PHONE_PLACEHOLDER}</p>
-        </section>
+      <div className="mt-auto shrink-0 pt-3">
+        {tier.bringOneLine ? (
+          <div className="flex items-stretch gap-4">
+            <p className="min-w-0 flex-1 self-center text-[13px] leading-snug">
+              <span className="text-[11px] font-medium tracking-[0.12em] uppercase">Bring: </span>
+              {BRING.join(" · ")}
+            </p>
+            <ConsultBox inline />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            <section>
+              <h3 className="text-[11px] font-medium tracking-[0.12em] text-[var(--brand-ink)] uppercase">
+                Bring to your consult
+              </h3>
+              <ul className="mt-2 space-y-1.5 text-[13px]">
+                {BRING.map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span className="inline-block size-3.5 rounded-[3px] border border-[var(--brand-ink)]" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <ConsultBox />
+          </div>
+        )}
       </div>
 
       <footer className="mt-3 shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
@@ -332,18 +328,167 @@ function PageTwo({
   );
 }
 
-const rowFlex: React.CSSProperties = {
-  flex: "1 1 0",
-  maxHeight: "0.4in",
-};
+function PageThree({
+  prepared,
+  rxs,
+  docs,
+  rxOffset,
+}: {
+  prepared: string;
+  rxs: WorksheetPrescription[];
+  docs: WorksheetProvider[];
+  rxOffset: number;
+}) {
+  // Same tight spacing as a full page 2, without shrinking further.
+  const tier = worksheetTierForContinuation;
+  return (
+    <article className={sheetClass}>
+      <SheetHeader prepared={prepared} page={3} pageCount={3} />
+      <p className="mt-3 text-[13px] font-medium tracking-[0.12em] text-[var(--brand-ink-soft)] uppercase">
+        Page 3 · continued
+      </p>
 
-function rowsWithBlank<T>(rows: T[], totalFilled: number): Array<T | null> {
-  if (rows.length === 0) return [null];
-  if (totalFilled <= 6) return [...rows, null];
-  return rows;
+      {rxs.length > 0 && (
+        <section className="mt-3 shrink-0">
+          <SectionHeading n={3} title="Prescriptions, continued" />
+          <RxTable rows={rxs} tier={tier} startAt={rxOffset} blank={false} />
+        </section>
+      )}
+
+      {docs.length > 0 && (
+        <section className="mt-4 shrink-0">
+          <SectionHeading n={4} title="Doctors & specialists, continued" />
+          <DocTable rows={docs} tier={tier} blank={false} />
+        </section>
+      )}
+
+      <footer className="mt-auto shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
+        Never write your Medicare number or Social Security number on this form. Made in your browser
+        at {BRAND.domain}. Nothing you typed was sent to or stored by the site. Educational use only,
+        not affiliated with the U.S. government, CMS, or Medicare.
+      </footer>
+    </article>
+  );
 }
 
-function SheetHeader({ prepared, page }: { prepared: string; page: 1 | 2 }) {
+const sheetClass =
+  "worksheet-sheet flex h-[11in] w-[8.5in] flex-col overflow-hidden bg-white px-[0.48in] py-[0.42in] text-[var(--brand-ink)] shadow-[0_12px_40px_-24px_rgba(12,36,48,0.45)] print:shadow-none";
+
+const worksheetTierForContinuation = worksheetTier(15);
+
+const RX_COLS = "grid-cols-[1.75rem_1.4fr_0.7fr_0.9fr_0.8fr]";
+const DOC_COLS = "grid-cols-[1.2fr_1.1fr_0.8fr_0.7fr_6rem]";
+const headRowClass =
+  "mt-1 grid gap-2 border-b border-[var(--brand-line)] pb-1 text-[11px] font-medium tracking-[0.08em] whitespace-nowrap text-[var(--brand-text-3)] uppercase";
+const rowClass =
+  "grid items-center gap-2 border-b border-[var(--brand-line)]/80 leading-[1.25] whitespace-nowrap";
+
+function rowStyle(tier: WorksheetTier): React.CSSProperties {
+  return { fontSize: `${tier.entryPx}px`, paddingTop: tier.rowPadPx, paddingBottom: tier.rowPadPx };
+}
+
+function RxTable({
+  rows,
+  tier,
+  blank,
+  startAt = 0,
+}: {
+  rows: WorksheetPrescription[];
+  tier: WorksheetTier;
+  blank: boolean;
+  startAt?: number;
+}) {
+  const all: Array<WorksheetPrescription | null> = blank ? [...rows, null] : rows;
+  return (
+    <>
+      <div className={cn(headRowClass, RX_COLS)}>
+        <span>#</span>
+        <span>Drug name</span>
+        <span>Dosage</span>
+        <span>How often</span>
+        <span>Generic</span>
+      </div>
+      {all.map((row, index) => (
+        <div key={row?.id ?? "rx-blank"} className={cn(rowClass, RX_COLS)} style={rowStyle(tier)}>
+          <span className="text-[var(--brand-text-3)]">{startAt + index + 1}</span>
+          <span className="truncate">{row?.name || "\u00a0"}</span>
+          <span className="truncate">{row?.dosage || ""}</span>
+          <span className="truncate">{row?.frequency || ""}</span>
+          <span className="truncate">{row ? (row.genericsOk ? "Generic OK" : "Brand only") : ""}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function DocTable({
+  rows,
+  tier,
+  blank,
+}: {
+  rows: WorksheetProvider[];
+  tier: WorksheetTier;
+  blank: boolean;
+}) {
+  const all: Array<WorksheetProvider | null> = blank ? [...rows, null] : rows;
+  return (
+    <>
+      <div className={cn(headRowClass, DOC_COLS)}>
+        <span>Doctor</span>
+        <span>Practice / clinic</span>
+        <span>Specialty</span>
+        <span>City</span>
+        <span>Keep?</span>
+      </div>
+      {all.map((row) => (
+        <div key={row?.id ?? "doc-blank"} className={cn(rowClass, DOC_COLS)} style={rowStyle(tier)}>
+          <span className="truncate">{row?.name || "\u00a0"}</span>
+          <span className="truncate">{row?.practice || ""}</span>
+          <span className="truncate">{row?.specialistType || ""}</span>
+          <span className="truncate">{row?.address || ""}</span>
+          <span>
+            {row?.mustKeep === true && (
+              <span className="rounded-full bg-[var(--brand-amber-tint)] px-2 py-0.5 text-[11px] font-medium text-[var(--brand-amber-text)]">
+                Must keep
+              </span>
+            )}
+            {row?.mustKeep === false && (
+              <span className="rounded-full bg-[var(--brand-surface)] px-2 py-0.5 text-[11px] text-[var(--brand-text-3)]">
+                Flexible
+              </span>
+            )}
+          </span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function ConsultBox({ inline = false }: { inline?: boolean }) {
+  return (
+    <section
+      className={cn(
+        "rounded-xl border-2 border-[var(--brand-ink)] px-3",
+        inline ? "w-[3.1in] shrink-0 py-2" : "py-2.5"
+      )}
+    >
+      <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase">Your Consult</h3>
+      <p className={cn("text-[13px]", inline ? "mt-1" : "mt-3")}>Date & time</p>
+      <div className={cn("border-b border-[var(--brand-ink)]", inline ? "mt-3" : "mt-5")} />
+      <p className={cn("text-[13px]", inline ? "mt-1.5" : "mt-3")}>Email: {BRAND.email}</p>
+    </section>
+  );
+}
+
+function SheetHeader({
+  prepared,
+  page,
+  pageCount,
+}: {
+  prepared: string;
+  page: number;
+  pageCount: number;
+}) {
   return (
     <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--brand-ink)] pb-2">
       <div>
@@ -355,7 +500,7 @@ function SheetHeader({ prepared, page }: { prepared: string; page: 1 | 2 }) {
       <p className="text-right text-[12px] leading-snug">
         <span className="block font-medium">Medicare Consult Worksheet</span>
         <span className="text-[var(--brand-text-3)]">
-          Prepared {prepared} · Page {page} of 2
+          Prepared {prepared} · Page {page} of {pageCount}
         </span>
       </p>
     </header>
