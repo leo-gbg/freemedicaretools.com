@@ -299,7 +299,7 @@ Gaps:
 10. Medigap: caveat for MA / MN / WI; note high-deductible F and G exist and are omitted; Plan N ER copay waived if admitted.
 11. Working-past-65 caveats: disability uses 100 employees; whose employer the “20+” box refers to; Part A retroactivity and HSA.
 12. SEO: 301 `www` → apex (or the reverse, then match `BRAND.url`), canonical link, `robots.txt`, sitemap of the public tools, `noindex` on both print routes, unique meta descriptions for `/tools` and `/research`.
-13. Delete the unused of `next.config.ts` / `next.config.mjs`. Add a yearly reminder to swap 2026 figures when CMS publishes 2027 (usually November).
+13. Keep a single Next config file (`next.config.ts` or `next.config.mjs`, not both). Add a yearly reminder to swap 2026 figures when CMS publishes 2027 (usually November).
 14. After a deploy, purge the Hostinger HTML cache. `s-maxage=31536000` will keep old copy in front of the fix.
 15. Tests for IEP (including the 1st and the last day), IRMAA boundaries (including $500,000 and married filing separately), and penalty rounding.
 
