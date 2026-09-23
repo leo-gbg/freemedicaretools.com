@@ -39,6 +39,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.55;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -50,14 +56,24 @@
 
 :root {
   --brand-ink: #0c2430;
-  --brand-ink-soft: #3d5563;
+  --brand-ink-soft: #34505c;
+  --brand-text-3: #4a6470;
   --brand-paper: #eef3f1;
-  --brand-mist: #f4f8f6;
-  --brand-teal: #1f6f66;
-  --brand-teal-deep: #15564f;
-  --brand-sea: #9fd0c4;
-  --brand-line: #c5d5cf;
-  --brand-glow: #d8ebe4;
+  --brand-mist: #f6f9f8;
+  --brand-surface: #f8faf9;
+  --brand-teal: #1f6f63;
+  --brand-teal-deep: #1b5e54;
+  --brand-teal-tint: #e3efeb;
+  --brand-sea: #e3efeb;
+  --brand-amber: #d9912f;
+  --brand-amber-text: #9a5b12;
+  --brand-amber-tint: #f3ebdd;
+  --brand-red: #c4574a;
+  --brand-red-text: #9b3a2a;
+  --brand-red-tint: #f7e4e0;
+  --brand-line: #dce6e2;
+  --brand-input: #b7cbc4;
+  --brand-glow: #e3efeb;
 
   --background: var(--brand-paper);
   --foreground: var(--brand-ink);
@@ -69,20 +85,20 @@
   --primary-foreground: #ffffff;
   --secondary: var(--brand-glow);
   --secondary-foreground: var(--brand-ink);
-  --muted: #e2ebe7;
-  --muted-foreground: var(--brand-ink-soft);
-  --accent: var(--brand-sea);
+  --muted: #e7efeb;
+  --muted-foreground: var(--brand-text-3);
+  --accent: var(--brand-teal-tint);
   --accent-foreground: var(--brand-ink);
-  --destructive: oklch(0.55 0.2 25);
+  --destructive: #c4574a;
   --border: var(--brand-line);
-  --input: var(--brand-line);
+  --input: var(--brand-input);
   --ring: var(--brand-teal);
   --chart-1: var(--brand-teal);
   --chart-2: var(--brand-sea);
   --chart-3: #3d5563;
   --chart-4: #0c2430;
   --chart-5: #9fd0c4;
-  --radius: 0.75rem;
+  --radius: 1.125rem;
   --sidebar: var(--brand-mist);
   --sidebar-foreground: var(--brand-ink);
   --sidebar-primary: var(--brand-teal);
@@ -99,10 +115,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(1200px 600px at 10% -10%, rgba(159, 208, 196, 0.45), transparent 55%),
-      radial-gradient(900px 500px at 100% 0%, rgba(31, 111, 102, 0.12), transparent 50%),
-      linear-gradient(180deg, #eef3f1 0%, #e7efeb 45%, #eef3f1 100%);
+    font-size: 18px;
+    line-height: 1.55;
+    background-color: var(--brand-paper);
+    background-image: linear-gradient(180deg, #eef3f1 0%, #f6f9f8 40%, #eef3f1 100%);
     background-attachment: fixed;
   }
   html {

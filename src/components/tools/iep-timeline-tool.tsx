@@ -2,13 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  calculateIep,
-  formatLongDate,
-  toIsoDate,
-} from "@/lib/medicare/iep";
+import { calculateIep, formatLongDate, toIsoDate } from "@/lib/medicare/iep";
+import { btnInk, btnOutline, cardClass, daysBetween, downloadIcs, fieldClass } from "@/lib/visual";
 
 const MONTHS = [
   { value: 1, label: "January" },
@@ -26,10 +21,18 @@ const MONTHS = [
 ];
 
 const CURRENT_YEAR = new Date().getFullYear();
-const YEARS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => CURRENT_YEAR - i);
+const MEDICARE_AGE_YEARS = Array.from(
+  { length: 19 },
+  (_, i) => CURRENT_YEAR - 62 - i
+).filter((year) => year >= 1900);
+const OTHER_YEARS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => CURRENT_YEAR - i).filter(
+  (year) => !MEDICARE_AGE_YEARS.includes(year)
+);
 
-const fieldClass =
-  "flex h-9 w-full rounded-lg border border-input bg-white px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+const BEST =
+  "Enrolling in the first 3 months of your IEP usually gives the earliest Part B start date.";
+const MISSED_LATER =
+  "If you never enrolled in Part B/D and delayed because of employer coverage, ask whether a Special Enrollment Period still applies—otherwise GEP (Jan 1–Mar 31) may be the path, often with late penalties.";
 
 export function IepTimelineTool() {
   const [month, setMonth] = useState<number | "">("");
@@ -42,24 +45,21 @@ export function IepTimelineTool() {
   const monthNum = typeof month === "number" ? month : 0;
   const dayNum = typeof day === "number" ? day : 0;
 
-  const iso = useMemo(
-    () => toIsoDate(yearNum, monthNum, dayNum),
-    [yearNum, monthNum, dayNum]
-  );
-
   const daysInMonth = useMemo(() => {
     if (!yearNum || !monthNum) return 31;
     return new Date(yearNum, monthNum, 0).getDate();
   }, [yearNum, monthNum]);
 
   const result = useMemo(() => {
-    if (!submitted || !iso) return null;
+    if (!submitted || !yearNum || !monthNum || !dayNum) return null;
+    const iso = toIsoDate(yearNum, monthNum, Math.min(dayNum, daysInMonth));
+    if (!iso) return null;
     try {
       return calculateIep(iso);
     } catch {
       return null;
     }
-  }, [iso, submitted]);
+  }, [submitted, yearNum, monthNum, dayNum, daysInMonth]);
 
   function onCalculate() {
     if (!yearNum || !monthNum || !dayNum) {
@@ -79,142 +79,168 @@ export function IepTimelineTool() {
     setSubmitted(true);
   }
 
+  const stillOk =
+    result?.tips.find((tip) => tip.includes("next month")) ?? result?.earliestCoverageHint ?? "";
+  const missed =
+    result?.status === "ended" ? (result.tips[0] ?? MISSED_LATER) : MISSED_LATER;
+
+  const daysToOpen = result ? daysBetween(new Date(), result.iepStart) : 0;
+  const badge =
+    result?.status === "open"
+      ? "Open now"
+      : result?.status === "ended"
+        ? "Window closed"
+        : daysToOpen === 1
+          ? "Opens in 1 day"
+          : `Opens in ${daysToOpen} days`;
+
   return (
     <div className="space-y-6">
-      <div className="space-y-4 rounded-2xl border border-[var(--brand-line)] bg-white/70 p-5">
+      <div className={`${cardClass} space-y-4 p-5`}>
         <div className="space-y-2">
-          <Label>Date of birth</Label>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1">
-              <p className="text-xs text-[var(--brand-ink-soft)]">Month</p>
-              <select
-                aria-label="Birth month"
-                className={fieldClass}
-                value={month}
-                onChange={(e) => {
-                  setMonth(Number(e.target.value));
-                  setSubmitted(false);
-                  setError("");
-                }}
-              >
-                <option value="">Month</option>
-                {MONTHS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-[var(--brand-ink-soft)]">Day</p>
-              <select
-                aria-label="Birth day"
-                className={fieldClass}
-                value={day}
-                onChange={(e) => {
-                  setDay(Number(e.target.value));
-                  setSubmitted(false);
-                  setError("");
-                }}
-              >
-                <option value="">Day</option>
-                {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-[var(--brand-ink-soft)]">Year</p>
-              <select
-                aria-label="Birth year"
-                className={fieldClass}
-                value={year}
-                onChange={(e) => {
-                  setYear(Number(e.target.value));
-                  setSubmitted(false);
-                  setError("");
-                }}
-              >
-                <option value="">Year</option>
-                {YEARS.map((y) => (
+          <p className="text-base font-medium text-[var(--brand-ink)]">Date of birth</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <SelectField
+              label="Month"
+              value={month}
+              onChange={(value) => {
+                setMonth(value);
+                setSubmitted(false);
+                setError("");
+              }}
+            >
+              <option value="">Month</option>
+              {MONTHS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </SelectField>
+            <SelectField
+              label="Day"
+              value={day}
+              onChange={(value) => {
+                setDay(value);
+                setSubmitted(false);
+                setError("");
+              }}
+            >
+              <option value="">Day</option>
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </SelectField>
+            <SelectField
+              label="Year"
+              value={year}
+              onChange={(value) => {
+                setYear(value);
+                setSubmitted(false);
+                setError("");
+              }}
+            >
+              <option value="">Year</option>
+              <optgroup label="Common Medicare ages">
+                {MEDICARE_AGE_YEARS.map((y) => (
                   <option key={y} value={y}>
                     {y}
                   </option>
                 ))}
-              </select>
-            </div>
+              </optgroup>
+              <optgroup label="Other years">
+                {OTHER_YEARS.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </optgroup>
+            </SelectField>
           </div>
-          <p className="text-xs text-[var(--brand-ink-soft)]">
-            Month / day / year selects work for older birth years (like 1951) that browser date pickers often make hard to enter.
+          <p className="text-sm text-[var(--brand-text-3)]">
+            Month, day, and year stay as separate lists so a birth year like 1951 is easy to pick.
           </p>
         </div>
-        <Button
-          type="button"
-          className="bg-[var(--brand-teal)] text-white hover:bg-[var(--brand-teal-deep)]"
-          onClick={onCalculate}
-        >
+        <button type="button" className={btnInk} onClick={onCalculate}>
           Calculate my IEP
-        </Button>
+        </button>
       </div>
 
       {(error || (submitted && !result)) && (
-        <p className="text-sm text-red-700">
+        <p className="text-base text-[var(--brand-red-text)]">
           {error || "Enter a valid birth date to continue."}
         </p>
       )}
 
       {result && (
         <div className="space-y-4">
-          <div
-            className={`rounded-2xl border p-5 ${
-              result.status === "open"
-                ? "border-[var(--brand-sea)] bg-[var(--brand-sea)]/20"
-                : result.status === "upcoming"
-                  ? "border-[var(--brand-line)] bg-white/80"
-                  : "border-amber-300 bg-amber-50"
-            }`}
-          >
-            <p className="text-xs tracking-[0.14em] text-[var(--brand-teal)] uppercase">
-              Status: {result.status}
-              {result.ageYears >= 0 ? ` · age ${result.ageYears}` : ""}
-            </p>
-            <p className="mt-2 font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
+          <div className={`${cardClass} p-5 sm:p-6`}>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-[var(--brand-teal-tint)] px-3 py-1 text-sm font-medium text-[var(--brand-teal-deep)]">
+                {badge}
+              </span>
+              <span className="text-sm text-[var(--brand-text-3)]">
+                Status: {result.status}
+                {result.ageYears >= 0 ? ` · age ${result.ageYears}` : ""}
+              </span>
+            </div>
+            <p className="mt-3 font-[family-name:var(--font-display)] text-3xl leading-tight text-balance text-[var(--brand-ink)] sm:text-4xl">
               {formatLongDate(result.iepStart)} → {formatLongDate(result.iepEnd)}
             </p>
-            <p className="mt-2 text-sm text-[var(--brand-ink-soft)]">
-              Turned / turns 65: {formatLongDate(result.turned65On)}
-            </p>
-            <p className="mt-1 text-sm text-[var(--brand-ink-soft)]">
+            <p className="mt-2 text-base text-[var(--brand-ink-soft)]">
               Medicare eligibility month: {formatLongDate(result.birthMonthStart)} –{" "}
               {formatLongDate(result.birthMonthEnd)}
             </p>
+            <SevenMonthBar
+              start={result.iepStart}
+              turnLabel={`Turn 65 · ${formatLongDate(result.turned65On)}`}
+            />
           </div>
-          <p className="text-sm leading-relaxed text-[var(--brand-ink-soft)]">
+
+          <div className="grid gap-3 md:grid-cols-3">
+            <InfoCard tone="teal" title="Best" body={BEST} />
+            <InfoCard tone="amber" title="Still OK" body={stillOk} />
+            <InfoCard tone="red" title="Missed" body={missed} />
+          </div>
+
+          <p className="text-base leading-relaxed text-[var(--brand-ink-soft)]">
             {result.earliestCoverageHint}
           </p>
-          <ul className="space-y-2 text-sm text-[var(--brand-ink)]">
-            {result.tips.map((tip) => (
-              <li key={tip} className="flex gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand-teal)]" />
-                <span>{tip}</span>
-              </li>
-            ))}
-          </ul>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              className={btnOutline}
+              onClick={() =>
+                downloadIcs({
+                  filename: "medicare-iep.ics",
+                  title: "Medicare Initial Enrollment Period",
+                  start: result.iepStart,
+                  end: result.iepEnd,
+                })
+              }
+            >
+              Download .ics
+            </button>
+            <button type="button" className={btnOutline} onClick={() => window.print()}>
+              Print / Save PDF
+            </button>
+          </div>
+
           {result.nextTools.length > 0 && (
-            <div className="rounded-2xl border border-[var(--brand-line)] bg-white/80 p-4">
-              <p className="text-xs tracking-[0.14em] text-[var(--brand-teal)] uppercase">
+            <div className={`${cardClass} p-4`}>
+              <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-teal-deep)] uppercase">
                 Helpful next tools
               </p>
               <ul className="mt-2 space-y-1">
-                {result.nextTools.map((t) => (
-                  <li key={t.href}>
+                {result.nextTools.map((tool) => (
+                  <li key={tool.href}>
                     <Link
-                      href={t.href}
-                      className="text-sm text-[var(--brand-teal)] hover:text-[var(--brand-teal-deep)]"
+                      href={tool.href}
+                      className="inline-flex min-h-12 items-center text-base text-[var(--brand-teal-deep)]"
                     >
-                      {t.label} →
+                      {tool.label} →
                     </Link>
                   </li>
                 ))}
@@ -224,5 +250,90 @@ export function IepTimelineTool() {
         </div>
       )}
     </div>
+  );
+}
+
+function SevenMonthBar({ start, turnLabel }: { start: Date; turnLabel: string }) {
+  const months = Array.from({ length: 7 }, (_, index) => {
+    return new Date(start.getFullYear(), start.getMonth() + index, 1);
+  });
+  return (
+    <ol className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+      {months.map((month, index) => {
+        const label = month.toLocaleDateString("en-US", { month: "short" });
+        const center = index === 3;
+        const early = index < 3;
+        return (
+          <li
+            key={`${label}-${index}`}
+            className={`rounded-xl px-2 py-3 text-center text-sm ${
+              center
+                ? "border-2 border-[var(--brand-ink)] bg-white text-[var(--brand-ink)]"
+                : early
+                  ? "bg-[var(--brand-teal-tint)] text-[var(--brand-teal-deep)]"
+                  : "bg-[var(--brand-amber-tint)] text-[var(--brand-amber-text)]"
+            }`}
+          >
+            <span className="block font-medium">{label}</span>
+            {center && <span className="mt-1 block text-[14px] leading-snug">{turnLabel}</span>}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function InfoCard({
+  tone,
+  title,
+  body,
+}: {
+  tone: "teal" | "amber" | "red";
+  title: string;
+  body: string;
+}) {
+  const styles =
+    tone === "teal"
+      ? "border-[var(--brand-teal)]/30 bg-[var(--brand-teal-tint)]"
+      : tone === "amber"
+        ? "border-[var(--brand-amber)]/40 bg-[var(--brand-amber-tint)]"
+        : "border-[var(--brand-red)]/30 bg-[var(--brand-red-tint)]";
+  const titleColor =
+    tone === "teal"
+      ? "text-[var(--brand-teal-deep)]"
+      : tone === "amber"
+        ? "text-[var(--brand-amber-text)]"
+        : "text-[var(--brand-red-text)]";
+  return (
+    <article className={`rounded-[20px] border p-4 ${styles}`}>
+      <h2 className={`text-sm font-medium tracking-[0.12em] uppercase ${titleColor}`}>{title}</h2>
+      <p className="mt-2 text-base leading-relaxed text-[var(--brand-ink)]">{body}</p>
+    </article>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: number | "";
+  onChange: (value: number) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block space-y-1">
+      <span className="text-sm text-[var(--brand-text-3)]">{label}</span>
+      <select
+        aria-label={`Birth ${label.toLowerCase()}`}
+        className={fieldClass}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+      >
+        {children}
+      </select>
+    </label>
   );
 }
