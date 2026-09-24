@@ -1,8 +1,7 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   async redirects() {
-    const www = { type: "host" as const, value: "www.freemedicaretools.com" };
+    const www = { type: "host", value: "www.freemedicaretools.com" };
     return [
       {
         source: "/",
