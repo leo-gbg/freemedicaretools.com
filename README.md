@@ -1,36 +1,29 @@
 # FreeMedicareTools.com
 
-Free Medicare navigation tools designed as **Hormozi-style lead magnets** for a licensed insurance agent: diagnose urgent enrollment problems for free, then invite prospects to **book a free consult** for representation during IEP, AEP, and OEP.
+Educational Medicare navigation tools. Each tool answers one question in the browser. Nothing on this site signs a visitor up for a plan.
 
 **Site:** [FreeMedicareTools.com](https://freemedicaretools.com)  
 **Powered by:** [Guardian Benefits Group](https://guardianbg.com)
 
-## Acronyms & glossary
+## Tools
 
-Plain-language definitions for enrollment windows, plan types, cost terms, and coverage words live at [`/glossary`](http://127.0.0.1:43127/glossary).
+| Tool | Route | What it does |
+| --- | --- | --- |
+| IEP Timeline Calculator | `/tools/iep-timeline` | Pins the 7-month Initial Enrollment Period to a birthday |
+| Late Enrollment Penalty Estimator | `/tools/penalty-estimator` | Estimates one year of Part B and Part D late penalties at 2026 rates |
+| Enrollment Window Today | `/tools/period-finder` | Names which of IEP, AEP, OEP, GEP, or SEP can apply |
+| Coverage Path Quiz | `/tools/path-quiz` | Directional lean: Advantage, or Original Medicare plus Medigap |
+| Medigap Plan Letter Guide | `/tools/med-supp-compare` | Compares standardized Medigap letters |
+| Consult Worksheet | `/tools/client-worksheet` | Doctors, drugs, and contact details for a consult; print only |
+| IRMAA Bracket Checker | `/tools/irmaa-checker` | Estimates 2026 Part B and Part D income-related amounts from 2024 income |
+| Still Working Past 65? | `/tools/working-past-65` | Checks whether delaying Part B looks safe with employer coverage |
+| AEP Annual Review Checklist | `/tools/aep-checklist` | October 15–December 7 review list |
 
-## Who it’s for
+Also: `/glossary`, `/research`, `/privacy`, `/terms`.
 
-- People **turning 65** who need IEP timing, working-past-65 guidance, and path clarity
-- People **already on Medicare** who need AEP/OEP navigation, IRMAA awareness, and yearly review habits
+## How data is kept
 
-## Tools included
-
-| Tool | Job |
-| --- | --- |
-| IEP Timeline Calculator | Pin the 7-month Initial Enrollment Period to a birthday |
-| Late Enrollment Penalty Estimator | Show Part B / Part D late penalty dollars as a 1-year add-up (2026 figures) |
-| Enrollment Window Today | Untangle IEP / AEP / OEP / GEP / SEP for today’s situation |
-| Coverage Path Quiz | Directional lean: Advantage vs Original + Medigap |
-| Medigap (Med-Supp) Plan Letter Guide | Preference quiz + letter comparison; printable PDF of all plans (A–N) |
-| Medicare Client Consult Worksheet | Doctors, drugs, contact + plan-shaping details → printable PDF / email to agent |
-| IRMAA Bracket Checker | Estimate 2026 Part B + Part D income-related surcharges |
-| Still Working Past 65? | Pressure-test delaying Part B with employer coverage |
-| AEP Annual Review Checklist | Oct 15–Dec 7 review so enrollees don’t sleepwalk |
-
-## Research framing
-
-Common pain points (MedPAC / KFF / CMS enrollment rules): confusing parts and plan types, missed IEP deadlines, lifelong late penalties, mixing up AEP vs OEP vs GEP, IRMAA surprises, and false confidence when delaying Part B while working.
+Tool answers stay in the browser tab (`sessionStorage`). The site has no database and no accounts. The consult action is a `mailto` to `hello@freemedicaretools.com`. Dollar figures are educational estimates, not an official Medicare determination.
 
 ## Run locally
 
@@ -50,15 +43,4 @@ npm start
 
 Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui.
 
-## Compliance notes
-
-- Educational estimates only—not official Medicare/CMS advice
-- CTA copy uses **Book a free consult** (no exaggerated guarantees)
-- Tools do not store PHI; results stay in the browser
-- Consult mailto defaults to `hello@freemedicaretools.com` (see `src/lib/brand.ts`)
-
-## Customize for your agency
-
-1. Brand constants live in `src/lib/brand.ts`; colors in `src/app/globals.css`
-2. Point consult CTAs at your calendar / Kizen form
-3. Add state licensing disclosures where required
+Brand constants: `src/lib/brand.ts`. Colors: `src/app/globals.css`.
