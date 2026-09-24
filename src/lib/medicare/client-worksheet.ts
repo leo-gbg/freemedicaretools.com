@@ -1,7 +1,7 @@
 /**
- * Client Medicare consult worksheet — CRM-shaped payload.
- * Field keys are stable for future Kizen / CRM mapping.
- * Do not collect MBI / SSN here; agent gathers those securely later.
+ * Client Medicare consult worksheet.
+ * Field keys stay stable for the print view and the JSON download.
+ * Do not collect MBI / SSN.
  */
 
 export const CLIENT_WORKSHEET_STORAGE_KEY = "fmt-client-worksheet-v1";
