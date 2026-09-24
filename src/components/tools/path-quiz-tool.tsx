@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { scoreCoveragePath, type PathAnswers } from "@/lib/medicare/decisions";
+import { useSessionState } from "@/lib/use-session-state";
 import { cardClass } from "@/lib/visual";
 
 const QUESTIONS: { key: keyof PathAnswers; prompt: string }[] = [
@@ -14,7 +15,7 @@ const QUESTIONS: { key: keyof PathAnswers; prompt: string }[] = [
 ];
 
 export function PathQuizTool() {
-  const [answers, setAnswers] = useState<Partial<PathAnswers>>({});
+  const [answers, setAnswers] = useSessionState<Partial<PathAnswers>>("fmt-path-quiz-v1", {});
 
   const complete = QUESTIONS.every((question) => typeof answers[question.key] === "boolean");
   const result = useMemo(

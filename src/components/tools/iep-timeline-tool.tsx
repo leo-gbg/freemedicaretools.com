@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { calculateIep, formatLongDate, toIsoDate } from "@/lib/medicare/iep";
+import { useSessionState } from "@/lib/use-session-state";
 import { btnInk, btnOutline, cardClass, daysBetween, downloadIcs, fieldClass } from "@/lib/visual";
 
 const MONTHS = [
@@ -35,10 +36,25 @@ const MISSED_LATER =
   "If you never enrolled in Part B/D and delayed because of employer coverage, ask whether a Special Enrollment Period still applies—otherwise GEP (Jan 1–Mar 31) may be the path, often with late penalties.";
 
 export function IepTimelineTool() {
-  const [month, setMonth] = useState<number | "">("");
-  const [day, setDay] = useState<number | "">("");
-  const [year, setYear] = useState<number | "">("");
-  const [submitted, setSubmitted] = useState(false);
+  const [draft, setDraft] = useSessionState("fmt-iep-v1", {
+    month: "" as number | "",
+    day: "" as number | "",
+    year: "" as number | "",
+    submitted: false,
+  });
+  const { month, day, year, submitted } = draft;
+  function setMonth(value: number | "") {
+    setDraft((prev) => ({ ...prev, month: value }));
+  }
+  function setDay(value: number | "") {
+    setDraft((prev) => ({ ...prev, day: value }));
+  }
+  function setYear(value: number | "") {
+    setDraft((prev) => ({ ...prev, year: value }));
+  }
+  function setSubmitted(value: boolean) {
+    setDraft((prev) => ({ ...prev, submitted: value }));
+  }
   const [error, setError] = useState("");
 
   const yearNum = typeof year === "number" ? year : 0;
@@ -231,7 +247,7 @@ export function IepTimelineTool() {
                 })
               }
             >
-              Download .ics
+              Add to Calendar
             </button>
             <button type="button" className={btnOutline} onClick={() => window.print()}>
               Print / Save PDF

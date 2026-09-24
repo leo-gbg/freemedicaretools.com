@@ -70,10 +70,19 @@ export function aepCountdown(asOf = new Date()): AepPhase {
 
 /** December 7 for the AEP that is still ahead, or this year’s if it has not passed. */
 export function nextAepEnd(asOf = new Date()): Date {
+  return nextAepWindow(asOf).end;
+}
+
+/** October 15–December 7 for the AEP that has not ended yet. */
+export function nextAepWindow(asOf = new Date()): { start: Date; end: Date } {
   const year = asOf.getFullYear();
+  const start = new Date(year, AEP.startMonth, AEP.startDay);
   const end = new Date(year, AEP.endMonth, AEP.endDay);
-  if (startOfDay(asOf) <= startOfDay(end)) return end;
-  return new Date(year + 1, AEP.endMonth, AEP.endDay);
+  if (startOfDay(asOf) <= startOfDay(end)) return { start, end };
+  return {
+    start: new Date(year + 1, AEP.startMonth, AEP.startDay),
+    end: new Date(year + 1, AEP.endMonth, AEP.endDay),
+  };
 }
 
 export function yearProgress(asOf = new Date()): number {

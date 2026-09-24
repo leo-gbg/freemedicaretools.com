@@ -17,6 +17,7 @@ import {
   type WorksheetPrescription,
   type WorksheetProvider,
 } from "@/lib/medicare/client-worksheet";
+import { formatPhone } from "@/lib/format";
 import { areaClass, btnInk, btnOutline, cardClass, fieldClass } from "@/lib/visual";
 
 const STEPS = ["Contact", "Plan context", "Prescriptions", "Doctors", "Notes"] as const;
@@ -330,7 +331,15 @@ function ContactStep({
           <input className={fieldClass} value={data.preferredName} onChange={(e) => patch({ preferredName: e.target.value })} />
         </Field>
         <Field label="Phone *">
-          <input className={fieldClass} type="tel" value={data.phone} autoComplete="tel" onChange={(e) => patch({ phone: e.target.value })} />
+          <input
+            className={fieldClass}
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="(555) 555-0100"
+            value={data.phone}
+            onChange={(e) => patch({ phone: formatPhone(e.target.value) })}
+          />
         </Field>
         <Field label="Email">
           <input className={fieldClass} type="email" value={data.email} autoComplete="email" onChange={(e) => patch({ email: e.target.value })} />
@@ -418,7 +427,14 @@ function ContextStep({
         <input className={fieldClass} value={data.caregiverName} onChange={(e) => patch({ caregiverName: e.target.value })} />
       </Field>
       <Field label="Caregiver phone">
-        <input className={fieldClass} type="tel" value={data.caregiverPhone} onChange={(e) => patch({ caregiverPhone: e.target.value })} />
+        <input
+          className={fieldClass}
+          type="tel"
+          inputMode="tel"
+          placeholder="(555) 555-0100"
+          value={data.caregiverPhone}
+          onChange={(e) => patch({ caregiverPhone: formatPhone(e.target.value) })}
+        />
       </Field>
     </div>
   );

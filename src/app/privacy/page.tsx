@@ -33,8 +33,8 @@ export default function PrivacyPage() {
       <LegalSection n={2} title="What we collect">
         <ul>
           <li>
-            <strong>Through the tools:</strong> nothing. There are no accounts and no sign-up
-            forms.
+            <strong>Through the tools:</strong> nothing is sent to us. There are no accounts and
+            no sign-up forms. Answers stay in this browser tab until you close it.
           </li>
           <li>
             <strong>If you email us:</strong> we receive what you choose to send, such as your name,
@@ -46,7 +46,8 @@ export default function PrivacyPage() {
       <LegalSection n={3} title="How the tools work">
         <p>
           The calculators, quizzes, and checklists run in your web browser. Your answers are not
-          sent to our servers and are not stored on them.
+          sent to our servers. A copy stays in this browser tab (sessionStorage) so you can go
+          back and change an answer. Closing the tab erases that copy.
         </p>
       </LegalSection>
 
@@ -77,9 +78,8 @@ export default function PrivacyPage() {
           >
             AEP checklist
           </Link>{" "}
-          are saved on your device only (the browser&apos;s &ldquo;localStorage&rdquo;), so they
-          are still there next time. They are not sent to us. To remove them, clear this
-          site&apos;s data in your browser settings.
+          stay in this browser tab only, the same way as the other tools. They are not sent to us.
+          Closing the tab removes them.
         </p>
       </LegalSection>
 

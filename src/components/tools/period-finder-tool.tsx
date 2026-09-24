@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { withAcronymTips } from "@/components/acronym-tip";
 import { findEnrollmentWindows, type PeriodMatch } from "@/lib/medicare/decisions";
+import { useSessionState } from "@/lib/use-session-state";
 import { cardClass, yearProgress } from "@/lib/visual";
 
 const DISPLAY_ORDER = ["aep", "oep", "sep", "iep", "gep"];
@@ -18,7 +19,7 @@ const SITUATIONS = [
 type SituationKey = (typeof SITUATIONS)[number]["key"];
 
 export function PeriodFinderTool() {
-  const [answers, setAnswers] = useState<Record<SituationKey, boolean>>({
+  const [answers, setAnswers] = useSessionState<Record<SituationKey, boolean>>("fmt-period-finder-v1", {
     turning65Soon: false,
     alreadyOnMedicare: true,
     onAdvantage: false,

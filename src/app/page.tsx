@@ -12,7 +12,7 @@ const YOU_GET: Record<string, string> = {
   "iep-timeline": "your 7-month window with exact dates",
   "working-past-65": "whether your job coverage lets you wait",
   "path-quiz": "your lean, Medigap or Medicare Advantage",
-  "penalty-estimator": "the penalty in dollars for one year",
+  "penalty-estimator": "one year of the late penalty in dollars",
   "period-finder": "what you are allowed to change today",
   "aep-checklist": "a re-shop list for Oct 15–Dec 7",
   "irmaa-checker": "whether your income raises your premium",

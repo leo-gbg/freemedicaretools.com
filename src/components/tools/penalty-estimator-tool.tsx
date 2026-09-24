@@ -1,16 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   PART_B_STANDARD_PREMIUM,
   PART_D_BASE_BENEFICIARY_PREMIUM,
 } from "@/lib/medicare/constants";
 import { estimateLatePenalties, type PenaltyLine } from "@/lib/medicare/penalties";
+import { useSessionState } from "@/lib/use-session-state";
 import { cardClass } from "@/lib/visual";
 
 export function PenaltyEstimatorTool() {
-  const [partBMonths, setPartBMonths] = useState(12);
-  const [partDMonths, setPartDMonths] = useState(12);
+  const [months, setMonths] = useSessionState("fmt-penalty-v1", {
+    partBMonths: 12,
+    partDMonths: 12,
+  });
+  const { partBMonths, partDMonths } = months;
+  function setPartBMonths(value: number) {
+    setMonths((prev) => ({ ...prev, partBMonths: value }));
+  }
+  function setPartDMonths(value: number) {
+    setMonths((prev) => ({ ...prev, partDMonths: value }));
+  }
 
   const result = useMemo(
     () =>

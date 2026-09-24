@@ -5,6 +5,8 @@ import { ENROLLED_SLUGS, TURNING_SLUGS } from "@/lib/visual";
 
 export const metadata = {
   title: "Free Medicare tool kit",
+  description:
+    "Nine free Medicare tools: IEP dates, late penalties, enrollment windows, a coverage quiz, IRMAA, Medigap letters, and an AEP checklist. No account required.",
 };
 
 const GROUPS = [

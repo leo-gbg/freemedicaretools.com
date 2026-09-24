@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/medicare/iep.test.ts src/lib/medicare/worksheet-layout.test.ts src/lib/medicare/client-worksheet.test.ts"
+    "test": "node --import ./src/lib/medicare/register-test.mjs --experimental-strip-types --test src/lib/medicare/iep.test.ts src/lib/medicare/worksheet-layout.test.ts src/lib/medicare/client-worksheet.test.ts src/lib/medicare/irmaa.test.ts src/lib/medicare/retirement.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

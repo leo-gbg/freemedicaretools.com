@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     description:
       "Full Medigap letter chart (A, B, C, D, F, G, K, L, M, N) ready to print or save as PDF.",
   },
+  robots: { index: false, follow: false },
 };
 
 export default function MedigapPrintPage() {

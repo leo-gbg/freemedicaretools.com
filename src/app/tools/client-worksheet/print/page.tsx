@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `Client worksheet · ${BRAND.name}`,
   },
+  robots: { index: false, follow: false },
 };
 
 export default function ClientWorksheetPrintPage() {

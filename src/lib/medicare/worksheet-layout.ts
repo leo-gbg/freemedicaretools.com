@@ -4,8 +4,8 @@
  * prescriptions or 5 providers continues on page 3 instead of shrinking further.
  */
 
-export const PAGE_TWO_MAX_RX = 10;
-export const PAGE_TWO_MAX_DOCS = 5;
+export const PAGE_TWO_MAX_RX = 14;
+export const PAGE_TWO_MAX_DOCS = 7;
 
 export type WorksheetDensity = "roomy" | "compact" | "tight";
 

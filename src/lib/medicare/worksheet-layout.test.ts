@@ -20,25 +20,27 @@ describe("worksheetTier", () => {
 });
 
 describe("worksheetLayout", () => {
-  it("keeps 10 prescriptions and 5 providers on two pages", () => {
-    const layout = worksheetLayout(list(10), list(5));
+  it("keeps 14 prescriptions and 7 providers on two pages", () => {
+    const layout = worksheetLayout(list(14), list(7));
     assert.equal(layout.pageCount, 2);
     assert.equal(layout.tier.density, "tight");
     assert.equal(layout.overflowRx.length, 0);
-  });
-
-  it("moves prescriptions past 10 to page 3", () => {
-    const layout = worksheetLayout(list(12), list(5));
-    assert.equal(layout.pageCount, 3);
-    assert.deepEqual(layout.overflowRx, [10, 11]);
-    assert.equal(layout.pageTwoRx.length, 10);
     assert.equal(layout.overflowDocs.length, 0);
   });
 
-  it("moves providers past 5 to page 3", () => {
-    const layout = worksheetLayout(list(2), list(7));
+  it("moves prescriptions past 14 to page 3", () => {
+    const layout = worksheetLayout(list(16), list(7));
     assert.equal(layout.pageCount, 3);
-    assert.deepEqual(layout.overflowDocs, [5, 6]);
+    assert.deepEqual(layout.overflowRx, [14, 15]);
+    assert.equal(layout.pageTwoRx.length, 14);
+    assert.equal(layout.overflowDocs.length, 0);
+  });
+
+  it("moves providers past 7 to page 3", () => {
+    const layout = worksheetLayout(list(2), list(9));
+    assert.equal(layout.pageCount, 3);
+    assert.deepEqual(layout.overflowDocs, [7, 8]);
+    assert.equal(layout.pageTwoDocs.length, 7);
     assert.equal(layout.tier.density, "compact");
   });
 });

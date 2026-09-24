@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Research: problems these tools solve",
+  description:
+    "Why these Medicare tools exist: confusing enrollment windows, missed IEP dates, late penalties, and plan-type mixups. Educational only. A consult is optional.",
 };
 
 const PAINS = [
