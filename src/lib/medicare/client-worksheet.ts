@@ -116,6 +116,45 @@ export function emptyWorksheet(): ClientWorksheet {
   };
 }
 
+/** Saved answers laid over a fresh worksheet, with at least one prescription and one provider row. */
+export function restoreWorksheet(saved: Partial<ClientWorksheet> | null): ClientWorksheet {
+  const base = emptyWorksheet();
+  if (!saved) return base;
+  const merged = { ...base, ...saved };
+  return {
+    ...merged,
+    prescriptions:
+      Array.isArray(saved.prescriptions) && saved.prescriptions.length > 0
+        ? saved.prescriptions.map((row) => ({ ...emptyPrescription(), ...row }))
+        : base.prescriptions,
+    providers:
+      Array.isArray(saved.providers) && saved.providers.length > 0
+        ? saved.providers.map((row) => ({ ...emptyProvider(), ...row }))
+        : base.providers,
+  };
+}
+
+/** True when nothing has been typed or chosen yet. The print timestamp does not count. */
+export function isWorksheetBlank(data: ClientWorksheet): boolean {
+  const { prescriptions, providers, completedAt: _completedAt, ...fields } = data;
+  void _completedAt;
+  const fieldsBlank = Object.values(fields).every((value) =>
+    typeof value === "string" ? value.trim() === "" : value === null
+  );
+  const rxBlank = prescriptions.every(
+    (row) => !row.name.trim() && !row.dosage.trim() && !row.frequency.trim()
+  );
+  const providersBlank = providers.every(
+    (row) =>
+      !row.name.trim() &&
+      !row.practice.trim() &&
+      !row.specialistType.trim() &&
+      !row.address.trim() &&
+      row.mustKeep === null
+  );
+  return fieldsBlank && rxBlank && providersBlank;
+}
+
 export const CURRENT_COVERAGE_OPTIONS = [
   "Not on Medicare yet",
   "Original Medicare only",
@@ -211,9 +250,23 @@ export function worksheetToCrmJson(data: ClientWorksheet): string {
   );
 }
 
+/** This tab only (sessionStorage). Storage can be blocked, so failures are ignored. */
 export function saveWorksheet(data: ClientWorksheet): void {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(CLIENT_WORKSHEET_STORAGE_KEY, JSON.stringify(data));
+  try {
+    sessionStorage.setItem(CLIENT_WORKSHEET_STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // Storage blocked or full. The form still works; it just won't survive a reload.
+  }
+}
+
+export function clearWorksheet(): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(CLIENT_WORKSHEET_STORAGE_KEY);
+  } catch {
+    // Storage blocked. Nothing was saved, so there is nothing to clear.
+  }
 }
 
 export function loadWorksheet(): ClientWorksheet | null {

@@ -102,10 +102,32 @@ export function SiteFooter() {
           </p>
           <p>This site is educational and does not sign you up for a plan.</p>
         </div>
-        <p className="max-w-md md:text-right">
-          Not affiliated with the U.S. government, CMS, or Medicare. Not legal, tax, or official
-          benefits advice.
-        </p>
+        <div className="max-w-md md:text-right">
+          <p>
+            Not affiliated with the U.S. government, CMS, or Medicare. Not legal, tax, or official
+            benefits advice.
+          </p>
+          <nav aria-label="Legal" className="mt-2">
+            <ul className="flex gap-6 md:justify-end">
+              <li>
+                <Link
+                  href="/privacy"
+                  className="inline-flex min-h-12 items-center font-medium text-[var(--brand-ink)] underline-offset-4 hover:text-[var(--brand-teal-deep)] hover:underline"
+                >
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="inline-flex min-h-12 items-center font-medium text-[var(--brand-ink)] underline-offset-4 hover:text-[var(--brand-teal-deep)] hover:underline"
+                >
+                  Terms
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </footer>
   );

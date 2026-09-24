@@ -1,12 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  clearWorksheet,
   CURRENT_COVERAGE_OPTIONS,
   emptyPrescription,
   emptyProvider,
   emptyWorksheet,
+  isWorksheetBlank,
+  loadWorksheet,
+  restoreWorksheet,
   saveWorksheet,
   type ClientWorksheet,
   type WorksheetPrescription,
@@ -21,6 +26,44 @@ export function ClientWorksheetTool() {
   const [data, setData] = useState<ClientWorksheet>(() => emptyWorksheet());
   const [error, setError] = useState("");
   const [step, setStep] = useState(0);
+  const [restored, setRestored] = useState(false);
+  const [confirmingClear, setConfirmingClear] = useState(false);
+  // Autosave waits for the restore below, so an empty first render never overwrites saved answers.
+  const restoreDone = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      const saved = loadWorksheet();
+      if (saved) {
+        const next = restoreWorksheet(saved);
+        if (!isWorksheetBlank(next)) {
+          setData(next);
+          setRestored(true);
+        }
+      }
+      restoreDone.current = true;
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!restoreDone.current) return;
+    if (isWorksheetBlank(data)) clearWorksheet();
+    else saveWorksheet(data);
+  }, [data]);
+
+  function clearEverything() {
+    clearWorksheet();
+    setData(emptyWorksheet());
+    setRestored(false);
+    setConfirmingClear(false);
+    setError("");
+    setStep(0);
+  }
 
   function patch(partial: Partial<ClientWorksheet>) {
     setData((prev) => ({ ...prev, ...partial }));
@@ -223,6 +266,44 @@ export function ClientWorksheetTool() {
           <p className="mt-3 text-sm text-[var(--brand-text-3)]">
             The email button on the print page does not include this worksheet.
           </p>
+        </div>
+        <div className={`${cardClass} p-5`} aria-live="polite">
+          <p className="text-base leading-relaxed text-[var(--brand-ink)]">
+            {restored
+              ? "We brought back what you entered earlier in this tab."
+              : "Your answers are kept in this tab while you work. Closing the tab erases them."}
+          </p>
+          <Link
+            href="/privacy"
+            className="mt-1 inline-flex min-h-12 items-center text-base font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+          >
+            How we handle your answers
+          </Link>
+          {confirmingClear ? (
+            <div className="mt-2 space-y-3">
+              <p className="text-base font-medium text-[var(--brand-ink)]">
+                Clear every answer on this worksheet?
+              </p>
+              <button type="button" className={`${btnInk} w-full`} onClick={clearEverything}>
+                Yes, clear everything
+              </button>
+              <button
+                type="button"
+                className={`${btnOutline} w-full`}
+                onClick={() => setConfirmingClear(false)}
+              >
+                Keep my answers
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={`${btnOutline} mt-2 w-full`}
+              onClick={() => setConfirmingClear(true)}
+            >
+              Clear worksheet
+            </button>
+          )}
         </div>
       </aside>
     </div>

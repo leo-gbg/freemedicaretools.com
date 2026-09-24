@@ -113,7 +113,13 @@ export function ClientWorksheetPrintDocument() {
           </div>
           <p className="text-sm text-[var(--brand-ink-soft)] sm:text-right">
             The email does not include your worksheet. Do not add medications, date of birth, Medicaid,
-            VA benefits, or similar details to the message. The JSON file stays on your device.
+            VA benefits, or similar details to the message. The JSON file stays on your device.{" "}
+            <Link
+              href="/privacy"
+              className="inline-flex min-h-12 items-center font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+            >
+              Privacy
+            </Link>
           </p>
         </div>
       </div>
