@@ -287,7 +287,14 @@ export function lookupIrmaa(
       if (income <= (max as number)) return bracket;
       continue;
     }
-    if (income > min && (max === null || income <= max)) return bracket;
+    if (max === null) {
+      // CMS top tier starts at $500,000 / $750,000 inclusive.
+      if (income >= min) return bracket;
+      continue;
+    }
+    // The band under the top tier is "less than" that dollar, not "less than or equal."
+    const underTopCliff = bracket.id === "tier4";
+    if (income > min && (underTopCliff ? income < max : income <= max)) return bracket;
   }
 
   return IRMAA_BRACKETS_2026[IRMAA_BRACKETS_2026.length - 1];
@@ -373,6 +380,12 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
   };
 }
 
+const EMPLOYER_SIZE_WATCHOUTS = [
+  "The “20 or more employees” box means the employer that provides the coverage. On a spouse’s plan, count that employer, not a different job.",
+  "Medicare because of a disability usually uses a 100-employee rule, not 20. This check is the age-65 rule.",
+  "Premium-free Part A can start up to six months retroactively. Contributions to an HSA in those months can become excess.",
+];
+
 export type WorkAnswers = {
   coveredByEmployer: boolean;
   employerHas20Plus: boolean;
@@ -405,6 +418,7 @@ export function assessWorkingPast65(a: WorkAnswers): WorkResult {
       watchouts: [
         "COBRA, retiree coverage, and individual marketplace plans usually do not protect you from Part B late penalties the same way active employer coverage does.",
         "When employment (or group coverage) ends, mark your SEP calendar immediately.",
+        ...EMPLOYER_SIZE_WATCHOUTS,
       ],
     };
   }
@@ -420,6 +434,7 @@ export function assessWorkingPast65(a: WorkAnswers): WorkResult {
     watchouts: [
       "Assumptions about “I have other insurance” are one of the costliest turning-65 mistakes.",
       "Get a written benefits determination before you intentionally skip Part B.",
+      ...EMPLOYER_SIZE_WATCHOUTS,
     ],
   };
 }

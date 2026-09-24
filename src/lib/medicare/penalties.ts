@@ -85,6 +85,7 @@ export function estimateLatePenalties(input: PenaltyInput): PenaltyResult {
     `Part B LEP uses 10% of the standard premium ($${PART_B_STANDARD_PREMIUM.toFixed(2)} in 2026) for each full 12-month period you could have had Part B but didn’t.`,
     `Part D LEP uses 1% of the national base beneficiary premium ($${PART_D_BASE_BENEFICIARY_PREMIUM.toFixed(2)} in 2026) for each full uncovered month, rounded to the nearest $0.10.`,
     "Both penalties are typically lifelong and can change as national premium figures change. This box shows one year of the extra cost only.",
+    "This estimate does not include a Part A premium penalty. People who pay a Part A premium can owe one if they delay Part A.",
     "Months with Extra Help or qualifying creditable coverage may not count—confirm with Medicare or your agent.",
   ];
 

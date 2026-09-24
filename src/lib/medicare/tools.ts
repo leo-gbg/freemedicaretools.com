@@ -23,7 +23,8 @@ export const TOOLS: ToolMeta[] = [
     title: "Late Enrollment Penalty Estimator",
     shortTitle: "Penalty Estimator",
     audience: "both",
-    blurb: "See what Part B and Part D late penalties could cost for life.",
+    blurb:
+      "See one year of the Part B and Part D late penalty, in dollars. The extra usually continues for life.",
     problem: "Penalties feel abstract until someone sees the monthly extra for one year.",
     hormoziHook: "Turn “I’ll deal with it later” into a concrete monthly number.",
   },

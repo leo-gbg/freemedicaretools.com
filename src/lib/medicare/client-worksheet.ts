@@ -237,19 +237,6 @@ export function worksheetToPlainText(data: ClientWorksheet): string {
   return lines.join("\n");
 }
 
-export function worksheetToCrmJson(data: ClientWorksheet): string {
-  return JSON.stringify(
-    {
-      source: "FreeMedicareTools.com",
-      form: "client_medicare_worksheet",
-      version: 1,
-      ...data,
-    },
-    null,
-    2
-  );
-}
-
 /** This tab only (sessionStorage). Storage can be blocked, so failures are ignored. */
 export function saveWorksheet(data: ClientWorksheet): void {
   if (typeof window === "undefined") return;

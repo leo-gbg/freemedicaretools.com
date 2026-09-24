@@ -8,7 +8,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { BRAND } from "@/lib/brand";
 import {
   loadWorksheet,
-  worksheetToCrmJson,
   type ClientWorksheet,
   type WorksheetPrescription,
   type WorksheetProvider,
@@ -51,17 +50,6 @@ export function ClientWorksheetPrintDocument() {
     );
     return `mailto:${BRAND.email}?subject=${subject}&body=${body}`;
   }, []);
-
-  function downloadJson() {
-    if (!data) return;
-    const blob = new Blob([worksheetToCrmJson(data)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `medicare-worksheet-${(data.fullName || "client").replace(/\s+/g, "-").toLowerCase()}.json`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  }
 
   if (!ready) {
     return (
@@ -107,13 +95,10 @@ export function ClientWorksheetPrintDocument() {
             <a href={mailtoHref} className={cn(buttonVariants({ size: "lg", variant: "outline" }))}>
               Email to agent
             </a>
-            <button type="button" onClick={downloadJson} className={cn(buttonVariants({ size: "lg", variant: "ghost" }))}>
-              Download CRM JSON
-            </button>
           </div>
           <p className="text-sm text-[var(--brand-ink-soft)] sm:text-right">
             The email does not include your worksheet. Do not add medications, date of birth, Medicaid,
-            VA benefits, or similar details to the message. The JSON file stays on your device.{" "}
+            VA benefits, or similar details to the message.{" "}
             <Link
               href="/privacy"
               className="inline-flex min-h-12 items-center font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
@@ -200,7 +185,7 @@ function PageOne({
       </div>
 
       <Section n={1} title="Name & contact">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-[13px]">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
           <Field label="Full legal name" value={data.fullName} />
           <Field label="Preferred name" value={data.preferredName} />
           <Field label="Phone" value={data.phone} />
@@ -215,7 +200,7 @@ function PageOne({
       </Section>
 
       <Section n={2} title="What shapes your plan options" note="These change which plans fit">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-[13px]">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
           <Field label="Current coverage" value={data.currentCoverage} />
           <Field label="Preferred pharmacy" value={data.preferredPharmacy} />
           <Field label="Preferred hospital" value={data.preferredHospital} />
@@ -233,7 +218,26 @@ function PageOne({
         </ul>
       </Section>
 
-      <footer className="mt-auto border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
+      <div className="mt-3 shrink-0 border-t border-[var(--brand-ink)] pt-2">
+        <div className="grid grid-cols-2 gap-4">
+          <section>
+            <h3 className="text-[11px] font-medium tracking-[0.12em] text-[var(--brand-ink)] uppercase">
+              Bring to your consult
+            </h3>
+            <ul className="mt-2 space-y-1.5 text-[13px]">
+              {BRING.map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span className="inline-block size-3.5 rounded-[3px] border border-[var(--brand-ink)]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
+          <ConsultBox />
+        </div>
+      </div>
+
+      <footer className="mt-2 shrink-0 border-t border-[var(--brand-line)] pt-1.5 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Made in your browser at {BRAND.domain}. Nothing you typed was sent to or stored by the site.
         Educational use only, not affiliated with the U.S. government, CMS, or Medicare.
       </footer>
@@ -296,36 +300,7 @@ function PageTwo({
         {tier.noteLine && <div className="mt-6 border-b border-[var(--brand-line)]" />}
       </section>
 
-      <div className="mt-auto shrink-0 pt-3">
-        {tier.bringOneLine ? (
-          <div className="flex items-stretch gap-4">
-            <p className="min-w-0 flex-1 self-center text-[13px] leading-snug">
-              <span className="text-[11px] font-medium tracking-[0.12em] uppercase">Bring: </span>
-              {BRING.join(" · ")}
-            </p>
-            <ConsultBox inline />
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            <section>
-              <h3 className="text-[11px] font-medium tracking-[0.12em] text-[var(--brand-ink)] uppercase">
-                Bring to your consult
-              </h3>
-              <ul className="mt-2 space-y-1.5 text-[13px]">
-                {BRING.map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="inline-block size-3.5 rounded-[3px] border border-[var(--brand-ink)]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <ConsultBox />
-          </div>
-        )}
-      </div>
-
-      <footer className="mt-3 shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
+      <footer className="mt-auto shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Never write your Medicare number or Social Security number on this form. Made in your browser
         at {BRAND.domain}. Nothing you typed was sent to or stored by the site. Educational use only,
         not affiliated with the U.S. government, CMS, or Medicare.
@@ -378,7 +353,7 @@ function PageThree({
 }
 
 const sheetClass =
-  "worksheet-sheet flex h-[11in] w-[8.5in] flex-col overflow-hidden bg-white px-[0.48in] py-[0.42in] text-[var(--brand-ink)] shadow-[0_12px_40px_-24px_rgba(12,36,48,0.45)] print:shadow-none";
+  "worksheet-sheet flex h-[11in] w-[8.5in] flex-col overflow-hidden bg-white px-[0.48in] py-[0.32in] text-[var(--brand-ink)] shadow-[0_12px_40px_-24px_rgba(12,36,48,0.45)] print:shadow-none";
 
 const worksheetTierForContinuation = worksheetTier(15);
 
@@ -479,8 +454,8 @@ function ConsultBox({ inline = false }: { inline?: boolean }) {
       )}
     >
       <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase">Your Consult</h3>
-      <p className={cn("text-[13px]", inline ? "mt-1" : "mt-3")}>Date & time</p>
-      <div className={cn("border-b border-[var(--brand-ink)]", inline ? "mt-3" : "mt-5")} />
+      <p className={cn("text-[13px]", inline ? "mt-1" : "mt-2")}>Date & time</p>
+      <div className={cn("border-b border-[var(--brand-ink)]", inline ? "mt-3" : "mt-3")} />
       <p className={cn("text-[13px]", inline ? "mt-1.5" : "mt-3")}>Email: {BRAND.email}</p>
     </section>
   );
@@ -517,8 +492,8 @@ function Summary({ label, value, detail }: { label: string; value: string; detai
   return (
     <div className="rounded-lg bg-[var(--brand-surface)] px-2 py-1.5">
       <p className="text-[10px] font-medium tracking-[0.08em] text-[var(--brand-text-3)] uppercase">{label}</p>
-      <p className="truncate text-[13px] font-medium">{value}</p>
-      {detail ? <p className="truncate text-[11px] text-[var(--brand-ink-soft)]">{detail}</p> : null}
+      <p className="h-5 truncate text-[13px] leading-5 font-medium">{value}</p>
+      <p className="h-4 truncate text-[11px] leading-4 text-[var(--brand-ink-soft)]">{detail || "\u00a0"}</p>
     </div>
   );
 }
@@ -535,7 +510,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-4 shrink-0">
+    <section className="mt-3 shrink-0">
       <SectionHeading n={n} title={title} meta={note} />
       <div className="mt-2">{children}</div>
     </section>
@@ -560,20 +535,22 @@ function Field({ label, value, wide }: { label: string; value: string; wide?: bo
   return (
     <div className={wide ? "col-span-2" : undefined}>
       <dt className="text-[10px] tracking-[0.06em] text-[var(--brand-text-3)] uppercase">{label}</dt>
-      <dd className="min-h-[1.1em] border-b border-[var(--brand-line)] font-medium">{value.trim() || " "}</dd>
+      <dd className="h-7 truncate border-b border-[var(--brand-line)] leading-7 font-medium">
+        {value.trim() || "\u00a0"}
+      </dd>
     </div>
   );
 }
 
 function YesNo({ label, value, extra }: { label: string; value: boolean | null; extra?: string }) {
   return (
-    <li>
+    <li className="min-h-[3.5rem]">
       <p>{label}</p>
       <p className="mt-1 flex gap-2">
         <span>Yes {value === true ? "☑" : "☐"}</span>
         <span>No {value === false ? "☑" : "☐"}</span>
       </p>
-      {extra && value === true ? <p className="mt-0.5 truncate">{extra}</p> : null}
+      <p className="mt-0.5 h-4 truncate">{extra && value === true ? extra : "\u00a0"}</p>
     </li>
   );
 }

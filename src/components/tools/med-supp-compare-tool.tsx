@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSessionState } from "@/lib/use-session-state";
 import Link from "next/link";
 import { withAcronymTips } from "@/components/acronym-tip";
 import { buttonVariants } from "@/components/ui/button";
@@ -49,12 +50,32 @@ const QUESTIONS: { key: keyof MedSuppAnswers; prompt: string }[] = [
 ];
 
 export function MedSuppCompareTool() {
-  const [answers, setAnswers] = useState<Partial<MedSuppAnswers>>({
-    newlyEligible: true,
+  const [draft, setDraft] = useSessionState("fmt-medigap-v1", {
+    answers: { newlyEligible: true } as Partial<MedSuppAnswers>,
+    selected: ["G", "N", "D"] as MedigapPlanLetter[],
+    submitted: false,
   });
+  const answers = draft.answers;
+  const selected = draft.selected;
   const [error, setError] = useState("");
-  const [result, setResult] = useState<ReturnType<typeof recommendMedSupp> | null>(null);
-  const [selected, setSelected] = useState<MedigapPlanLetter[]>(["G", "N", "D"]);
+  const result = useMemo(
+    () => (draft.submitted ? recommendMedSupp(answers as MedSuppAnswers) : null),
+    [answers, draft.submitted]
+  );
+  function setAnswers(value: Partial<MedSuppAnswers> | ((prev: Partial<MedSuppAnswers>) => Partial<MedSuppAnswers>)) {
+    setDraft((prev) => ({
+      ...prev,
+      answers: typeof value === "function" ? value(prev.answers) : value,
+    }));
+  }
+  function setSelected(
+    value: MedigapPlanLetter[] | ((prev: MedigapPlanLetter[]) => MedigapPlanLetter[])
+  ) {
+    setDraft((prev) => ({
+      ...prev,
+      selected: typeof value === "function" ? value(prev.selected) : value,
+    }));
+  }
 
   const selectedPlans = useMemo(
     () =>
@@ -89,7 +110,12 @@ export function MedSuppCompareTool() {
         <p className="mt-2">
           Medigap works with Original Medicare and does <strong>not</strong> include Part D drug
           coverage. Plans C and F are generally unavailable if you first became eligible in 2020 or
-          later.
+          later. High-deductible Plan F and high-deductible Plan G exist and are not in this chart.
+          Plan N’s emergency-room copay is waived if you are admitted.
+        </p>
+        <p className="mt-2">
+          Massachusetts, Minnesota, and Wisconsin do not use this letter chart. If you live in one
+          of those states, the standardized benefits below do not match what you can buy.
         </p>
       </div>
 
@@ -134,13 +160,12 @@ export function MedSuppCompareTool() {
             const done = QUESTIONS.every((question) => typeof answers[question.key] === "boolean");
             if (!done) {
               setError("Answer every question to see a letter lean.");
-              setResult(null);
+              setDraft((prev) => ({ ...prev, submitted: false }));
               return;
             }
             setError("");
             const rec = recommendMedSupp(answers as MedSuppAnswers);
-            setResult(rec);
-            setSelected(rec.compareDefault);
+            setDraft((prev) => ({ ...prev, submitted: true, selected: rec.compareDefault }));
           }}
         >
           See my Medigap letter lean

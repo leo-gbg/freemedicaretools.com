@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   description:
     "Free Medicare tools for people turning 65 and current enrollees: IEP timelines, late penalties, IRMAA, path quiz, AEP checklist, and more — at FreeMedicareTools.com.",
   applicationName: BRAND.name,
+  alternates: {
+    canonical: "./",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

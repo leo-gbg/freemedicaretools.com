@@ -118,7 +118,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     popularityNote: "Popular lower-premium alternative to Plan G if you are okay with office/ER copays.",
     premiumTendency: "mid",
     summary:
-      "Similar to Plan G on many hospital benefits, but Part B coinsurance uses copays ($20 office / $50 ER, amounts set by CMS rules) and does not cover Part B excess charges.",
+      "Similar to Plan G on many hospital benefits, but Part B coinsurance uses copays ($20 office / $50 ER, amounts set by CMS rules). The emergency-room copay is waived if you are admitted. Plan N does not cover Part B excess charges.",
     coverage: {
       partACoinsurance: "yes",
       partBCoinsurance: "copay",

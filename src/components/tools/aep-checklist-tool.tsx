@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { aepCountdown, checkClass, downloadIcs, nextAepEnd } from "@/lib/visual";
+import { aepCountdown, checkClass, downloadIcs, nextAepWindow } from "@/lib/visual";
 
 const STORAGE_KEY = "fmt-aep-checklist-v1";
 
@@ -9,7 +10,7 @@ const ITEMS = [
   "Confirm AEP dates: October 15 – December 7 (coverage usually Jan 1).",
   "List every doctor, hospital, and specialist you actually use.",
   "List all prescriptions with dosage—check formulary + pharmacy tiers.",
-  "Compare this fall’s Annual Notice of Change (ANOC). It describes your plan’s 2027 changes.",
+  "Look for your Annual Notice of Change (ANOC). Plans must send it in time for you to have it by September 30. It describes your plan’s 2027 changes.",
   "Check premium, deductible, max out-of-pocket, and referral rules.",
   "If on Advantage: verify network changes didn’t drop your doctors.",
   "If on Original + Medigap + Part D: re-shop Part D for drug costs.",
@@ -32,11 +33,14 @@ export function AepChecklistTool() {
   useEffect(() => {
     queueMicrotask(() => {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const sessionRaw = sessionStorage.getItem(STORAGE_KEY);
+        const legacyRaw = localStorage.getItem(STORAGE_KEY);
+        const raw = sessionRaw ?? legacyRaw;
         if (raw) {
           const parsed = JSON.parse(raw) as Record<number, boolean>;
           if (parsed && typeof parsed === "object") setDone(parsed);
         }
+        if (legacyRaw) localStorage.removeItem(STORAGE_KEY);
       } catch {
         /* private mode or unreadable storage */
       }
@@ -48,7 +52,7 @@ export function AepChecklistTool() {
   useEffect(() => {
     if (!ready) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(done));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(done));
     } catch {
       /* ignore quota / private mode */
     }
@@ -72,6 +76,22 @@ export function AepChecklistTool() {
             <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
               {group.title}
             </h2>
+            {group.title === "Gather" && (
+              <Link
+                href="/tools/client-worksheet"
+                className="mt-3 flex flex-col gap-1 rounded-[20px] border-2 border-[var(--brand-amber)] bg-[var(--brand-amber-tint)] px-4 py-4 text-[var(--brand-ink)]"
+              >
+                <span className="text-sm font-medium tracking-[0.12em] text-[var(--brand-amber-text)] uppercase">
+                  Bring this to your agent
+                </span>
+                <span className="font-[family-name:var(--font-display)] text-2xl leading-snug">
+                  Get the free worksheet you can give to your agent
+                </span>
+                <span className="text-base text-[var(--brand-ink-soft)]">
+                  Doctors, prescriptions, and contact details on one page. Open the worksheet →
+                </span>
+              </Link>
+            )}
             <ul className="mt-3 space-y-3">
               {group.indexes.map((index) => {
                 const on = Boolean(done[index]);
@@ -136,16 +156,16 @@ export function AepChecklistTool() {
             type="button"
             className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[var(--brand-ink)] px-4 text-base text-white"
             onClick={() => {
-              const end = nextAepEnd(now ?? new Date());
+              const span = nextAepWindow(now ?? new Date());
               downloadIcs({
-                filename: "aep-december-7.ics",
-                title: "Medicare AEP ends December 7",
-                start: end,
-                end,
+                filename: "medicare-aep.ics",
+                title: "Medicare Annual Enrollment Period (Oct 15–Dec 7)",
+                start: span.start,
+                end: span.end,
               });
             }}
           >
-            Add Dec 7 to my calendar
+            Add AEP to my calendar
           </button>
           <button
             type="button"

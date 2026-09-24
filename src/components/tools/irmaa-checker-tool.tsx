@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { IRMAA_BRACKETS_2026, type FilingStatus, type IrmaaBracket } from "@/lib/medicare/constants";
 import { lookupIrmaa } from "@/lib/medicare/decisions";
+import { formatMoneyInput, parseMoneyInput } from "@/lib/format";
+import { useSessionState } from "@/lib/use-session-state";
 import { cardClass, fieldClass } from "@/lib/visual";
 
 const FILING: { id: FilingStatus; label: string }[] = [
@@ -12,8 +14,18 @@ const FILING: { id: FilingStatus; label: string }[] = [
 ];
 
 export function IrmaaCheckerTool() {
-  const [magi, setMagi] = useState("120000");
-  const [filing, setFiling] = useState<FilingStatus>("single");
+  const [draft, setDraft] = useSessionState("fmt-irmaa-v1", {
+    magi: "120000",
+    filing: "single" as FilingStatus,
+  });
+  const magi = draft.magi;
+  const filing = draft.filing;
+  function setMagi(value: string) {
+    setDraft((prev) => ({ ...prev, magi: value }));
+  }
+  function setFiling(value: FilingStatus) {
+    setDraft((prev) => ({ ...prev, filing: value }));
+  }
   const income = Math.max(0, Number(magi) || 0);
 
   const bracket = useMemo(() => lookupIrmaa(income, filing), [income, filing]);
@@ -25,20 +37,34 @@ export function IrmaaCheckerTool() {
 
   return (
     <div className="space-y-6">
+      <div className="max-w-3xl">
+        <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-teal-deep)] uppercase">
+          Income-Related Monthly Adjustment Amount
+        </p>
+        <p className="mt-2 text-lg leading-relaxed text-[var(--brand-ink-soft)]">
+          IRMAA is an extra amount added to Part B, and to Part D if you have drug coverage, when
+          income from two years ago is above a set line. A higher 2024 income can raise what you
+          pay in 2026. This checker uses the published 2026 brackets.
+        </p>
+      </div>
       <div className={`${cardClass} space-y-4 p-5`}>
         <div>
           <label htmlFor="magi" className="text-base font-medium text-[var(--brand-ink)]">
             2024 MAGI (modified adjusted gross income)
           </label>
-          <input
-            id="magi"
-            type="number"
-            min={0}
-            step={1000}
-            value={magi}
-            onChange={(event) => setMagi(event.target.value)}
-            className={`${fieldClass} mt-2`}
-          />
+          <div className="relative mt-2">
+            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-base text-[var(--brand-ink-soft)]">
+              $
+            </span>
+            <input
+              id="magi"
+              inputMode="decimal"
+              autoComplete="off"
+              value={formatMoneyInput(magi)}
+              onChange={(event) => setMagi(parseMoneyInput(event.target.value))}
+              className={`${fieldClass} pl-8`}
+            />
+          </div>
           <p className="mt-2 text-sm text-[var(--brand-text-3)]">
             2026 IRMAA uses your 2024 tax return. Enter the MAGI amount Social Security would use.
           </p>
@@ -68,14 +94,19 @@ export function IrmaaCheckerTool() {
               );
             })}
           </div>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--brand-text-3)]">
+            Head of household uses the same column as Single. Married filing separately here
+            assumes you lived with your spouse at any time during the year. If you lived apart all
+            year, Social Security uses the individual column instead.
+          </p>
         </div>
       </div>
 
       <div className={`${cardClass} space-y-4 p-5`}>
         {filing === "separate" && (
           <p className="text-sm text-[var(--brand-text-3)]">
-            Married filing separately uses the three tiers this checker already returns, not six
-            separate ranges.
+            Married filing separately uses three tiers when you lived with your spouse at any time
+            that year, not six separate ranges.
           </p>
         )}
         <ul className="space-y-4">
@@ -173,13 +204,14 @@ function rowsFor(filing: FilingStatus): Row[] {
   return IRMAA_BRACKETS_2026.map((bracket) => {
     const min = filing === "joint" ? bracket.jointMin : bracket.singleMin;
     const max = filing === "joint" ? bracket.jointMax : bracket.singleMax;
-    return { key: bracket.id, label: rangeLabel(min, max, bracket.id === "base"), bracket };
+    return { key: bracket.id, label: rangeLabel(min, max, bracket.id), bracket };
   });
 }
 
-function rangeLabel(min: number, max: number | null, base: boolean): string {
-  if (base && max != null) return `Up to ${money(max)}`;
+function rangeLabel(min: number, max: number | null, id: string): string {
+  if (id === "base" && max != null) return `Up to ${money(max)}`;
   if (max == null) return `${money(min)} and above`;
+  if (id === "tier4") return `Above ${money(min)} and under ${money(max)}`;
   return `Above ${money(min)} through ${money(max)}`;
 }
 
