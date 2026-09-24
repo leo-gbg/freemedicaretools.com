@@ -1,5 +1,7 @@
 # FreeMedicareTools audit
 
+> **Status:** This is the 23 September 2026 record. Current status is in [AUDIT-2026-09-24.md](./AUDIT-2026-09-24.md) (live re-check the evening of 24 September 2026, `main` at `c8fbba8`). Privacy and terms have since shipped. Do not treat the open-item list below as the current queue.
+
 **Date:** 23 September 2026  
 **Repo:** https://github.com/leo-gbg/freemedicaretools.com (commit `303efc3` on `main`)  
 **Live:** https://freemedicaretools.com  
