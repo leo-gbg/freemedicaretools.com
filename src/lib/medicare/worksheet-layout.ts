@@ -1,7 +1,10 @@
 /**
  * Print layout for page 2 of the consult worksheet. Page 2 always fits one
- * Letter page: spacing tightens as rows are added, and anything past 10
- * prescriptions or 5 providers continues on page 3 instead of shrinking further.
+ * Letter page: spacing tightens as rows are added, and anything past 14
+ * prescriptions or 7 providers continues on page 3 instead of shrinking further.
+ *
+ * Tables list entered rows only. A numbered blank used to follow short lists
+ * so someone could write another drug in; it read as a stray extra row.
  */
 
 export const PAGE_TWO_MAX_RX = 14;
@@ -15,13 +18,19 @@ export type WorksheetTier = {
   entryPx: number;
   /** Vertical padding above and below each row, in px. */
   rowPadPx: number;
-  blankRxRow: boolean;
-  blankDocRow: boolean;
   /** One ruled line under the notes for handwriting. */
   noteLine: boolean;
   /** "Bring to your consult" as a checklist, or squeezed onto one line. */
   bringOneLine: boolean;
 };
+
+export type PrintTableRow<T> = { kind: "entry"; index: number; row: T } | { kind: "empty" };
+
+/** Entered rows, numbered from 1. An empty list is one unnumbered "none listed" line. */
+export function printTableRows<T>(rows: T[], startAt = 0): PrintTableRow<T>[] {
+  if (rows.length === 0) return [{ kind: "empty" }];
+  return rows.map((row, index) => ({ kind: "entry", index: startAt + index + 1, row }));
+}
 
 export type WorksheetLayout<Rx, Doc> = {
   tier: WorksheetTier;
@@ -38,8 +47,6 @@ export function worksheetTier(totalRows: number): WorksheetTier {
       density: "roomy",
       entryPx: 15,
       rowPadPx: 11,
-      blankRxRow: true,
-      blankDocRow: true,
       noteLine: true,
       bringOneLine: false,
     };
@@ -49,8 +56,6 @@ export function worksheetTier(totalRows: number): WorksheetTier {
       density: "compact",
       entryPx: 14,
       rowPadPx: 7,
-      blankRxRow: true,
-      blankDocRow: false,
       noteLine: false,
       bringOneLine: false,
     };
@@ -58,9 +63,7 @@ export function worksheetTier(totalRows: number): WorksheetTier {
   return {
     density: "tight",
     entryPx: 14,
-    rowPadPx: 4,
-    blankRxRow: false,
-    blankDocRow: false,
+    rowPadPx: 3,
     noteLine: false,
     bringOneLine: true,
   };

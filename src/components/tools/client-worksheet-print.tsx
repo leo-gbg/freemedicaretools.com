@@ -7,12 +7,29 @@ import { Wordmark } from "@/components/wordmark";
 import { buttonVariants } from "@/components/ui/button";
 import { BRAND } from "@/lib/brand";
 import {
+  ANNUAL_STEPS,
+  COST_STEPS,
+  DOCTOR_STEPS,
+  EMPLOYER_STEPS,
+  formatWorksheetDate,
   loadWorksheet,
+  nextStepLine,
+  PART_AB_STEPS,
+  PART_D_STEPS,
+  PATH_STEPS,
+  restoreWorksheet,
   type ClientWorksheet,
+  type NextStepPrompt,
+  type WorksheetNextSteps,
   type WorksheetPrescription,
   type WorksheetProvider,
 } from "@/lib/medicare/client-worksheet";
-import { worksheetLayout, worksheetTier, type WorksheetTier } from "@/lib/medicare/worksheet-layout";
+import {
+  printTableRows,
+  worksheetLayout,
+  worksheetTier,
+  type WorksheetTier,
+} from "@/lib/medicare/worksheet-layout";
 import { cn } from "@/lib/utils";
 
 const BRING = ["Medicare card", "Pill bottles or label photos", "Current plan cards", "Annual Notice of Change"];
@@ -25,7 +42,8 @@ export function ClientWorksheetPrintDocument() {
     let cancelled = false;
     queueMicrotask(() => {
       if (cancelled) return;
-      setData(loadWorksheet());
+      const saved = loadWorksheet();
+      setData(saved ? restoreWorksheet(saved) : null);
       setReady(true);
     });
     document.body.classList.add("client-worksheet-print-page");
@@ -34,6 +52,15 @@ export function ClientWorksheetPrintDocument() {
       document.body.classList.remove("client-worksheet-print-page");
     };
   }, []);
+
+  useEffect(() => {
+    if (!ready || !data) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("autoprint") !== "1") return;
+    // Let the sheets paint before the browser captures them for the print dialog.
+    const id = window.setTimeout(() => window.print(), 400);
+    return () => window.clearTimeout(id);
+  }, [ready, data]);
 
   const mailtoHref = useMemo(() => {
     const subject = encodeURIComponent("Medicare consult worksheet");
@@ -97,6 +124,8 @@ export function ClientWorksheetPrintDocument() {
             </a>
           </div>
           <p className="text-sm text-[var(--brand-ink-soft)] sm:text-right">
+            Choose Save as PDF in the print window. It opens on its own after Preview &amp; save PDF.
+            If it does not, use the button above.
             The email does not include your worksheet. Do not add medications, date of birth, Medicaid,
             VA benefits, or similar details to the message.{" "}
             <Link
@@ -165,7 +194,7 @@ function PageOne({
   return (
     <article className={sheetClass}>
       <SheetHeader prepared={prepared} page={1} pageCount={pageCount} />
-      <h1 className="mt-3 font-[family-name:var(--font-display)] text-[1.7rem] leading-tight">
+      <h1 className="mt-2 truncate font-[family-name:var(--font-display)] text-[1.55rem] leading-tight">
         {data.fullName.trim() || "Name"}
       </h1>
       <p className="mt-1 text-[13px] text-[var(--brand-ink-soft)]">
@@ -173,7 +202,7 @@ function PageOne({
         Bring this page to your consult, or email it ahead.
       </p>
 
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-2 grid grid-cols-4 gap-2">
         <Summary label="Coverage now" value={data.currentCoverage || "—"} detail={data.otherCoverageNotes} />
         <Summary
           label="Location"
@@ -185,22 +214,23 @@ function PageOne({
       </div>
 
       <Section n={1} title="Name & contact">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-[13px]">
           <Field label="Full legal name" value={data.fullName} />
           <Field label="Preferred name" value={data.preferredName} />
           <Field label="Phone" value={data.phone} />
           <Field label="Email" value={data.email} />
-          <Field label="Date of birth" value={data.dateOfBirth} />
-          <Field label="Part B effective date" value={data.partBEffective} />
+          <Field label="Date of birth" value={formatWorksheetDate(data.dateOfBirth)} />
+          <Field label="Part B effective date" value={formatWorksheetDate(data.partBEffective)} />
           <Field label="Street address" value={[data.addressLine1, data.addressLine2].filter(Boolean).join(", ")} />
           <Field label="County" value={data.county} />
           <Field label="City" value={data.city} />
           <Field label="State / ZIP" value={[data.state, data.zip].filter(Boolean).join(" ")} />
         </dl>
+        <PrintedNextSteps prompts={PART_AB_STEPS} steps={data.nextSteps} />
       </Section>
 
       <Section n={2} title="What shapes your plan options" note="These change which plans fit">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-[13px]">
           <Field label="Current coverage" value={data.currentCoverage} />
           <Field label="Preferred pharmacy" value={data.preferredPharmacy} />
           <Field label="Preferred hospital" value={data.preferredHospital} />
@@ -209,22 +239,26 @@ function PageOne({
           <Field label="Caregiver / helper" value={data.caregiverName} />
           <Field label="Caregiver phone" value={data.caregiverPhone} />
         </dl>
-        <ul className="mt-3 grid grid-cols-5 gap-2 text-[11px] leading-snug">
+        <ul className="mt-2 grid grid-cols-5 gap-2 text-[11px] leading-snug">
           <YesNo label="Out of state 1+ months a year" value={data.travelsOutOfState} extra={data.travelMonths} />
           <YesNo label="Tobacco in the last 12 months" value={data.tobaccoUse} />
           <YesNo label="Dental, vision, or hearing is a priority" value={data.wantsDentalVisionHearing} />
           <YesNo label="Also has Medicaid" value={data.dualEligibleMedicaid} />
           <YesNo label="Has VA benefits" value={data.hasVaBenefits} />
         </ul>
+        <PrintedNextSteps
+          prompts={[...PATH_STEPS, ...EMPLOYER_STEPS, ...COST_STEPS]}
+          steps={data.nextSteps}
+        />
       </Section>
 
-      <div className="mt-3 shrink-0 border-t border-[var(--brand-ink)] pt-2">
+      <div className="mt-2 shrink-0 border-t border-[var(--brand-ink)] pt-1.5">
         <div className="grid grid-cols-2 gap-4">
           <section>
             <h3 className="text-[11px] font-medium tracking-[0.12em] text-[var(--brand-ink)] uppercase">
               Bring to your consult
             </h3>
-            <ul className="mt-2 space-y-1.5 text-[13px]">
+            <ul className="mt-1 space-y-0.5 text-[13px]">
               {BRING.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <span className="inline-block size-3.5 rounded-[3px] border border-[var(--brand-ink)]" />
@@ -280,7 +314,8 @@ function PageTwo({
           title="Prescriptions"
           meta={`${rxTotal} medication${rxTotal === 1 ? "" : "s"} · ${genericCount} generic OK${rxTotal > rxs.length ? continued : ""}`}
         />
-        <RxTable rows={rxs} tier={tier} blank={tier.blankRxRow || rxs.length === 0} />
+        <RxTable rows={rxs} tier={tier} />
+        <PrintedNextSteps prompts={PART_D_STEPS} steps={data.nextSteps} />
       </section>
 
       <section className="mt-4 shrink-0">
@@ -289,15 +324,17 @@ function PageTwo({
           title="Doctors & specialists"
           meta={`${docTotal} provider${docTotal === 1 ? "" : "s"} · ${mustKeep} must keep${docTotal > docs.length ? continued : ""}`}
         />
-        <DocTable rows={docs} tier={tier} blank={tier.blankDocRow || docs.length === 0} />
+        <DocTable rows={docs} tier={tier} />
+        <PrintedNextSteps prompts={DOCTOR_STEPS} steps={data.nextSteps} />
       </section>
 
       <section className="mt-4 shrink-0">
         <SectionHeading n={5} title="Notes for your agent" />
-        <p className="mt-1 max-h-[0.95in] overflow-hidden text-[13px] leading-snug whitespace-pre-wrap">
+        <p className="mt-1 max-h-[0.7in] overflow-hidden text-[13px] leading-snug whitespace-pre-wrap">
           {data.notesForAgent.trim() || " "}
         </p>
-        {tier.noteLine && <div className="mt-6 border-b border-[var(--brand-line)]" />}
+        {tier.noteLine && <div className="mt-3 border-b border-[var(--brand-line)]" />}
+        <PrintedNextSteps prompts={ANNUAL_STEPS} steps={data.nextSteps} />
       </section>
 
       <footer className="mt-auto shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
@@ -332,14 +369,14 @@ function PageThree({
       {rxs.length > 0 && (
         <section className="mt-3 shrink-0">
           <SectionHeading n={3} title="Prescriptions, continued" />
-          <RxTable rows={rxs} tier={tier} startAt={rxOffset} blank={false} />
+          <RxTable rows={rxs} tier={tier} startAt={rxOffset} />
         </section>
       )}
 
       {docs.length > 0 && (
         <section className="mt-4 shrink-0">
           <SectionHeading n={4} title="Doctors & specialists, continued" />
-          <DocTable rows={docs} tier={tier} blank={false} />
+          <DocTable rows={docs} tier={tier} />
         </section>
       )}
 
@@ -353,7 +390,7 @@ function PageThree({
 }
 
 const sheetClass =
-  "worksheet-sheet flex h-[11in] w-[8.5in] flex-col overflow-hidden bg-white px-[0.48in] py-[0.32in] text-[var(--brand-ink)] shadow-[0_12px_40px_-24px_rgba(12,36,48,0.45)] print:shadow-none";
+  "worksheet-sheet flex h-[11in] w-[8.5in] flex-col overflow-hidden bg-white px-[0.48in] py-[0.22in] text-[var(--brand-ink)] shadow-[0_12px_40px_-24px_rgba(12,36,48,0.45)] print:shadow-none";
 
 const worksheetTierForContinuation = worksheetTier(15);
 
@@ -371,15 +408,13 @@ function rowStyle(tier: WorksheetTier): React.CSSProperties {
 function RxTable({
   rows,
   tier,
-  blank,
   startAt = 0,
 }: {
   rows: WorksheetPrescription[];
   tier: WorksheetTier;
-  blank: boolean;
   startAt?: number;
 }) {
-  const all: Array<WorksheetPrescription | null> = blank ? [...rows, null] : rows;
+  const lines = printTableRows(rows, startAt);
   return (
     <>
       <div className={cn(headRowClass, RX_COLS)}>
@@ -389,29 +424,27 @@ function RxTable({
         <span>How often</span>
         <span>Generic</span>
       </div>
-      {all.map((row, index) => (
-        <div key={row?.id ?? "rx-blank"} className={cn(rowClass, RX_COLS)} style={rowStyle(tier)}>
-          <span className="text-[var(--brand-text-3)]">{startAt + index + 1}</span>
-          <span className="truncate">{row?.name || "\u00a0"}</span>
-          <span className="truncate">{row?.dosage || ""}</span>
-          <span className="truncate">{row?.frequency || ""}</span>
-          <span className="truncate">{row ? (row.genericsOk ? "Generic OK" : "Brand only") : ""}</span>
-        </div>
-      ))}
+      {lines.map((line) =>
+        line.kind === "empty" ? (
+          <div key="rx-empty" className={cn(rowClass, RX_COLS)} style={rowStyle(tier)}>
+            <span className="col-span-full text-[var(--brand-text-3)]">None listed</span>
+          </div>
+        ) : (
+          <div key={line.row.id} className={cn(rowClass, RX_COLS)} style={rowStyle(tier)}>
+            <span className="text-[var(--brand-text-3)]">{line.index}</span>
+            <span className="truncate">{line.row.name}</span>
+            <span className="truncate">{line.row.dosage}</span>
+            <span className="truncate">{line.row.frequency}</span>
+            <span className="truncate">{line.row.genericsOk ? "Generic OK" : "Brand only"}</span>
+          </div>
+        )
+      )}
     </>
   );
 }
 
-function DocTable({
-  rows,
-  tier,
-  blank,
-}: {
-  rows: WorksheetProvider[];
-  tier: WorksheetTier;
-  blank: boolean;
-}) {
-  const all: Array<WorksheetProvider | null> = blank ? [...rows, null] : rows;
+function DocTable({ rows, tier }: { rows: WorksheetProvider[]; tier: WorksheetTier }) {
+  const lines = printTableRows(rows);
   return (
     <>
       <div className={cn(headRowClass, DOC_COLS)}>
@@ -421,26 +454,24 @@ function DocTable({
         <span>City</span>
         <span>Keep?</span>
       </div>
-      {all.map((row) => (
-        <div key={row?.id ?? "doc-blank"} className={cn(rowClass, DOC_COLS)} style={rowStyle(tier)}>
-          <span className="truncate">{row?.name || "\u00a0"}</span>
-          <span className="truncate">{row?.practice || ""}</span>
-          <span className="truncate">{row?.specialistType || ""}</span>
-          <span className="truncate">{row?.address || ""}</span>
-          <span>
-            {row?.mustKeep === true && (
-              <span className="rounded-full bg-[var(--brand-amber-tint)] px-2 py-0.5 text-[11px] font-medium text-[var(--brand-amber-text)]">
-                Must keep
-              </span>
-            )}
-            {row?.mustKeep === false && (
-              <span className="rounded-full bg-[var(--brand-surface)] px-2 py-0.5 text-[11px] text-[var(--brand-text-3)]">
-                Flexible
-              </span>
-            )}
-          </span>
-        </div>
-      ))}
+      {lines.map((line) =>
+        line.kind === "empty" ? (
+          <div key="doc-empty" className={cn(rowClass, DOC_COLS)} style={rowStyle(tier)}>
+            <span className="col-span-full text-[var(--brand-text-3)]">None listed</span>
+          </div>
+        ) : (
+          <div key={line.row.id} className={cn(rowClass, DOC_COLS)} style={rowStyle(tier)}>
+            <span className="truncate">{line.row.name || "\u00a0"}</span>
+            <span className="truncate">{line.row.practice}</span>
+            <span className="truncate">{line.row.specialistType}</span>
+            <span className="truncate">{line.row.address}</span>
+            <span>
+              {line.row.mustKeep === true && <span className="worksheet-pill worksheet-pill-keep">Must keep</span>}
+              {line.row.mustKeep === false && <span className="worksheet-pill worksheet-pill-flex">Flexible</span>}
+            </span>
+          </div>
+        )
+      )}
     </>
   );
 }
@@ -450,7 +481,7 @@ function ConsultBox({ inline = false }: { inline?: boolean }) {
     <section
       className={cn(
         "rounded-xl border-2 border-[var(--brand-ink)] px-3",
-        inline ? "w-[3.1in] shrink-0 py-2" : "py-2.5"
+        inline ? "w-[3.1in] shrink-0 py-1.5" : "py-1.5"
       )}
     >
       <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase">Your Consult</h3>
@@ -490,7 +521,7 @@ function SheetHeader({
 
 function Summary({ label, value, detail }: { label: string; value: string; detail?: string }) {
   return (
-    <div className="rounded-lg bg-[var(--brand-surface)] px-2 py-1.5">
+    <div className="rounded-lg border border-[var(--brand-line)] bg-[var(--brand-surface)] px-2 py-1">
       <p className="text-[10px] font-medium tracking-[0.08em] text-[var(--brand-text-3)] uppercase">{label}</p>
       <p className="h-5 truncate text-[13px] leading-5 font-medium">{value}</p>
       <p className="h-4 truncate text-[11px] leading-4 text-[var(--brand-ink-soft)]">{detail || "\u00a0"}</p>
@@ -510,7 +541,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-3 shrink-0">
+    <section className="mt-2 shrink-0">
       <SectionHeading n={n} title={title} meta={note} />
       <div className="mt-2">{children}</div>
     </section>
@@ -521,8 +552,11 @@ function SectionHeading({ n, title, meta }: { n: number; title: string; meta?: s
   return (
     <div className="flex shrink-0 items-baseline justify-between gap-3">
       <h2 className="flex items-center gap-2 font-[family-name:var(--font-display)] text-[1.15rem] leading-none">
-        <span className="inline-flex size-6 items-center justify-center rounded-full bg-[var(--brand-ink)] text-[12px] text-white">
-          {n}
+        <span className="worksheet-section-num">
+          <span className="num-ink" aria-hidden="true">
+            {n}
+          </span>
+          <span className="num-paper">{n}</span>
         </span>
         {title}
       </h2>
@@ -535,22 +569,46 @@ function Field({ label, value, wide }: { label: string; value: string; wide?: bo
   return (
     <div className={wide ? "col-span-2" : undefined}>
       <dt className="text-[10px] tracking-[0.06em] text-[var(--brand-text-3)] uppercase">{label}</dt>
-      <dd className="h-7 truncate border-b border-[var(--brand-line)] leading-7 font-medium">
+      <dd className="h-5 truncate border-b border-[var(--brand-line)] leading-5 font-medium">
         {value.trim() || "\u00a0"}
       </dd>
     </div>
   );
 }
 
+function PrintedNextSteps({
+  prompts,
+  steps,
+}: {
+  prompts: NextStepPrompt[];
+  steps: WorksheetNextSteps;
+}) {
+  return (
+    <div className="mt-1">
+      <p className="text-[10px] font-medium tracking-[0.08em] text-[var(--brand-teal-deep)] uppercase">Next step</p>
+      <ul className="mt-0.5">
+        {prompts.map((prompt) => (
+          <li key={prompt.key} className="flex items-baseline gap-1.5 text-[11px] leading-[1.15] text-[var(--brand-ink)]">
+            <span aria-hidden="true" className="inline-block w-3.5 shrink-0 text-center">
+              {steps[prompt.key] ? "☑" : "☐"}
+            </span>
+            <span className="min-w-0">{nextStepLine(prompt)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function YesNo({ label, value, extra }: { label: string; value: boolean | null; extra?: string }) {
   return (
-    <li className="min-h-[3.5rem]">
-      <p>{label}</p>
-      <p className="mt-1 flex gap-2">
+    <li>
+      <p className="leading-tight">{label}</p>
+      <p className="mt-0.5 flex gap-2">
         <span>Yes {value === true ? "☑" : "☐"}</span>
         <span>No {value === false ? "☑" : "☐"}</span>
       </p>
-      <p className="mt-0.5 h-4 truncate">{extra && value === true ? extra : "\u00a0"}</p>
+      {extra && value === true ? <p className="truncate leading-tight">{extra}</p> : null}
     </li>
   );
 }

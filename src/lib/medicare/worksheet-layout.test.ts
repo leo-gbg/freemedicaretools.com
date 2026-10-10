@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { worksheetLayout, worksheetTier } from "./worksheet-layout.ts";
+import { printTableRows, worksheetLayout, worksheetTier } from "./worksheet-layout.ts";
 
 const list = (n: number) => Array.from({ length: n }, (_, i) => i);
 
@@ -34,6 +34,16 @@ describe("worksheetLayout", () => {
     assert.deepEqual(layout.overflowRx, [14, 15]);
     assert.equal(layout.pageTwoRx.length, 14);
     assert.equal(layout.overflowDocs.length, 0);
+  });
+
+  it("prints entered rows only, with no extra numbered blank", () => {
+    const two = printTableRows(["Atorvastatin", "Metformin"]);
+    assert.equal(two.length, 2);
+    assert.deepEqual(
+      two.map((line) => (line.kind === "entry" ? line.index : "empty")),
+      [1, 2]
+    );
+    assert.deepEqual(printTableRows([]), [{ kind: "empty" }]);
   });
 
   it("moves providers past 7 to page 3", () => {

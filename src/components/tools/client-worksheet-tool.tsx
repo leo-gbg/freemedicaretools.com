@@ -2,18 +2,27 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import {
+  ANNUAL_STEPS,
   clearWorksheet,
+  COST_STEPS,
   CURRENT_COVERAGE_OPTIONS,
+  DOCTOR_STEPS,
+  EMPLOYER_STEPS,
   emptyPrescription,
   emptyProvider,
   emptyWorksheet,
   isWorksheetBlank,
   loadWorksheet,
+  PART_AB_STEPS,
+  PART_D_STEPS,
+  PATH_STEPS,
   restoreWorksheet,
   saveWorksheet,
   type ClientWorksheet,
+  type NextStepKey,
+  type NextStepPrompt,
   type WorksheetPrescription,
   type WorksheetProvider,
 } from "@/lib/medicare/client-worksheet";
@@ -21,6 +30,7 @@ import { formatPhone } from "@/lib/format";
 import { areaClass, btnInk, btnOutline, cardClass, fieldClass } from "@/lib/visual";
 
 const STEPS = ["Contact", "Plan context", "Prescriptions", "Doctors", "Notes"] as const;
+const PRINT_HREF = "/tools/client-worksheet/print?autoprint=1";
 
 export function ClientWorksheetTool() {
   const router = useRouter();
@@ -29,8 +39,15 @@ export function ClientWorksheetTool() {
   const [step, setStep] = useState(0);
   const [restored, setRestored] = useState(false);
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const [openingPreview, setOpeningPreview] = useState(false);
+  const [isOpeningPreview, startOpeningPreview] = useTransition();
+  const previewBusy = openingPreview || isOpeningPreview;
   // Autosave waits for the restore below, so an empty first render never overwrites saved answers.
   const restoreDone = useRef(false);
+
+  useEffect(() => {
+    router.prefetch(PRINT_HREF);
+  }, [router]);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +101,10 @@ export function ClientWorksheetTool() {
     }));
   }
 
+  function toggleNextStep(key: NextStepKey, checked: boolean) {
+    setData((prev) => ({ ...prev, nextSteps: { ...prev.nextSteps, [key]: checked } }));
+  }
+
   function goToPrint() {
     if (!data.fullName.trim() || !data.phone.trim()) {
       setError("Add at least your full name and phone so your agent can reach you.");
@@ -91,6 +112,7 @@ export function ClientWorksheetTool() {
       return;
     }
     setError("");
+    setOpeningPreview(true);
     saveWorksheet({
       ...data,
       completedAt: new Date().toLocaleString("en-US", {
@@ -98,7 +120,12 @@ export function ClientWorksheetTool() {
         timeStyle: "short",
       }),
     });
-    router.push("/tools/client-worksheet/print");
+    // Paint the loading label before the preview route replaces this page.
+    window.requestAnimationFrame(() => {
+      startOpeningPreview(() => {
+        router.push(PRINT_HREF);
+      });
+    });
   }
 
   const checks = [
@@ -160,11 +187,12 @@ export function ClientWorksheetTool() {
           </ol>
 
           <div className={`${cardClass} p-5`}>
-            {step === 0 && <ContactStep data={data} patch={patch} />}
-            {step === 1 && <ContextStep data={data} patch={patch} />}
+            {step === 0 && <ContactStep data={data} patch={patch} onToggle={toggleNextStep} />}
+            {step === 1 && <ContextStep data={data} patch={patch} onToggle={toggleNextStep} />}
             {step === 2 && (
               <RxStep
                 data={data}
+                onToggle={toggleNextStep}
                 updateRx={updateRx}
                 onAdd={() =>
                   setData((prev) => ({
@@ -183,6 +211,7 @@ export function ClientWorksheetTool() {
             {step === 3 && (
               <DoctorStep
                 data={data}
+                onToggle={toggleNextStep}
                 updateProvider={updateProvider}
                 onAdd={() =>
                   setData((prev) => ({
@@ -210,6 +239,7 @@ export function ClientWorksheetTool() {
                   value={data.notesForAgent}
                   onChange={(event) => patch({ notesForAgent: event.target.value })}
                 />
+                <NextStepPrompts prompts={ANNUAL_STEPS} steps={data.nextSteps} onToggle={toggleNextStep} />
               </div>
             )}
 
@@ -226,8 +256,14 @@ export function ClientWorksheetTool() {
                   Next
                 </button>
               ) : (
-                <button type="button" className={btnInk} onClick={goToPrint}>
-                  Print worksheet
+                <button
+                  type="button"
+                  className={`${btnInk} disabled:opacity-70`}
+                  onClick={goToPrint}
+                  disabled={previewBusy}
+                  aria-busy={previewBusy}
+                >
+                  {previewBusy ? "Opening preview…" : "Preview & save PDF"}
                 </button>
               )}
             </div>
@@ -261,8 +297,14 @@ export function ClientWorksheetTool() {
               </li>
             ))}
           </ul>
-          <button type="button" className={`${btnInk} mt-4 w-full`} onClick={goToPrint}>
-            Print
+          <button
+            type="button"
+            className={`${btnInk} mt-4 w-full disabled:opacity-70`}
+            onClick={goToPrint}
+            disabled={previewBusy}
+            aria-busy={previewBusy}
+          >
+            {previewBusy ? "Opening preview…" : "Preview & save PDF"}
           </button>
           <p className="mt-3 text-sm text-[var(--brand-text-3)]">
             The email button on the print page does not include this worksheet.
@@ -314,9 +356,11 @@ export function ClientWorksheetTool() {
 function ContactStep({
   data,
   patch,
+  onToggle,
 }: {
   data: ClientWorksheet;
   patch: (partial: Partial<ClientWorksheet>) => void;
+  onToggle: (key: NextStepKey, checked: boolean) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -351,6 +395,7 @@ function ContactStep({
           <input className={fieldClass} type="date" value={data.partBEffective} onChange={(e) => patch({ partBEffective: e.target.value })} />
         </Field>
       </div>
+      <NextStepPrompts prompts={PART_AB_STEPS} steps={data.nextSteps} onToggle={onToggle} />
       <Field label="Street address">
         <input className={fieldClass} value={data.addressLine1} autoComplete="address-line1" onChange={(e) => patch({ addressLine1: e.target.value })} />
       </Field>
@@ -378,9 +423,11 @@ function ContactStep({
 function ContextStep({
   data,
   patch,
+  onToggle,
 }: {
   data: ClientWorksheet;
   patch: (partial: Partial<ClientWorksheet>) => void;
+  onToggle: (key: NextStepKey, checked: boolean) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -401,9 +448,11 @@ function ContextStep({
           ))}
         </select>
       </Field>
+      <NextStepPrompts prompts={PATH_STEPS} steps={data.nextSteps} onToggle={onToggle} />
       <Field label="Other coverage notes (employer, COBRA, spouse plan, etc.)">
         <textarea className={areaClass} rows={2} value={data.otherCoverageNotes} onChange={(e) => patch({ otherCoverageNotes: e.target.value })} />
       </Field>
+      <NextStepPrompts prompts={EMPLOYER_STEPS} steps={data.nextSteps} onToggle={onToggle} />
       <Field label="Preferred pharmacy">
         <input className={fieldClass} value={data.preferredPharmacy} onChange={(e) => patch({ preferredPharmacy: e.target.value })} />
       </Field>
@@ -413,6 +462,7 @@ function ContextStep({
       <Field label="Comfortable monthly premium budget">
         <input className={fieldClass} placeholder="e.g. under $150 / month total extras" value={data.monthlyPremiumBudget} onChange={(e) => patch({ monthlyPremiumBudget: e.target.value })} />
       </Field>
+      <NextStepPrompts prompts={COST_STEPS} steps={data.nextSteps} onToggle={onToggle} />
       <YesNo label="Do you spend 1+ months a year out of state?" value={data.travelsOutOfState} onChange={(v) => patch({ travelsOutOfState: v })} />
       {data.travelsOutOfState && (
         <Field label="Which months / where?">
@@ -445,11 +495,13 @@ function RxStep({
   updateRx,
   onAdd,
   onRemove,
+  onToggle,
 }: {
   data: ClientWorksheet;
   updateRx: (id: string, partial: Partial<WorksheetPrescription>) => void;
   onAdd: () => void;
   onRemove: (id: string) => void;
+  onToggle: (key: NextStepKey, checked: boolean) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -486,6 +538,7 @@ function RxStep({
           </li>
         ))}
       </ul>
+      <NextStepPrompts prompts={PART_D_STEPS} steps={data.nextSteps} onToggle={onToggle} />
     </div>
   );
 }
@@ -495,11 +548,13 @@ function DoctorStep({
   updateProvider,
   onAdd,
   onRemove,
+  onToggle,
 }: {
   data: ClientWorksheet;
   updateProvider: (id: string, partial: Partial<WorksheetProvider>) => void;
   onAdd: () => void;
   onRemove: (id: string) => void;
+  onToggle: (key: NextStepKey, checked: boolean) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -548,7 +603,75 @@ function DoctorStep({
           </li>
         ))}
       </ul>
+      <NextStepPrompts prompts={DOCTOR_STEPS} steps={data.nextSteps} onToggle={onToggle} />
     </div>
+  );
+}
+
+function NextStepPrompts({
+  prompts,
+  steps,
+  onToggle,
+}: {
+  prompts: NextStepPrompt[];
+  steps: ClientWorksheet["nextSteps"];
+  onToggle: (key: NextStepKey, checked: boolean) => void;
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium text-[var(--brand-teal-deep)]">Next step</p>
+      <ul className="space-y-1">
+        {prompts.map((prompt) => {
+          const id = `next-step-${prompt.key}`;
+          return (
+            <li key={prompt.key} className="flex items-start gap-3">
+              <input
+                id={id}
+                type="checkbox"
+                className="mt-2 size-7 shrink-0 accent-[var(--brand-teal)]"
+                checked={steps[prompt.key]}
+                onChange={(event) => onToggle(prompt.key, event.target.checked)}
+              />
+              <p className="min-h-12 py-1.5 text-base leading-snug text-[var(--brand-ink)]">
+                <label htmlFor={id}>{prompt.lead}</label>
+                {prompt.link ? (
+                  prompt.tail ? (
+                    <>
+                      <PromptLink prompt={prompt} />
+                      <label htmlFor={id}>{prompt.tail}</label>
+                    </>
+                  ) : (
+                    <>
+                      {" · "}
+                      <PromptLink prompt={prompt} />
+                    </>
+                  )
+                ) : null}
+              </p>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function PromptLink({ prompt }: { prompt: NextStepPrompt }) {
+  const link = prompt.link;
+  if (!link) return null;
+  const className =
+    "font-medium text-[var(--brand-teal-deep)] underline decoration-[var(--brand-teal)]/40 underline-offset-4";
+  if (link.external) {
+    return (
+      <a href={link.href} className={className} target="_blank" rel="noopener noreferrer">
+        {link.label}
+      </a>
+    );
+  }
+  return (
+    <Link href={link.href} className={className} target="_blank" rel="noopener noreferrer">
+      {link.label}
+    </Link>
   );
 }
 
