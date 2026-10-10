@@ -14,7 +14,8 @@ export const TOOLS: ToolMeta[] = [
     shortTitle: "IEP Timeline",
     audience: "turning-65",
     blurb: "Pin your 7-month Initial Enrollment Period to your birthday.",
-    problem: "People miss the IEP and trigger delayed coverage or lifelong penalties.",
+    problem:
+      "People miss the IEP and trigger delayed coverage or late enrollment penalties that usually last as long as you have Part B or Part D.",
   },
   {
     slug: "penalty-estimator",
@@ -22,7 +23,7 @@ export const TOOLS: ToolMeta[] = [
     shortTitle: "Penalty Estimator",
     audience: "both",
     blurb:
-      "See one year of the Part B and Part D late penalty, in dollars. The extra usually continues for life.",
+      "See one year of the Part B and Part D late penalty, in dollars. The extra usually continues for as long as you have Part B or Part D.",
     problem: "Penalties feel abstract until someone sees the monthly extra for one year.",
   },
   {
@@ -47,7 +48,7 @@ export const TOOLS: ToolMeta[] = [
     shortTitle: "Med-Supp Compare",
     audience: "both",
     blurb:
-      "Learn which Medigap letter fits your priorities and compare standardized Plan G, N, F, and more.",
+      "See what each standardized Medigap letter covers.",
     problem:
       "People confuse Medigap letters, miss that benefits are standardized, and cannot tell G vs N vs legacy F apart.",
   },
@@ -74,7 +75,7 @@ export const TOOLS: ToolMeta[] = [
     title: "Still Working Past 65?",
     shortTitle: "Working Past 65",
     audience: "turning-65",
-    blurb: "Check whether delaying Part B looks safe given employer coverage.",
+    blurb: "Check whether delaying Part B may be OK, so confirm with your HR or benefits office.",
     problem: "People assume any other coverage lets them wait—COBRA and small-employer plans often don’t.",
   },
   {
@@ -82,7 +83,7 @@ export const TOOLS: ToolMeta[] = [
     title: "AEP Annual Review Checklist",
     shortTitle: "AEP Checklist",
     audience: "enrolled",
-    blurb: "A practical Oct 15–Dec 7 review so you don’t sleepwalk into next year.",
+    blurb: "A practical Oct 15–Dec 7 review of your coverage for next year.",
     problem: "Most enrollees never re-shop even when formularies, networks, and premiums change.",
   },
 ];

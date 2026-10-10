@@ -16,7 +16,7 @@ Educational Medicare navigation tools. Each tool answers one question in the bro
 | Medigap Plan Letter Guide | `/tools/med-supp-compare` | Compares standardized Medigap letters |
 | Consult Worksheet | `/tools/client-worksheet` | Doctors, drugs, and contact details for a consult; print only |
 | IRMAA Bracket Checker | `/tools/irmaa-checker` | Estimates 2026 Part B and Part D income-related amounts from 2024 income |
-| Still Working Past 65? | `/tools/working-past-65` | Checks whether delaying Part B looks safe with employer coverage |
+| Still Working Past 65? | `/tools/working-past-65` | Checks whether delaying Part B may be OK, so confirm with your HR or benefits office |
 | AEP Annual Review Checklist | `/tools/aep-checklist` | October 15–December 7 review list |
 
 Also: `/glossary`, `/research`, `/privacy`, `/terms`.

@@ -23,9 +23,9 @@ const PAINS = [
     tool: "/tools/iep-timeline",
   },
   {
-    title: "Late penalties are lifelong and abstract",
+    title: "Late penalties usually last as long as you have Part B or Part D",
     detail:
-      "Part B and Part D late enrollment penalties can follow someone for life. Until the monthly extra is visible, “I’ll deal with it later” feels safe.",
+      "Part B and Part D late enrollment penalties usually continue for as long as you have Part B or Part D. Until the monthly extra is visible, “I’ll deal with it later” feels safe.",
     tool: "/tools/penalty-estimator",
   },
   {
@@ -41,7 +41,7 @@ const PAINS = [
     tool: "/tools/working-past-65",
   },
   {
-    title: "Enrollees sleepwalk through AEP",
+    title: "Many enrollees do not review plans during AEP",
     detail:
       "Most people do not re-shop even when formularies, networks, and premiums change. An annual checklist is a way to read the notice of change before December 7.",
     tool: "/tools/aep-checklist",
