@@ -9,6 +9,7 @@ import { btnAmber, consultMailto } from "@/lib/visual";
 
 const LINKS = [
   { href: "/tools", label: "Tools" },
+  { href: "/classes", label: "Classes" },
   { href: "/glossary", label: "Glossary" },
   { href: "/#who", label: "Who we are" },
 ];
@@ -107,8 +108,16 @@ export function SiteFooter() {
             Not affiliated with the U.S. government, CMS, or Medicare. Not legal, tax, or official
             benefits advice.
           </p>
-          <nav aria-label="Legal" className="mt-2">
-            <ul className="flex gap-6 md:justify-end">
+          <nav aria-label="Footer" className="mt-2">
+            <ul className="flex flex-wrap gap-x-6 md:justify-end">
+              <li>
+                <Link
+                  href="/classes"
+                  className="inline-flex min-h-12 items-center font-medium text-[var(--brand-ink)] underline-offset-4 hover:text-[var(--brand-teal-deep)] hover:underline"
+                >
+                  Classes
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/privacy"
