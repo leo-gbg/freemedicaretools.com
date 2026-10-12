@@ -1,0 +1,161 @@
+/**
+ * Free Medicare 101 classes.
+ *
+ * Add a row to CLASSES when a date is set. Dates and times are Pacific Time.
+ * A class leaves the page once its Pacific calendar date has passed.
+ * More 2027 dates, starting January 9, 2027, are expected later — do not
+ * invent them here until they are confirmed.
+ */
+
+export type ClassSession = {
+  /** Pacific calendar date, YYYY-MM-DD. */
+  date: string;
+  /** Start time in Pacific Time, 24-hour HH:MM. */
+  start: string;
+  /** End time in Pacific Time, 24-hour HH:MM. */
+  end: string;
+  /** Fantastical RSVP page. */
+  rsvpUrl: string;
+};
+
+export const CLASSES: ClassSession[] = [
+  {
+    date: "2026-10-17",
+    start: "15:00",
+    end: "16:00",
+    rsvpUrl: "https://fantastical.app/i/L4jlg65SMoH2FUr",
+  },
+  {
+    date: "2026-10-31",
+    start: "09:00",
+    end: "10:00",
+    rsvpUrl: "https://fantastical.app/i/OCUzRR5dMLHVFjo",
+  },
+  {
+    date: "2026-11-07",
+    start: "15:00",
+    end: "16:00",
+    rsvpUrl: "https://fantastical.app/i/CZaMCz66MUHoFoe",
+  },
+  {
+    date: "2026-11-21",
+    start: "15:00",
+    end: "16:00",
+    rsvpUrl: "https://fantastical.app/i/2v015P6xMnHfFEK",
+  },
+  {
+    date: "2026-12-05",
+    start: "15:00",
+    end: "16:00",
+    rsvpUrl: "https://fantastical.app/i/NrlzqH7xMqHwFyb",
+  },
+];
+
+export const CLASS_PAGE = {
+  headline: "Free Medicare 101 Classes",
+  intro:
+    "This is a free, educational class on Google Meet, presented by Leo Adaoag, MBA, RSSA®, licensed insurance agent with Guardian Benefits Group. Each class is about one hour. All times below are Pacific Time.",
+  learnHeading: "What you'll learn",
+  learn: [
+    "Parts A, B, C and D",
+    "Medigap",
+    "Enrollment periods and late penalties",
+    "How to use the free tools on this site",
+  ],
+  notice:
+    "This is an educational class only. No plans will be discussed or sold, and no one will be enrolled during the class. Attending does not require booking a consult.",
+  upcomingHeading: "Upcoming classes",
+  empty: "There are no upcoming classes right now.",
+  reserve: "Reserve my seat",
+  meet: "Google Meet",
+  duration: "about 1 hour",
+  tpmo:
+    "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area. Please contact Medicare.gov, 1-800-MEDICARE (TTY 1-877-486-2048), or your local State Health Insurance Program (SHIP) to get information on all of your options.",
+  affiliation:
+    "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT.",
+  questionsLabel: "Questions:",
+  phoneDisplay: "702-627-2605",
+  phoneHref: "tel:+17026272605",
+  tty: "(TTY 711).",
+} as const;
+
+const WEEKDAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
+const PACIFIC = "America/Los_Angeles";
+
+/** YYYY-MM-DD for an instant, using the Pacific calendar. */
+export function pacificDateString(asOf: Date): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: PACIFIC,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(asOf);
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? "";
+  return `${value("year")}-${value("month")}-${value("day")}`;
+}
+
+/** Classes whose Pacific date is today or still ahead, soonest first. */
+export function upcomingClasses(asOf = new Date(), classes: readonly ClassSession[] = CLASSES): ClassSession[] {
+  const today = pacificDateString(asOf);
+  return classes
+    .filter((session) => session.date >= today)
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start));
+}
+
+export type ClassWhen = {
+  id: string;
+  dateLabel: string;
+  timeLabel: string;
+};
+
+function clock(hhmm: string): { hour: number; minute: string; suffix: "AM" | "PM" } {
+  const [rawHour, rawMinute] = hhmm.split(":");
+  const hour24 = Number(rawHour);
+  const suffix = hour24 >= 12 ? "PM" : "AM";
+  const hour = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  return { hour, minute: rawMinute.padStart(2, "0"), suffix };
+}
+
+/** "Saturday, October 17, 2026" and "3:00–4:00 PM PT". */
+export function formatClassWhen(session: ClassSession): ClassWhen {
+  const [year, month, day] = session.date.split("-").map(Number);
+  const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
+  const start = clock(session.start);
+  const end = clock(session.end);
+  const timeLabel =
+    start.suffix === end.suffix
+      ? `${start.hour}:${start.minute}–${end.hour}:${end.minute} ${start.suffix} PT`
+      : `${start.hour}:${start.minute} ${start.suffix}–${end.hour}:${end.minute} ${end.suffix} PT`;
+
+  return {
+    id: `${session.date}-${session.start.replace(":", "")}`,
+    dateLabel: `${weekday}, ${MONTHS[month - 1]} ${day}, ${year}`,
+    timeLabel,
+  };
+}
