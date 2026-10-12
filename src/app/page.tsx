@@ -206,6 +206,25 @@ function ToolColumn({
             </Link>
           </li>
         ))}
+        {id === "turning-65" && (
+          <li>
+            <Link
+              href="/classes"
+              className="flex items-center gap-4 rounded-[20px] border border-[var(--brand-line)] bg-white p-4 shadow-[0_16px_40px_-28px_rgba(12,36,48,0.35)] transition-colors hover:border-[var(--brand-teal)]"
+            >
+              <IconTile tone={tone} slug="classes" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-[family-name:var(--font-display)] text-xl text-[var(--brand-ink)]">
+                  Join a free Medicare 101 class
+                </span>
+                <span className="mt-1 block text-base text-[var(--brand-ink-soft)]">
+                  You get: an educational class on Google Meet. No plans are sold.
+                </span>
+              </span>
+              <Chevron />
+            </Link>
+          </li>
+        )}
       </ul>
     </div>
   );
@@ -222,7 +241,7 @@ function IconTile({ tone, slug }: { tone: "teal" | "amber"; slug: string }) {
 
 function ToolGlyph({ slug }: { slug: string }) {
   const common = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8 };
-  if (slug === "iep-timeline") {
+  if (slug === "iep-timeline" || slug === "classes") {
     return (
       <svg {...common}>
         <rect x="4" y="5" width="16" height="15" rx="2" />
