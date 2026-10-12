@@ -123,7 +123,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     acronym: "Part B",
     category: "parts-plans",
     short: "Medical insurance—doctor visits, outpatient care, preventive services, durable medical equipment.",
-    long: "Part B covers outpatient and physician services. Most people pay a monthly premium (standard amount set each year; higher-income people may also pay IRMAA). Delaying Part B without qualifying coverage can trigger a lifelong late enrollment penalty.",
+    long: "Part B covers outpatient and physician services. Most people pay a monthly premium (standard amount set each year; higher-income people may also pay IRMAA). Delaying Part B without qualifying coverage can trigger a late enrollment penalty that usually lasts as long as you have Part B.",
     relatedTool: { href: "/tools/penalty-estimator", label: "Late Enrollment Penalty Estimator" },
   },
   {
@@ -142,7 +142,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     acronym: "Part D",
     category: "parts-plans",
     short: "Prescription drug coverage, sold as standalone plans or included in many Advantage plans.",
-    long: "Part D helps pay for outpatient prescription drugs. Formularies (covered drug lists), tiers, and pharmacies vary by plan. Going without creditable drug coverage after you are eligible can trigger a lifelong Part D late enrollment penalty.",
+    long: "Part D helps pay for outpatient prescription drugs. Formularies (covered drug lists), tiers, and pharmacies vary by plan. Going without creditable drug coverage after you are eligible can trigger a Part D late enrollment penalty that usually lasts as long as you have Part D.",
     relatedTool: { href: "/tools/penalty-estimator", label: "Late Enrollment Penalty Estimator" },
   },
   {
@@ -196,7 +196,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     acronym: "LEP",
     category: "costs",
     short: "An extra amount added to Part B and/or Part D premiums if you delay enrollment without qualifying coverage.",
-    long: "Part B LEP is generally 10% of the standard Part B premium for each full 12-month period you could have had Part B but did not. Part D LEP is generally 1% of the national base beneficiary premium for each full uncovered month without creditable drug coverage. These penalties are typically lifelong.",
+    long: "Part B LEP is generally 10% of the standard Part B premium for each full 12-month period you could have had Part B but did not. Part D LEP is generally 1% of the national base beneficiary premium for each full uncovered month without creditable drug coverage. These penalties usually continue for as long as you have Part B or Part D.",
     relatedTool: { href: "/tools/penalty-estimator", label: "Late Enrollment Penalty Estimator" },
   },
   {

@@ -8,10 +8,10 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   coverageLabel,
+  describeMedigapComparison,
   getPlan,
   MEDIGAP_BENEFITS,
   MEDIGAP_PLANS,
-  recommendMedSupp,
   type CoverageValue,
   type MedigapPlanLetter,
   type MedSuppAnswers,
@@ -59,7 +59,7 @@ export function MedSuppCompareTool() {
   const selected = draft.selected;
   const [error, setError] = useState("");
   const result = useMemo(
-    () => (draft.submitted ? recommendMedSupp(answers as MedSuppAnswers) : null),
+    () => (draft.submitted ? describeMedigapComparison(answers as MedSuppAnswers) : null),
     [answers, draft.submitted]
   );
   function setAnswers(value: Partial<MedSuppAnswers> | ((prev: Partial<MedSuppAnswers>) => Partial<MedSuppAnswers>)) {
@@ -97,7 +97,6 @@ export function MedSuppCompareTool() {
   }
 
   const letters = [...MEDIGAP_PLANS].sort((a, b) => a.letter.localeCompare(b.letter));
-  const lead = result?.primary[0];
 
   return (
     <div className="space-y-8">
@@ -121,7 +120,7 @@ export function MedSuppCompareTool() {
 
       <section className={`${cardClass} space-y-4 p-5`}>
         <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
-          What matters to you?
+          Focus the side-by-side
         </h2>
         {QUESTIONS.map((question) => (
           <fieldset key={question.key} className="space-y-2">
@@ -159,39 +158,33 @@ export function MedSuppCompareTool() {
           onClick={() => {
             const done = QUESTIONS.every((question) => typeof answers[question.key] === "boolean");
             if (!done) {
-              setError("Answer every question to see a letter lean.");
+              setError("Answer every question to compare letters.");
               setDraft((prev) => ({ ...prev, submitted: false }));
               return;
             }
             setError("");
-            const rec = recommendMedSupp(answers as MedSuppAnswers);
-            setDraft((prev) => ({ ...prev, submitted: true, selected: rec.compareDefault }));
+            const comparison = describeMedigapComparison(answers as MedSuppAnswers);
+            setDraft((prev) => ({ ...prev, submitted: true, selected: comparison.letters }));
           }}
         >
-          See my Medigap letter lean
+          Compare letters
         </button>
       </section>
 
-      {result && lead && (
-        <section className="flex flex-col gap-4 rounded-[24px] bg-[var(--brand-ink)] p-5 text-white sm:flex-row sm:items-center sm:p-6">
-          <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand-amber)] font-[family-name:var(--font-display)] text-4xl text-[var(--brand-ink)]">
-            {lead}
-          </div>
-          <div>
-            <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-amber)] uppercase">
-              Directional result · not a carrier recommendation
-            </p>
-            <h2 className="mt-1 font-[family-name:var(--font-display)] text-3xl text-balance">{result.title}</h2>
-            <p className="mt-2 text-base leading-relaxed text-white/80">{result.summary}</p>
-            <p className="mt-2 text-base">
-              Letters to study: {result.primary.map((letter) => `Plan ${letter}`).join(", ")}
-            </p>
-            <ul className="mt-3 space-y-2 text-base text-white/85">
-              {result.why.map((reason) => (
-                <li key={reason}>{withAcronymTips(reason)}</li>
-              ))}
-            </ul>
-          </div>
+      {result && (
+        <section className={`${cardClass} space-y-3 p-5`}>
+          <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-teal-deep)] uppercase">
+            Side-by-side coverage · not a letter recommendation
+          </p>
+          <h2 className="font-[family-name:var(--font-display)] text-3xl text-balance text-[var(--brand-ink)]">
+            {result.title}
+          </h2>
+          <p className="text-base leading-relaxed text-[var(--brand-ink-soft)]">{result.summary}</p>
+          <ul className="space-y-2 text-base text-[var(--brand-ink)]">
+            {result.details.map((detail) => (
+              <li key={detail}>{withAcronymTips(detail)}</li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -202,7 +195,7 @@ export function MedSuppCompareTool() {
               Compare plan letters
             </h2>
             <p className="mt-1 text-base text-[var(--brand-ink-soft)]">
-              Select 2–4 letters. Plan G is the reference. Amber cells differ from G.
+              Select 2–4 letters. Amber cells differ from Plan G, the column used as a visual baseline.
             </p>
           </div>
           <Link
@@ -257,7 +250,7 @@ export function MedSuppCompareTool() {
                       {plan.letter}
                     </span>
                     {plan.letter === "G" && (
-                      <span className="text-sm font-medium text-[var(--brand-teal-deep)]">Reference</span>
+                      <span className="text-sm font-medium text-[var(--brand-teal-deep)]">Baseline</span>
                     )}
                   </th>
                 ))}
@@ -314,12 +307,15 @@ export function MedSuppCompareTool() {
       </section>
 
       <div className="rounded-[20px] bg-[var(--brand-surface)] p-5 text-base text-[var(--brand-ink-soft)]">
-        <p className="font-medium text-[var(--brand-ink)]">Before you choose</p>
+        <p className="font-medium text-[var(--brand-ink)]">
+          Compare letters side by side. If you&apos;d like help later, a licensed agent can walk you
+          through your options.
+        </p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
-          <li>Compare premiums for the same letter across carriers in your state and ZIP.</li>
-          <li>Ask how the company rates age (attained-age, issue-age, or community-rated).</li>
+          <li>Premiums for the same letter can differ by carrier, state, and ZIP.</li>
+          <li>Companies may rate by attained age, issue age, or community rating.</li>
           <li>Medigap open enrollment around Part B start is usually the easiest time to buy.</li>
-          <li>Shop a Part D plan separately for your prescriptions.</li>
+          <li>Part D drug coverage is separate from Medigap.</li>
         </ul>
       </div>
     </div>

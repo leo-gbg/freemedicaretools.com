@@ -94,7 +94,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "G",
     name: "Plan G",
     newlyEligible: true,
-    popularityNote: "Most common choice for newly eligible buyers seeking near-full coverage.",
+    popularityNote: "Covers Part B excess charges. Does not cover the Part B deductible.",
     premiumTendency: "higher",
     summary:
       "Covers almost all standardized gaps except the Part B deductible. Includes Part B excess charges.",
@@ -115,7 +115,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "N",
     name: "Plan N",
     newlyEligible: true,
-    popularityNote: "Popular lower-premium alternative to Plan G if you are okay with office/ER copays.",
+    popularityNote: "Part B coinsurance uses copays. Does not cover Part B excess charges.",
     premiumTendency: "mid",
     summary:
       "Similar to Plan G on many hospital benefits, but Part B coinsurance uses copays ($20 office / $50 ER, amounts set by CMS rules). The emergency-room copay is waived if you are admitted. Plan N does not cover Part B excess charges.",
@@ -177,7 +177,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "D",
     name: "Plan D",
     newlyEligible: true,
-    popularityNote: "Less common than G/N; solid core benefits without excess-charge coverage.",
+    popularityNote: "Does not cover Part B excess charges.",
     premiumTendency: "mid",
     summary: "Covers key coinsurance and the Part A deductible, but not Part B excess charges.",
     coverage: {
@@ -197,7 +197,8 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "A",
     name: "Plan A",
     newlyEligible: true,
-    popularityNote: "Basic letter—usually not the best value once you compare premiums to G/N.",
+    popularityNote:
+      "Covers core coinsurance. Does not cover the Part A deductible, skilled nursing coinsurance, or Part B excess charges.",
     premiumTendency: "lower",
     summary: "Core coinsurance help only; does not cover Part A/B deductibles or SNF coinsurance.",
     coverage: {
@@ -217,7 +218,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "B",
     name: "Plan B",
     newlyEligible: true,
-    popularityNote: "Adds Part A deductible to the basic package; still thinner than G/N.",
+    popularityNote: "Adds the Part A deductible to the core coinsurance benefits.",
     premiumTendency: "mid",
     summary: "Plan A benefits plus the Part A deductible; no SNF coinsurance or excess charges.",
     coverage: {
@@ -277,7 +278,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "M",
     name: "Plan M",
     newlyEligible: true,
-    popularityNote: "Niche letter—pays half the Part A deductible.",
+    popularityNote: "Pays 50% of the Part A deductible.",
     premiumTendency: "mid",
     summary: "Covers most coinsurance; pays 50% of the Part A deductible; no excess charges.",
     coverage: {
@@ -324,108 +325,60 @@ export type MedSuppAnswers = {
   travelsAbroad: boolean;
 };
 
-export type MedSuppRecommendation = {
-  primary: MedigapPlanLetter[];
-  avoid: MedigapPlanLetter[];
+/** Equal side-by-side of standardized letters. Does not name a letter to buy. */
+export type MedSuppComparison = {
+  letters: MedigapPlanLetter[];
   title: string;
   summary: string;
-  why: string[];
-  compareDefault: MedigapPlanLetter[];
+  details: string[];
 };
 
-export function recommendMedSupp(a: MedSuppAnswers): MedSuppRecommendation {
-  if (!a.newlyEligible && a.wantsLowestGaps) {
-    return {
-      primary: ["F", "G"],
-      avoid: ["A", "B"],
-      title: "If you are eligible for Plan F, compare F vs G",
-      summary:
-        "People first eligible before 2020 can still access Plan F (includes the Part B deductible). Many still compare Plan G for premium differences. Get state-specific quotes before deciding.",
-      why: [
-        "Plan F covers the Part B deductible; Plan G does not.",
-        "Premiums vary widely by carrier, age, ZIP, and rating method—benefits do not.",
-        "If Plan F is not available to you, Plan G is the usual “near-complete” letter.",
-      ],
-      compareDefault: ["F", "G", "N"],
-    };
-  }
+const LETTER_ORDER = "ABCDEFGKLMN";
 
-  if (a.wantsOopCap && a.wantsLowerPremium) {
-    return {
-      primary: ["K", "L"],
-      avoid: ["A"],
-      title: "Your answers lean Plan K or Plan L",
-      summary:
-        "You want a lower premium and an annual out-of-pocket limit. K pays 50% of several benefits; L pays 75%. Compare premiums and the OOP maximum for your state.",
-      why: [
-        "K/L trade higher cost-sharing for lower premiums and a hard OOP cap.",
-        "They do not cover Part B excess charges or foreign travel the way G/N can.",
-        "If you prefer predictable “pay almost nothing after deductible” behavior, look at G/N instead.",
-      ],
-      compareDefault: ["K", "L", "G"],
-    };
-  }
+function sortLetters(letters: MedigapPlanLetter[]): MedigapPlanLetter[] {
+  return [...letters].sort((a, b) => LETTER_ORDER.indexOf(a) - LETTER_ORDER.indexOf(b));
+}
 
-  if (a.wantsLowestGaps && a.worriesExcessCharges && !a.okWithCopays) {
-    return {
-      primary: ["G"],
-      avoid: ["N", "A", "B"],
-      title: "Your answers lean Plan G",
-      summary:
-        "You want the gaps filled tightly, including Part B excess charges, and you prefer not to manage office/ER copays. Plan G is the usual match for newly eligible buyers with those priorities.",
-      why: [
-        "Plan G covers Part B excess charges; Plan N does not.",
-        "You still pay the Part B deductible each year (unlike legacy Plan F).",
-        "Next step: compare Plan G premiums across carriers in your ZIP—benefits are standardized.",
-      ],
-      compareDefault: ["G", "N", "D"],
-    };
-  }
+function titleFor(letters: MedigapPlanLetter[]): string {
+  const names = letters.map((letter) => `Plan ${letter}`);
+  if (names.length === 1) return `What ${names[0]} covers`;
+  return `What ${names.slice(0, -1).join(", ")} and ${names[names.length - 1]} cover`;
+}
 
-  if (a.wantsLowerPremium && a.okWithCopays) {
-    return {
-      primary: ["N"],
-      avoid: ["A"],
-      title: "Your answers lean Plan N",
-      summary:
-        "You are willing to trade small Part B copays (and no excess-charge coverage) for a typically lower premium than Plan G. Confirm you mostly see providers who accept Medicare assignment.",
-      why: [
-        "Plan N uses office/ER copays instead of full Part B coinsurance coverage.",
-        "No Part B excess-charge coverage—assignment-accepting doctors matter more.",
-        "Still compare Plan G quotes; sometimes the premium gap is smaller than people expect.",
-      ],
-      compareDefault: ["N", "G", "D"],
-    };
-  }
+/**
+ * Picks a 3-letter slice so the chart stays readable, then describes what those
+ * letters cover. The slice is not a recommendation and has no primary letter.
+ */
+export function describeMedigapComparison(a: MedSuppAnswers): MedSuppComparison {
+  let chosen: MedigapPlanLetter[];
+  if (!a.newlyEligible && a.wantsLowestGaps) chosen = ["F", "G", "N"];
+  else if (a.wantsOopCap && a.wantsLowerPremium) chosen = ["K", "L", "G"];
+  else if (a.wantsLowestGaps && a.worriesExcessCharges && !a.okWithCopays) chosen = ["G", "N", "D"];
+  else if (a.wantsLowerPremium && a.okWithCopays) chosen = ["N", "G", "D"];
+  else if (a.travelsAbroad && a.wantsLowestGaps) chosen = ["G", "N", "M"];
+  else chosen = ["G", "N", "D"];
 
+  const letters = sortLetters(chosen);
+  const details = [
+    "The chart lines these letters up. It does not choose one for you.",
+    "The same letter has the same standardized benefits from company to company. Premiums can differ.",
+  ];
+  if (letters.includes("F") || letters.includes("C")) {
+    details.push(
+      "Plans C and F are generally available only if you were first eligible before January 1, 2020."
+    );
+  }
   if (a.travelsAbroad && a.wantsLowestGaps) {
-    return {
-      primary: ["G", "N"],
-      avoid: ["K", "A"],
-      title: "Your answers lean Plan G (or N) with foreign-travel notes",
-      summary:
-        "Plans G and N include limited foreign travel emergency benefits. That is not full travel insurance—know the deductible and lifetime caps.",
-      why: [
-        "Foreign travel on Medigap is limited emergency coverage, not a vacation medical policy.",
-        "Plan G still tends to win if you want excess-charge protection.",
-        "Shop Part D separately either way.",
-      ],
-      compareDefault: ["G", "N", "M"],
-    };
+    details.push(
+      "Foreign travel emergency on these letters is limited care abroad after a deductible. Caps apply. It is not a travel insurance replacement."
+    );
   }
 
   return {
-    primary: ["G", "N"],
-    avoid: ["A"],
-    title: "Start by comparing Plan G and Plan N",
-    summary:
-      "For most newly eligible people, the real decision is G vs N (after confirming Medigap is the right path vs Advantage). Use the chart below, then get local premium quotes.",
-    why: [
-      "Benefits are standardized by letter—price and company service differ.",
-      "Plan G ≈ fewer claim surprises; Plan N ≈ often lower premium with copays.",
-      "Medigap does not include Part D—budget a drug plan too.",
-    ],
-    compareDefault: ["G", "N", "D"],
+    letters,
+    title: titleFor(letters),
+    summary: letters.map((letter) => `Plan ${letter}: ${getPlan(letter).summary}`).join(" "),
+    details,
   };
 }
 

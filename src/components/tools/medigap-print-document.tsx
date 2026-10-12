@@ -95,7 +95,7 @@ export function MedigapPrintDocument() {
           <ul className="mt-1 list-disc space-y-0.5 pl-4">
             <li>Medigap works with Original Medicare (Parts A &amp; B).</li>
             <li>Medigap does not include Part D prescription drug coverage.</li>
-            <li>Same letter = same benefits; shop premiums by carrier, ZIP, and age.</li>
+            <li>Same letter means the same standardized benefits. Premiums can differ by carrier, ZIP, and age.</li>
             <li>Confirm current Outline of Coverage before you enroll.</li>
           </ul>
         </div>
@@ -104,7 +104,8 @@ export function MedigapPrintDocument() {
       <footer className="mt-6 border-t border-[var(--brand-line)] pt-3 text-[8pt] text-[var(--brand-ink-soft)]">
         Educational comparison only—not Medicare, CMS, or Social Security advice. Not affiliated with
         the U.S. government. {BRAND.domain} · <PoweredBy className="inline" linkClassName="text-[var(--brand-ink-soft)]" />.
-        For personalized quotes, request a free consult with a licensed agent.
+        Compare letters side by side. If you&apos;d like help later, a licensed agent can walk you
+        through your options.
       </footer>
     </div>
   );

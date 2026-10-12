@@ -407,7 +407,7 @@ export function assessWorkingPast65(a: WorkAnswers): WorkResult {
   if (canLikelyDelayPartB) {
     return {
       canLikelyDelayPartB: true,
-      title: "You may be able to delay Part B without a penalty",
+      title: "Delaying Part B may be OK, so confirm with your HR or benefits office",
       guidance: [
         "Many people with current employer coverage from a workplace with 20+ employees can delay Part B and enroll later using a Special Enrollment Period.",
         "Ask your benefits team for a creditable coverage letter—especially for prescription drugs.",
@@ -427,7 +427,7 @@ export function assessWorkingPast65(a: WorkAnswers): WorkResult {
     canLikelyDelayPartB: false,
     title: "Delaying Part B may be risky in your situation",
     guidance: [
-      "If you lack qualifying current employer coverage (or the employer has fewer than 20 employees), delaying Part B can trigger lifelong late enrollment penalties and coverage gaps.",
+      "If you lack qualifying current employer coverage (or the employer has fewer than 20 employees), delaying Part B can trigger coverage gaps and late enrollment penalties that usually last as long as you have Part B or Part D.",
       "Your Initial Enrollment Period around age 65 is often the safest window to get Part B in force.",
       "If you already passed your IEP, look at GEP (Jan–Mar) or whether any SEP still applies.",
     ],
