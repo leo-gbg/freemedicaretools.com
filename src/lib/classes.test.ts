@@ -7,7 +7,17 @@ describe("upcomingClasses", () => {
     const listed = upcomingClasses(new Date("2026-10-12T18:00:00Z"));
     assert.deepEqual(
       listed.map((session) => session.date),
-      ["2026-10-17", "2026-10-31", "2026-11-07", "2026-11-21", "2026-12-05"],
+      [
+        "2026-10-17",
+        "2026-10-31",
+        "2026-11-07",
+        "2026-11-21",
+        "2026-12-05",
+        "2027-01-09",
+        "2027-03-06",
+        "2027-05-01",
+        "2027-07-03",
+      ],
     );
   });
 
@@ -16,7 +26,7 @@ describe("upcomingClasses", () => {
     const listed = upcomingClasses(new Date("2026-10-18T06:30:00Z"));
     assert.equal(pacificDateString(new Date("2026-10-18T06:30:00Z")), "2026-10-17");
     assert.equal(listed[0]?.date, "2026-10-17");
-    assert.equal(listed.length, 5);
+    assert.equal(listed.length, 9);
   });
 
   it("hides a class once the Pacific date has passed", () => {
@@ -40,7 +50,8 @@ describe("upcomingClasses", () => {
   });
 
   it("returns nothing after the last date", () => {
-    assert.deepEqual(upcomingClasses(new Date("2026-12-06T08:00:00Z")), []);
+    // 2027-07-04 07:00 UTC is 2027-07-04 12:00 AM PDT, the day after the last class.
+    assert.deepEqual(upcomingClasses(new Date("2027-07-04T07:00:00Z")), []);
   });
 
   it("sorts added dates even if the array is out of order", () => {
@@ -65,6 +76,13 @@ describe("formatClassWhen", () => {
     assert.equal(formatClassWhen(CLASSES[1]).dateLabel, "Saturday, October 31, 2026");
     assert.equal(formatClassWhen(CLASSES[1]).timeLabel, "9:00–10:00 AM PT");
     assert.equal(formatClassWhen(CLASSES[4]).dateLabel, "Saturday, December 5, 2026");
+    const byDate = Object.fromEntries(CLASSES.map((session) => [session.date, session]));
+    assert.equal(formatClassWhen(byDate["2027-01-09"]).timeLabel, "2:00–3:00 PM PT");
+    assert.equal(formatClassWhen(byDate["2027-03-06"]).dateLabel, "Saturday, March 6, 2027");
+    assert.equal(formatClassWhen(byDate["2027-03-06"]).timeLabel, "2:00–3:00 PM PT");
+    assert.equal(formatClassWhen(byDate["2027-05-01"]).timeLabel, "3:30–4:30 PM PT");
+    assert.equal(formatClassWhen(byDate["2027-07-03"]).dateLabel, "Saturday, July 3, 2027");
+    assert.equal(formatClassWhen(byDate["2027-07-03"]).timeLabel, "3:00–4:00 PM PT");
   });
 });
 
@@ -76,12 +94,17 @@ describe("class page copy", () => {
     );
     assert.equal(
       CLASS_PAGE.tpmo,
-      "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area. Please contact Medicare.gov, 1-800-MEDICARE (TTY 1-877-486-2048), or your local State Health Insurance Program (SHIP) to get information on all of your options.",
+      "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area (Clark County, NV, 2027 plan year). Please contact Medicare.gov, 1-800-MEDICARE (TTY 1-877-486-2048), or your local State Health Insurance Program (SHIP) to get information on all of your options.",
     );
     assert.equal(
       CLASS_PAGE.affiliation,
-      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT.",
+      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
     );
+    assert.equal(
+      CLASS_PAGE.signupNote,
+      "Your name and email are used only to send the class link and reminders. If you add a phone number, it's used only if the class link changes. We won't call, text, or send sales follow-ups from your sign-up. Please don't share health or plan details in the comment box.",
+    );
+    assert.equal(CLASS_PAGE.privacyLabel, "Privacy Policy");
     assert.equal(CLASS_PAGE.headline, "Free Medicare 101 Classes");
     assert.match(CLASS_PAGE.intro, /Leo Adaoag, MBA, RSSA®/);
     assert.equal(CLASS_PAGE.phoneDisplay, "702-627-2605");

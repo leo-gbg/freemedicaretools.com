@@ -66,6 +66,15 @@ export default async function ClassesPage() {
         >
           {CLASS_PAGE.upcomingHeading}
         </h2>
+        <p className="mt-4 text-lg leading-relaxed text-[var(--brand-ink)]">{CLASS_PAGE.signupNote}</p>
+        <p>
+          <Link
+            href="/privacy"
+            className="inline-flex min-h-12 items-center font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+          >
+            {CLASS_PAGE.privacyLabel}
+          </Link>
+        </p>
         {sessions.length === 0 ? (
           <p className="mt-4 text-lg text-[var(--brand-ink-soft)]">{CLASS_PAGE.empty}</p>
         ) : (
@@ -124,7 +133,7 @@ export default async function ClassesPage() {
             href="/privacy"
             className="inline-flex min-h-12 items-center font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
           >
-            Privacy
+            {CLASS_PAGE.privacyLabel}
           </Link>
         </p>
       </section>

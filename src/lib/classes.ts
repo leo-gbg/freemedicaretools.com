@@ -3,8 +3,8 @@
  *
  * Add a row to CLASSES when a date is set. Dates and times are Pacific Time.
  * A class leaves the page once its Pacific calendar date has passed.
- * More 2027 dates, starting January 9, 2027, are expected later — do not
- * invent them here until they are confirmed.
+ * Times below are Pacific. They were read from each Fantastical page (shown
+ * there in UTC) and converted. An invite with no clock time is left out.
  */
 
 export type ClassSession = {
@@ -49,6 +49,30 @@ export const CLASSES: ClassSession[] = [
     end: "16:00",
     rsvpUrl: "https://fantastical.app/i/NrlzqH7xMqHwFyb",
   },
+  {
+    date: "2027-01-09",
+    start: "14:00",
+    end: "15:00",
+    rsvpUrl: "https://fantastical.app/i/VWNm2XcRNQHdFvt",
+  },
+  {
+    date: "2027-03-06",
+    start: "14:00",
+    end: "15:00",
+    rsvpUrl: "https://fantastical.app/i/sUmoQqGN1sHBFZ6",
+  },
+  {
+    date: "2027-05-01",
+    start: "15:30",
+    end: "16:30",
+    rsvpUrl: "https://fantastical.app/i/VAFV6WH51xHiFMY",
+  },
+  {
+    date: "2027-07-03",
+    start: "15:00",
+    end: "16:00",
+    rsvpUrl: "https://fantastical.app/i/ECK9K7K21AHGF2q",
+  },
 ];
 
 export const CLASS_PAGE = {
@@ -65,14 +89,17 @@ export const CLASS_PAGE = {
   notice:
     "This is an educational class only. No plans will be discussed or sold, and no one will be enrolled during the class. Attending does not require booking a consult.",
   upcomingHeading: "Upcoming classes",
+  signupNote:
+    "Your name and email are used only to send the class link and reminders. If you add a phone number, it's used only if the class link changes. We won't call, text, or send sales follow-ups from your sign-up. Please don't share health or plan details in the comment box.",
+  privacyLabel: "Privacy Policy",
   empty: "There are no upcoming classes right now.",
   reserve: "Reserve my seat",
   meet: "Google Meet",
   duration: "about 1 hour",
   tpmo:
-    "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area. Please contact Medicare.gov, 1-800-MEDICARE (TTY 1-877-486-2048), or your local State Health Insurance Program (SHIP) to get information on all of your options.",
+    "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area (Clark County, NV, 2027 plan year). Please contact Medicare.gov, 1-800-MEDICARE (TTY 1-877-486-2048), or your local State Health Insurance Program (SHIP) to get information on all of your options.",
   affiliation:
-    "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT.",
+    "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
   questionsLabel: "Questions:",
   phoneDisplay: "702-627-2605",
   phoneHref: "tel:+17026272605",
