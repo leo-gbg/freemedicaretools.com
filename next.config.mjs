@@ -3,12 +3,14 @@
 /**
  * Short paths that do not match a real route.
  * Each path is also registered with a trailing slash.
- * Real pages: /, /tools, /classes, /glossary, /research, /privacy, /terms,
- * /tools/<slug>, and the two print routes.
+ * Real pages: /, /tools, /classes, /classes/slides, /glossary, /research,
+ * /privacy, /terms, /tools/<slug>, and the two print routes.
+ * /classes/slides is unlisted. /slides is only a short link to it.
  */
 const SHORT_LINKS = [
   ["/worksheet", "/tools/client-worksheet"],
   ["/class", "/classes"],
+  ["/slides", "/classes/slides"],
   ["/iep", "/tools/iep-timeline"],
   ["/working", "/tools/working-past-65"],
   ["/quiz", "/tools/path-quiz"],
@@ -56,6 +58,13 @@ const nextConfig = {
         destination: "/:path+",
         permanent: true,
       },
+    ];
+  },
+  async headers() {
+    const unlisted = { key: "X-Robots-Tag", value: "noindex, nofollow" };
+    return [
+      { source: "/classes/slides", headers: [unlisted] },
+      { source: "/classes/medicare101-v6.pdf", headers: [unlisted] },
     ];
   },
 };

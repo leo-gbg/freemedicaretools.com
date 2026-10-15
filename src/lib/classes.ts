@@ -73,6 +73,12 @@ export const CLASSES: ClassSession[] = [
     end: "16:00",
     rsvpUrl: "https://fantastical.app/i/ECK9K7K21AHGF2q",
   },
+  {
+    date: "2027-09-04",
+    start: "14:00",
+    end: "15:00",
+    rsvpUrl: "https://fantastical.app/i/NRZR5GKh1hHJFz7",
+  },
 ];
 
 export const CLASS_PAGE = {

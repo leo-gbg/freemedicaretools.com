@@ -17,6 +17,7 @@ describe("upcomingClasses", () => {
         "2027-03-06",
         "2027-05-01",
         "2027-07-03",
+        "2027-09-04",
       ],
     );
   });
@@ -26,7 +27,7 @@ describe("upcomingClasses", () => {
     const listed = upcomingClasses(new Date("2026-10-18T06:30:00Z"));
     assert.equal(pacificDateString(new Date("2026-10-18T06:30:00Z")), "2026-10-17");
     assert.equal(listed[0]?.date, "2026-10-17");
-    assert.equal(listed.length, 9);
+    assert.equal(listed.length, 10);
   });
 
   it("hides a class once the Pacific date has passed", () => {
@@ -50,8 +51,8 @@ describe("upcomingClasses", () => {
   });
 
   it("returns nothing after the last date", () => {
-    // 2027-07-04 07:00 UTC is 2027-07-04 12:00 AM PDT, the day after the last class.
-    assert.deepEqual(upcomingClasses(new Date("2027-07-04T07:00:00Z")), []);
+    // 2027-09-05 07:00 UTC is 2027-09-05 12:00 AM PDT, the day after the last class.
+    assert.deepEqual(upcomingClasses(new Date("2027-09-05T07:00:00Z")), []);
   });
 
   it("sorts added dates even if the array is out of order", () => {
@@ -83,6 +84,9 @@ describe("formatClassWhen", () => {
     assert.equal(formatClassWhen(byDate["2027-05-01"]).timeLabel, "3:30–4:30 PM PT");
     assert.equal(formatClassWhen(byDate["2027-07-03"]).dateLabel, "Saturday, July 3, 2027");
     assert.equal(formatClassWhen(byDate["2027-07-03"]).timeLabel, "3:00–4:00 PM PT");
+    assert.equal(formatClassWhen(byDate["2027-09-04"]).dateLabel, "Saturday, September 4, 2027");
+    assert.equal(formatClassWhen(byDate["2027-09-04"]).timeLabel, "2:00–3:00 PM PT");
+    assert.equal(byDate["2027-09-04"].rsvpUrl, "https://fantastical.app/i/NRZR5GKh1hHJFz7");
   });
 });
 
