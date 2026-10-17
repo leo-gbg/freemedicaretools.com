@@ -8,7 +8,6 @@ describe("upcomingClasses", () => {
     assert.deepEqual(
       listed.map((session) => session.date),
       [
-        "2026-10-17",
         "2026-10-31",
         "2026-11-07",
         "2026-11-21",
@@ -23,11 +22,11 @@ describe("upcomingClasses", () => {
   });
 
   it("keeps a class on its Pacific date, including late that evening", () => {
-    // 2026-10-18 06:30 UTC is still 2026-10-17 11:30 PM PDT.
-    const listed = upcomingClasses(new Date("2026-10-18T06:30:00Z"));
-    assert.equal(pacificDateString(new Date("2026-10-18T06:30:00Z")), "2026-10-17");
-    assert.equal(listed[0]?.date, "2026-10-17");
-    assert.equal(listed.length, 10);
+    // 2026-11-01 06:30 UTC is still 2026-10-31 11:30 PM PDT.
+    const listed = upcomingClasses(new Date("2026-11-01T06:30:00Z"));
+    assert.equal(pacificDateString(new Date("2026-11-01T06:30:00Z")), "2026-10-31");
+    assert.equal(listed[0]?.date, "2026-10-31");
+    assert.equal(listed.length, 9);
   });
 
   it("hides a class once the Pacific date has passed", () => {
@@ -57,26 +56,26 @@ describe("upcomingClasses", () => {
 
   it("sorts added dates even if the array is out of order", () => {
     const listed = upcomingClasses(new Date("2026-01-01T12:00:00Z"), [
-      CLASSES[2],
+      CLASSES[1],
       CLASSES[0],
     ]);
     assert.deepEqual(
       listed.map((session) => session.date),
-      ["2026-10-17", "2026-11-07"],
+      ["2026-10-31", "2026-11-07"],
     );
   });
 });
 
 describe("formatClassWhen", () => {
   it("formats afternoon and morning Pacific times", () => {
-    assert.deepEqual(formatClassWhen(CLASSES[0]), {
-      id: "2026-10-17-1500",
-      dateLabel: "Saturday, October 17, 2026",
+    assert.deepEqual(formatClassWhen(CLASSES[1]), {
+      id: "2026-11-07-1500",
+      dateLabel: "Saturday, November 7, 2026",
       timeLabel: "3:00–4:00 PM PT",
     });
-    assert.equal(formatClassWhen(CLASSES[1]).dateLabel, "Saturday, October 31, 2026");
-    assert.equal(formatClassWhen(CLASSES[1]).timeLabel, "9:00–10:00 AM PT");
-    assert.equal(formatClassWhen(CLASSES[4]).dateLabel, "Saturday, December 5, 2026");
+    assert.equal(formatClassWhen(CLASSES[0]).dateLabel, "Saturday, October 31, 2026");
+    assert.equal(formatClassWhen(CLASSES[0]).timeLabel, "9:00–10:00 AM PT");
+    assert.equal(formatClassWhen(CLASSES[3]).dateLabel, "Saturday, December 5, 2026");
     const byDate = Object.fromEntries(CLASSES.map((session) => [session.date, session]));
     assert.equal(formatClassWhen(byDate["2027-01-09"]).timeLabel, "2:00–3:00 PM PT");
     assert.equal(formatClassWhen(byDate["2027-03-06"]).dateLabel, "Saturday, March 6, 2027");

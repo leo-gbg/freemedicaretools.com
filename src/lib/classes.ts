@@ -20,12 +20,6 @@ export type ClassSession = {
 
 export const CLASSES: ClassSession[] = [
   {
-    date: "2026-10-17",
-    start: "15:00",
-    end: "16:00",
-    rsvpUrl: "https://fantastical.app/i/L4jlg65SMoH2FUr",
-  },
-  {
     date: "2026-10-31",
     start: "09:00",
     end: "10:00",
