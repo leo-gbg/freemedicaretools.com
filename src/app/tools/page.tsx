@@ -12,7 +12,7 @@ export const metadata = {
 const GROUPS = [
   { title: "Turning 65", tools: TURNING_SLUGS.map((slug) => getTool(slug)!) },
   { title: "Already on Medicare", tools: ENROLLED_SLUGS.map((slug) => getTool(slug)!) },
-  { title: "Before a consult", tools: [getTool("client-worksheet")!] },
+  { title: "Optional worksheet", tools: [getTool("client-worksheet")!] },
 ];
 
 export default function ToolsHubPage() {

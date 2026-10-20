@@ -5,7 +5,7 @@ import { BRAND } from "@/lib/brand";
 export const metadata: Metadata = {
   title: "Medicare client worksheet — printable PDF",
   description:
-    "Printable Medicare consult worksheet: contact, prescriptions, doctors, and plan-shaping details for your agent.",
+    "Printable Medicare worksheet: contact, prescriptions, and doctors for your own records. A consult is optional.",
   openGraph: {
     title: `Client worksheet · ${BRAND.name}`,
   },

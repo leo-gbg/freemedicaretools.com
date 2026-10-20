@@ -5,7 +5,9 @@ import Link from "next/link";
 import { PoweredBy } from "@/components/powered-by";
 import { Wordmark } from "@/components/wordmark";
 import { buttonVariants } from "@/components/ui/button";
+import { OfficialSourceNote } from "@/components/official-source";
 import { BRAND } from "@/lib/brand";
+import { OFFICIAL_SOURCE_SENTENCE } from "@/lib/medicare/official";
 import {
   loadWorksheet,
   type ClientWorksheet,
@@ -96,6 +98,7 @@ export function ClientWorksheetPrintDocument() {
               Email to agent
             </a>
           </div>
+          <OfficialSourceNote className="sm:text-right" />
           <p className="text-sm text-[var(--brand-ink-soft)] sm:text-right">
             The email does not include your worksheet. Do not add medications, date of birth, Medicaid,
             VA benefits, or similar details to the message.{" "}
@@ -170,7 +173,7 @@ function PageOne({
       </h1>
       <p className="mt-1 text-[13px] text-[var(--brand-ink-soft)]">
         {goesBy ? `Goes by ${goesBy} · ` : ""}
-        Bring this page to your consult, or email it ahead.
+        Keep this page for yourself. A consult is optional.
       </p>
 
       <div className="mt-3 grid grid-cols-4 gap-2">
@@ -199,12 +202,12 @@ function PageOne({
         </dl>
       </Section>
 
-      <Section n={2} title="What shapes your plan options" note="These change which plans fit">
+      <Section n={2} title="How you use care" note="For your records">
         <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
           <Field label="Current coverage" value={data.currentCoverage} />
           <Field label="Preferred pharmacy" value={data.preferredPharmacy} />
           <Field label="Preferred hospital" value={data.preferredHospital} />
-          <Field label="Monthly premium budget" value={data.monthlyPremiumBudget} />
+          <Field label="How you want to see doctors" value={data.providerAccess} />
           <Field label="Coverage notes" value={data.otherCoverageNotes} wide />
           <Field label="Caregiver / helper" value={data.caregiverName} />
           <Field label="Caregiver phone" value={data.caregiverPhone} />
@@ -212,7 +215,7 @@ function PageOne({
         <ul className="mt-3 grid grid-cols-5 gap-2 text-[11px] leading-snug">
           <YesNo label="Out of state 1+ months a year" value={data.travelsOutOfState} extra={data.travelMonths} />
           <YesNo label="Tobacco in the last 12 months" value={data.tobaccoUse} />
-          <YesNo label="Dental, vision, or hearing is a priority" value={data.wantsDentalVisionHearing} />
+          <YesNo label="Comfortable using a doctor and hospital network" value={data.comfortableWithNetwork} />
           <YesNo label="Also has Medicaid" value={data.dualEligibleMedicaid} />
           <YesNo label="Has VA benefits" value={data.hasVaBenefits} />
         </ul>
@@ -222,7 +225,7 @@ function PageOne({
         <div className="grid grid-cols-2 gap-4">
           <section>
             <h3 className="text-[11px] font-medium tracking-[0.12em] text-[var(--brand-ink)] uppercase">
-              Bring to your consult
+              If you request a consult, bring
             </h3>
             <ul className="mt-2 space-y-1.5 text-[13px]">
               {BRING.map((item) => (
@@ -239,7 +242,8 @@ function PageOne({
 
       <footer className="mt-2 shrink-0 border-t border-[var(--brand-line)] pt-1.5 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Made in your browser at {BRAND.domain}. Nothing you typed was sent to or stored by the site.
-        Educational use only, not affiliated with the U.S. government, CMS, or Medicare.
+        Educational use only, not affiliated with the U.S. government, CMS, or Medicare.{" "}
+        {OFFICIAL_SOURCE_SENTENCE}
       </footer>
     </article>
   );

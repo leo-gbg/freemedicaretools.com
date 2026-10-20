@@ -105,7 +105,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     category: "enrollment",
     short:
       "A special window after a qualifying life event (like leaving employer coverage).",
-    long: "SEPs unlock enrollment outside AEP when something qualifying happens—ending group coverage from current employment, moving, certain Medicaid or Extra Help changes, and other CMS-defined events. Timing rules differ (for example, Part B after employer coverage often works differently than Part D).",
+    long: "SEPs unlock enrollment outside AEP when something qualifying happens—ending group coverage from current employment, moving, certain Medicaid or Extra Help changes, and other CMS-defined events. After employer coverage ends, the Part B Special Enrollment Period is usually 8 months, starting the month after you stop working or the coverage ends, whichever comes first. The Part D Special Enrollment Period is generally 2 full months after the month that coverage ends. A gap of 63 days or more in a row without creditable drug coverage can trigger the Part D late penalty. That 63-day gap is not the Part D enrollment window.",
     relatedTool: { href: "/tools/working-past-65", label: "Still Working Past 65?" },
   },
   // Parts & plans
@@ -131,8 +131,9 @@ export const GLOSSARY: GlossaryEntry[] = [
     term: "Medicare Part C",
     acronym: "Part C",
     category: "parts-plans",
-    short: "Another name for Medicare Advantage—private plans that bundle Part A and Part B (often with extras).",
-    long: "Part C is Medicare Advantage. These are private plans approved by Medicare that must cover Part A and Part B benefits, often with networks, copays, and extras like dental or vision. Drug coverage may be included.",
+    short:
+      "Another name for Medicare Advantage—private plans that provide Part A and Part B benefits, usually through a network.",
+    long: "Part C is Medicare Advantage. These are private plans approved by Medicare that must cover Part A and Part B benefits. They usually use a network and may require referrals or prior authorization. Drug coverage may be included. Plan-specific benefits and costs are on Medicare.gov’s Plan Finder.",
     alsoCalled: ["Medicare Advantage", "MA"],
     relatedTool: { href: "/tools/path-quiz", label: "Coverage Path Quiz" },
   },
@@ -204,7 +205,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     term: "Premium",
     category: "costs",
     short: "The amount you pay—usually monthly—to keep a plan or Medicare Part in force.",
-    long: "Premiums are the “membership fee” for coverage. Examples include the Part B premium, a Medigap premium, a Part D plan premium, or a Medicare Advantage premium. Plan premiums differ, and an income-related adjustment (IRMAA) or optional extras can change what you pay.",
+    long: "Premiums are the “membership fee” for coverage. Examples include the Part B premium, a Medigap premium, a Part D plan premium, or a Medicare Advantage premium. Plan premiums differ, and an income-related adjustment (IRMAA) can change what you pay. Plan-specific amounts are on Medicare.gov’s Plan Finder.",
   },
   {
     id: "deductible",
@@ -278,7 +279,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     term: "Creditable coverage",
     category: "coverage",
     short: "Drug coverage at least as good as Medicare’s standard Part D benefit—important for avoiding Part D penalties.",
-    long: "If you delay Part D, you generally need creditable prescription coverage (often from an employer or union plan) to avoid a late enrollment penalty. Ask your benefits office for a creditable coverage notice in writing.",
+    long: "If you delay Part D, you generally need creditable prescription coverage (often from an employer or union plan) to avoid a late enrollment penalty. A gap of 63 days or more in a row without creditable drug coverage can trigger that penalty. The Special Enrollment Period to join a drug plan after you lose that coverage is generally 2 full months after the month it ends, which is a different clock. Ask your benefits office for a creditable coverage notice in writing.",
     relatedTool: { href: "/tools/working-past-65", label: "Still Working Past 65?" },
   },
   {

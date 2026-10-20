@@ -16,6 +16,7 @@ import {
   type MedigapPlanLetter,
   type MedSuppAnswers,
 } from "@/lib/medicare/medigap";
+import { MEDICARE_MEDIGAP_BENEFITS } from "@/lib/medicare/official";
 import { btnInk, cardClass } from "@/lib/visual";
 
 const QUESTIONS: { key: keyof MedSuppAnswers; prompt: string }[] = [
@@ -28,12 +29,9 @@ const QUESTIONS: { key: keyof MedSuppAnswers; prompt: string }[] = [
     prompt: "I want as few leftover medical bills as possible after Original Medicare pays.",
   },
   {
-    key: "wantsLowerPremium",
-    prompt: "A lower Medigap premium matters more than covering every possible gap.",
-  },
-  {
     key: "okWithCopays",
-    prompt: "I’m okay with small doctor / ER copays if it lowers my monthly premium.",
+    prompt:
+      "I’m okay with Part B coinsurance copays of up to $20 for some office visits and up to $50 for an emergency room visit that does not lead to admission.",
   },
   {
     key: "worriesExcessCharges",
@@ -109,8 +107,19 @@ export function MedSuppCompareTool() {
         <p className="mt-2">
           Medigap works with Original Medicare and does <strong>not</strong> include Part D drug
           coverage. Plans C and F are generally unavailable if you first became eligible in 2020 or
-          later. High-deductible Plan F and high-deductible Plan G exist and are not in this chart.
-          Plan N’s emergency-room copay is waived if you are admitted.
+          later.           High-deductible Plan F and high-deductible Plan G exist and are not in this chart.
+          Plan N’s Part B coinsurance uses copays of up to $20 for some office visits and up to $50
+          for emergency room visits. The emergency-room copay is waived if you are admitted. The
+          federal chart is on{" "}
+          <a
+            href={MEDICARE_MEDIGAP_BENEFITS}
+            className="font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Medicare.gov
+          </a>
+          .
         </p>
         <p className="mt-2">
           Massachusetts, Minnesota, and Wisconsin do not use this letter chart. If you live in one
@@ -294,10 +303,6 @@ export function MedSuppCompareTool() {
             <li key={plan.letter} className={`${cardClass} p-4`}>
               <p className="font-[family-name:var(--font-display)] text-xl text-[var(--brand-ink)]">
                 Plan {plan.letter}
-              </p>
-              <p className="mt-1 text-sm text-[var(--brand-teal-deep)]">
-                Typical premium: {plan.premiumTendency}
-                {!plan.newlyEligible ? " · legacy eligibility" : ""}
               </p>
               <p className="mt-2 text-base text-[var(--brand-ink-soft)]">{plan.summary}</p>
               <p className="mt-2 text-sm text-[var(--brand-text-3)]">{plan.popularityNote}</p>

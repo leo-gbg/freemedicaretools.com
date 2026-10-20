@@ -161,8 +161,8 @@ export function WorkingPast65Tool() {
           </p>
           <p className="mt-3 text-base leading-relaxed text-white/85">
             {timeline.partDStart && timeline.partDEnd
-              ? `Part D is generally the two months after the month drug coverage ends: ${showDate(timeline.partDStart)} through ${showDate(timeline.partDEnd)}. That applies when the drug coverage was creditable.`
-              : "Part D cannot be dated until you know when creditable drug coverage ends. It is generally the two months after that month."}
+              ? `Part D is generally the two full months after the month drug coverage ends: ${showDate(timeline.partDStart)} through ${showDate(timeline.partDEnd)}. That applies when the drug coverage was creditable. A gap of 63 days or more in a row without creditable drug coverage can trigger the Part D late penalty. That 63-day gap is not this enrollment window.`
+              : "Part D cannot be dated until you know when creditable drug coverage ends. It is generally the two full months after that month. A gap of 63 days or more in a row without creditable drug coverage can trigger the Part D late penalty. That 63-day gap is not the enrollment window."}
           </p>
           {!result.canLikelyDelayPartB && (
             <p className="mt-3 text-base leading-relaxed text-[var(--brand-amber)]">

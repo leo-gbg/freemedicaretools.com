@@ -117,7 +117,7 @@ export function PeriodFinderTool() {
           <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl text-balance text-[var(--brand-ink)]">
             {withAcronymTips(headline.label)}
           </h2>
-          <p className="mt-2 text-base text-[var(--brand-ink-soft)]">{headline.windowLabel}</p>
+          <p className="mt-2 text-base leading-relaxed text-[var(--brand-ink-soft)]">{headline.windowLabel}</p>
         </div>
       ) : (
         <p className="text-base text-[var(--brand-ink-soft)]">
@@ -189,6 +189,9 @@ function WindowRow({ period }: { period: PeriodMatch }) {
             <MonthBlocks id={period.id} />
           )}
         </div>
+        {personal && (
+          <p className="mt-1 text-sm leading-relaxed text-[var(--brand-ink-soft)]">{period.windowLabel}</p>
+        )}
         {dim && (
           <p className="mt-1 text-sm text-[var(--brand-text-3)]">Not your situation</p>
         )}

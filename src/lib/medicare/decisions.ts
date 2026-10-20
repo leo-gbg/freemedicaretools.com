@@ -255,11 +255,15 @@ export function findEnrollmentWindows(
       calendarStatus: "personal",
       calendarBadge: "Personal timing",
       calendarNote: answers.losingEmployerCoverage
-        ? "SEP timing is based on your coverage end date—mark your calendar as soon as group coverage ends."
+        ? "SEP timing is based on your coverage end date. Part B is usually 8 months. Part D is generally 2 full months after the month coverage ends. A gap of 63 days or more without creditable drug coverage can trigger the Part D late penalty. That 63-day gap is not the Part D enrollment window."
         : "Triggered by qualifying life events, not a fixed national shopping season.",
-      windowLabel: "Usually 8 months after employer coverage ends (Part B) / 63 days for Part D",
+      // Medicare.gov: Part B SEP is 8 months after work or employer coverage ends, whichever is first.
+      // Part D SEP after employer or creditable drug coverage ends is 2 full months after that month.
+      // 63 days is the creditable-coverage gap that can trigger the Part D late penalty, not the SEP length.
+      windowLabel:
+        "Part B: usually 8 months, starting the month after you stop working or employer coverage ends, whichever comes first. Part D: generally 2 full months after the month employer or creditable drug coverage ends. A gap of 63 days or more in a row without creditable drug coverage can trigger the Part D late penalty. That 63-day gap is not the Part D enrollment window.",
       description:
-        "Life events—leaving a job with group coverage, moving, Medicaid changes, Extra Help—can unlock enrollment outside AEP.",
+        "Life events—leaving a job with group coverage, moving, Medicaid changes, Extra Help—can unlock enrollment outside AEP. After employer coverage ends, Part B and Part D use different clocks. Medicare.gov’s Special Enrollment Periods page is the official list.",
       whoItFits: "People delaying Part B/D because of qualifying current employer coverage.",
     },
   ];
@@ -302,11 +306,11 @@ export function lookupIrmaa(
 
 export type PathAnswers = {
   travelOften: boolean;
-  wantsLowPremium: boolean;
   needsSpecificDoctors: boolean;
-  takesManyRx: boolean;
-  wantsDentalVision: boolean;
-  okWithReferrals: boolean;
+  wantsNoReferral: boolean;
+  okWithNetwork: boolean;
+  prefersPlanSetCosts: boolean;
+  wantsSeparateDrugPlan: boolean;
 };
 
 export type PathResult = {
@@ -319,33 +323,42 @@ export type PathResult = {
   original: number;
 };
 
+/**
+ * Structural lean only: networks, referrals, how costs are organized, travel, and
+ * whether drug coverage sits in the same plan. No benefit or premium scoring.
+ */
 export function scoreCoveragePath(a: PathAnswers): PathResult {
   let advantage = 0;
   let original = 0;
 
-  if (a.wantsLowPremium) advantage += 2;
-  if (a.wantsDentalVision) advantage += 2;
-  if (a.okWithReferrals) advantage += 1;
-  if (!a.travelOften) advantage += 1;
-
   if (a.travelOften) original += 2;
+  else advantage += 1;
+
   if (a.needsSpecificDoctors) original += 2;
-  if (a.takesManyRx) original += 1;
-  if (!a.okWithReferrals) original += 1;
-  if (!a.wantsLowPremium) original += 1;
+
+  if (a.wantsNoReferral) original += 2;
+  else advantage += 1;
+
+  if (a.okWithNetwork) advantage += 2;
+  else original += 2;
+
+  if (a.prefersPlanSetCosts) advantage += 2;
+  else original += 2;
+
+  if (a.wantsSeparateDrugPlan) original += 1;
+  else advantage += 1;
 
   const scores = { advantage, original };
   const diff = advantage - original;
   if (Math.abs(diff) <= 1) {
     return {
       lean: "mixed",
-      title: "Your answers point both ways",
+      title: "Your answers use both structures",
       summary:
-        "Budget extras (dental, vision, or a lower monthly premium) tug toward Medicare Advantage. Provider freedom and travel tug toward Original Medicare + Medigap + Part D. The right call usually needs a side-by-side of your doctors, drugs, and ZIP code.",
+        "Original Medicare plus a Medigap policy generally lets you see any provider who accepts Medicare, usually without a referral, with a separate Part D plan for drugs. Medicare Advantage generally uses the plan’s network and referral rules, and the plan sets what you pay for covered services, including a yearly maximum.",
       nextSteps: [
-        "List your doctors, hospitals, and top 5 prescriptions.",
-        "Compare network fit vs. Medigap premium for your state.",
-        "Request a free consult before your enrollment window closes.",
+        "List the doctors and prescriptions you want to keep.",
+        "Read how networks, referrals, and enrollment timing differ, then look up your ZIP code on Medicare.gov’s Plan Finder.",
       ],
       ...scores,
     };
@@ -354,13 +367,12 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
   if (advantage > original) {
     return {
       lean: "advantage",
-      title: "Your answers lean Medicare Advantage",
+      title: "Your answers line up with how Medicare Advantage is structured",
       summary:
-        "You value extras and a lower monthly premium and are more open to plan networks and utilization rules. Advantage plans still vary widely by county—formulary and network checks matter.",
+        "Medicare Advantage plans are private plans that provide Part A and Part B benefits. They usually use a network, may require a referral or prior authorization, and set what you pay for covered services, including a yearly maximum. Drug coverage is often in the same plan. Whether a doctor is in the network depends on the plan and your county.",
       nextSteps: [
-        "Confirm each doctor and drug is in-network / on formulary.",
-        "Compare max out-of-pocket and prior-authorization rules.",
-        "Review again every AEP—benefits change yearly.",
+        "Check whether your doctors and prescriptions appear in Medicare.gov’s Plan Finder for your ZIP code.",
+        "Medicare Advantage enrollment generally follows your Initial Enrollment Period, October 15–December 7, or a Special Enrollment Period.",
       ],
       ...scores,
     };
@@ -368,13 +380,13 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
 
   return {
     lean: "original-medigap",
-    title: "Your answers lean Original Medicare + Medigap",
+    title: "Your answers line up with Original Medicare plus Medigap",
     summary:
-      "You prioritize seeing preferred providers, traveling, or avoiding referral friction. That path usually means Part A/B, a Medigap (supplement) plan, and separate Part D—higher premiums, more predictability.",
+      "Original Medicare (Part A and Part B) generally pays for care from any provider in the U.S. who accepts Medicare, usually without a referral. A Medigap policy helps pay costs Original Medicare leaves behind. Drug coverage is a separate Part D plan. Medigap letters are standardized.",
     nextSteps: [
-      "Open the Medigap (Med-Supp) Plan Letter Guide to compare G vs N (and other letters).",
-      "Shop Part D for your exact medications.",
-      "Medigap is easiest at first eligibility—timing matters.",
+      "Open the Medigap letter guide to see what each letter covers.",
+      "Look up drug coverage for your prescriptions on Medicare.gov’s Plan Finder.",
+      "Medigap is usually easiest to buy in the 6-month window that starts when you are 65 or older and enrolled in Part B.",
     ],
     ...scores,
   };

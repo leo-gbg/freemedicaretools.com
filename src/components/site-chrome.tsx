@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { OfficialSourceNote } from "@/components/official-source";
 import { PoweredBy } from "@/components/powered-by";
 import { Wordmark } from "@/components/wordmark";
 import { BRAND } from "@/lib/brand";
@@ -102,6 +103,7 @@ export function SiteFooter() {
             <PoweredBy linkClassName="font-medium text-[var(--brand-ink)] hover:text-[var(--brand-teal-deep)]" />
           </p>
           <p>This site is educational and does not sign you up for a plan.</p>
+          <OfficialSourceNote />
         </div>
         <div className="max-w-md md:text-right">
           <p>

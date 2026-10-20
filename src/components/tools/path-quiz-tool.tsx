@@ -2,20 +2,31 @@
 
 import { useMemo } from "react";
 import { scoreCoveragePath, type PathAnswers } from "@/lib/medicare/decisions";
+import { MEDICARE_PLAN_FINDER } from "@/lib/medicare/official";
 import { useSessionState } from "@/lib/use-session-state";
 import { cardClass } from "@/lib/visual";
 
 const QUESTIONS: { key: keyof PathAnswers; prompt: string }[] = [
   { key: "travelOften", prompt: "I travel or split time across states often." },
-  { key: "wantsLowPremium", prompt: "A lower monthly plan premium matters most." },
   { key: "needsSpecificDoctors", prompt: "I need to keep specific doctors or specialists." },
-  { key: "takesManyRx", prompt: "I take several ongoing prescriptions." },
-  { key: "wantsDentalVision", prompt: "Dental / vision extras would meaningfully help." },
-  { key: "okWithReferrals", prompt: "I’m okay with networks, referrals, or prior auth if the price is right." },
+  { key: "wantsNoReferral", prompt: "I want to see specialists without a referral." },
+  {
+    key: "okWithNetwork",
+    prompt: "I am comfortable getting care inside a plan’s network of doctors and hospitals.",
+  },
+  {
+    key: "prefersPlanSetCosts",
+    prompt: "I prefer one plan that sets what I pay for covered services, including a yearly maximum.",
+  },
+  {
+    key: "wantsSeparateDrugPlan",
+    prompt:
+      "I prefer a separate Part D plan for drugs, rather than drug coverage inside the same plan.",
+  },
 ];
 
 export function PathQuizTool() {
-  const [answers, setAnswers] = useSessionState<Partial<PathAnswers>>("fmt-path-quiz-v1", {});
+  const [answers, setAnswers] = useSessionState<Partial<PathAnswers>>("fmt-path-quiz-v2", {});
 
   const complete = QUESTIONS.every((question) => typeof answers[question.key] === "boolean");
   const result = useMemo(
@@ -53,7 +64,9 @@ export function PathQuizTool() {
           </fieldset>
         ))}
         {!complete && (
-          <p className="text-sm text-[var(--brand-text-3)]">Answer every question to see your lean.</p>
+          <p className="text-sm text-[var(--brand-text-3)]">
+            Answer every question to see which structure lines up.
+          </p>
         )}
       </div>
 
@@ -82,6 +95,18 @@ export function PathQuizTool() {
                 </div>
               </div>
               <p className="mt-4 text-base leading-relaxed text-[var(--brand-ink-soft)]">{result.summary}</p>
+              <p className="mt-3 text-base leading-relaxed text-[var(--brand-ink-soft)]">
+                Plan-specific benefits and costs are on{" "}
+                <a
+                  href={MEDICARE_PLAN_FINDER}
+                  className="font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Medicare.gov’s Plan Finder
+                </a>
+                .
+              </p>
               {chips.length > 0 && (
                 <div className="mt-4">
                   <p className="text-sm font-medium text-[var(--brand-ink)]">What pushed you this way</p>
@@ -100,10 +125,13 @@ export function PathQuizTool() {
             </div>
             <div className="rounded-[20px] border border-[var(--brand-amber)]/40 bg-[var(--brand-amber-tint)] p-4">
               <p className="text-sm font-medium tracking-[0.12em] text-[var(--brand-amber-text)] uppercase">
-                Timing matters
+                Enrollment timing
               </p>
-              <p className="mt-1 text-base text-[var(--brand-ink)]">
-                Medigap is easiest at first eligibility—timing matters.
+              <p className="mt-1 text-base leading-relaxed text-[var(--brand-ink)]">
+                Medigap is usually easiest to buy in the 6-month window that starts when you are 65
+                or older and enrolled in Part B. Medicare Advantage generally uses your Initial
+                Enrollment Period, October 15–December 7, or a Special Enrollment Period. A consult
+                is optional.
               </p>
             </div>
             <ul className="space-y-2 text-base text-[var(--brand-ink)]">
@@ -117,7 +145,8 @@ export function PathQuizTool() {
           </>
         ) : (
           <div className={`${cardClass} p-5 text-base text-[var(--brand-ink-soft)]`}>
-            Your lean shows here as you answer. You can change any Yes or No and the slider updates.
+            How the two structures line up shows here as you answer. You can change any Yes or No
+            and the slider updates.
           </div>
         )}
       </div>
@@ -153,15 +182,17 @@ function Choice({
 function contributingChips(answers: PathAnswers, lean: "advantage" | "original-medigap" | "mixed") {
   const advantage: string[] = [];
   const original: string[] = [];
-  if (answers.wantsLowPremium) advantage.push("Lower monthly premium");
-  if (answers.wantsDentalVision) advantage.push("Dental and vision extras");
-  if (answers.okWithReferrals) advantage.push("Okay with networks and referrals");
   if (!answers.travelOften) advantage.push("Mostly staying in one place");
+  if (!answers.wantsNoReferral) advantage.push("A referral to see a specialist is fine");
+  if (answers.okWithNetwork) advantage.push("Comfortable with a network");
+  if (answers.prefersPlanSetCosts) advantage.push("Prefer a plan that sets covered-service costs");
+  if (!answers.wantsSeparateDrugPlan) advantage.push("Prefer drug coverage in the same plan");
   if (answers.travelOften) original.push("Travel or time in more than one place");
   if (answers.needsSpecificDoctors) original.push("Specific doctors to keep");
-  if (answers.takesManyRx) original.push("Several ongoing prescriptions");
-  if (!answers.okWithReferrals) original.push("Prefer fewer referrals");
-  if (!answers.wantsLowPremium) original.push("Premium is not the top priority");
+  if (answers.wantsNoReferral) original.push("Want to see specialists without a referral");
+  if (!answers.okWithNetwork) original.push("Prefer care outside a plan network");
+  if (!answers.prefersPlanSetCosts) original.push("Prefer Original Medicare’s deductibles and coinsurance");
+  if (answers.wantsSeparateDrugPlan) original.push("Prefer a separate drug plan");
   if (lean === "advantage") return advantage;
   if (lean === "original-medigap") return original;
   return [...advantage, ...original];
