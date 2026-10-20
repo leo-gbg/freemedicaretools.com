@@ -87,7 +87,7 @@ export function ClientWorksheetTool() {
 
   function goToPrint() {
     if (!data.fullName.trim() || !data.phone.trim()) {
-      setError("Add at least your full name and phone so your agent can reach you.");
+      setError("Add your full name and phone to print the worksheet.");
       setStep(0);
       return;
     }
@@ -202,7 +202,7 @@ export function ClientWorksheetTool() {
             {step === 4 && (
               <div className="space-y-3">
                 <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
-                  Notes for your agent
+                  Notes
                 </h2>
                 <textarea
                   className={areaClass}

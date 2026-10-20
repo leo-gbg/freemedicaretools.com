@@ -242,7 +242,7 @@ function PageOne({
 
       <footer className="mt-2 shrink-0 border-t border-[var(--brand-line)] pt-1.5 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Made in your browser at {BRAND.domain}. Nothing you typed was sent to or stored by the site.
-        Educational use only, not affiliated with the U.S. government, CMS, or Medicare.{" "}
+        Educational use only, not affiliated with or endorsed by the U.S. government or the federal Medicare program.{" "}
         {OFFICIAL_SOURCE_SENTENCE}
       </footer>
     </article>
@@ -297,7 +297,7 @@ function PageTwo({
       </section>
 
       <section className="mt-4 shrink-0">
-        <SectionHeading n={5} title="Notes for your agent" />
+        <SectionHeading n={5} title="Notes" />
         <p className="mt-1 max-h-[0.95in] overflow-hidden text-[13px] leading-snug whitespace-pre-wrap">
           {data.notesForAgent.trim() || " "}
         </p>
@@ -307,7 +307,7 @@ function PageTwo({
       <footer className="mt-auto shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Never write your Medicare number or Social Security number on this form. Made in your browser
         at {BRAND.domain}. Nothing you typed was sent to or stored by the site. Educational use only,
-        not affiliated with the U.S. government, CMS, or Medicare.
+        not affiliated with or endorsed by the U.S. government or the federal Medicare program.
       </footer>
     </article>
   );
@@ -350,7 +350,7 @@ function PageThree({
       <footer className="mt-auto shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Never write your Medicare number or Social Security number on this form. Made in your browser
         at {BRAND.domain}. Nothing you typed was sent to or stored by the site. Educational use only,
-        not affiliated with the U.S. government, CMS, or Medicare.
+        not affiliated with or endorsed by the U.S. government or the federal Medicare program.
       </footer>
     </article>
   );
@@ -483,7 +483,7 @@ function SheetHeader({
         </p>
       </div>
       <p className="text-right text-[12px] leading-snug">
-        <span className="block font-medium">Medicare Consult Worksheet</span>
+        <span className="block font-medium">Medicare Worksheet</span>
         <span className="text-[var(--brand-text-3)]">
           Prepared {prepared} · Page {page} of {pageCount}
         </span>

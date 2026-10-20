@@ -73,6 +73,12 @@ describe("coverage path quiz", () => {
       assert.match(text, /Plan Finder/);
       assert.doesNotMatch(text, /enrollment window closes/i);
     }
+    const advantageSteps = results[0].nextSteps.join(" ");
+    assert.match(
+      advantageSteps,
+      /during Open Enrollment from October 15 to December 7/,
+    );
+    assert.doesNotMatch(advantageSteps, /Initial Enrollment Period, October/);
   });
 });
 
@@ -81,6 +87,7 @@ describe("Plan N copays", () => {
     const plan = getPlan("N");
     assert.match(plan.summary, /up to \$20/);
     assert.match(plan.summary, /up to \$50/);
+    assert.match(plan.popularityNote, /that do not lead to admission/);
     assert.doesNotMatch(plan.summary, /\$20 office \/ \$50/);
     assert.equal("premiumTendency" in plan, false);
   });

@@ -114,7 +114,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan N",
     newlyEligible: true,
     popularityNote:
-      "Part B coinsurance uses copays of up to $20 for some office visits and up to $50 for emergency room visits. Does not cover Part B excess charges.",
+      "Part B coinsurance uses copays of up to $20 for some office visits and up to $50 for emergency room visits that do not lead to admission. Does not cover Part B excess charges.",
     summary:
       "Similar to Plan G on many hospital benefits. Part B coinsurance uses copays of up to $20 for some office visits and up to $50 for emergency room visits that do not lead to admission. Plan N does not cover Part B excess charges.",
     coverage: {

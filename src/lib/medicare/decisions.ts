@@ -372,7 +372,7 @@ export function scoreCoveragePath(a: PathAnswers): PathResult {
         "Medicare Advantage plans are private plans that provide Part A and Part B benefits. They usually use a network, may require a referral or prior authorization, and set what you pay for covered services, including a yearly maximum. Drug coverage is often in the same plan. Whether a doctor is in the network depends on the plan and your county.",
       nextSteps: [
         "Check whether your doctors and prescriptions appear in Medicare.gov’s Plan Finder for your ZIP code.",
-        "Medicare Advantage enrollment generally follows your Initial Enrollment Period, October 15–December 7, or a Special Enrollment Period.",
+        "You can generally join a Medicare Advantage Plan when you first get Medicare (your Initial Enrollment Period), during Open Enrollment from October 15 to December 7, or during a Special Enrollment Period.",
       ],
       ...scores,
     };
@@ -429,7 +429,7 @@ export function assessWorkingPast65(a: WorkAnswers): WorkResult {
       ],
       watchouts: [
         "COBRA, retiree coverage, and individual marketplace plans usually do not protect you from Part B late penalties the same way active employer coverage does.",
-        "When employment (or group coverage) ends, mark your SEP calendar immediately.",
+        "When employment or group coverage ends, note the date. Your Special Enrollment Period is based on it.",
         ...EMPLOYER_SIZE_WATCHOUTS,
       ],
     };
@@ -440,11 +440,11 @@ export function assessWorkingPast65(a: WorkAnswers): WorkResult {
     title: "Delaying Part B may be risky in your situation",
     guidance: [
       "If you lack qualifying current employer coverage (or the employer has fewer than 20 employees), delaying Part B can trigger coverage gaps and late enrollment penalties that usually last as long as you have Part B or Part D.",
-      "Your Initial Enrollment Period around age 65 is often the safest window to get Part B in force.",
+      "Signing up during your Initial Enrollment Period around age 65 generally avoids a Part B late penalty and coverage gaps.",
       "If you already passed your IEP, look at GEP (Jan–Mar) or whether any SEP still applies.",
     ],
     watchouts: [
-      "Assumptions about “I have other insurance” are one of the costliest turning-65 mistakes.",
+      "Other insurance does not always let you delay Part B without a penalty. Confirm in writing.",
       "Get a written benefits determination before you intentionally skip Part B.",
       ...EMPLOYER_SIZE_WATCHOUTS,
     ],

@@ -107,7 +107,7 @@ export function MedSuppCompareTool() {
         <p className="mt-2">
           Medigap works with Original Medicare and does <strong>not</strong> include Part D drug
           coverage. Plans C and F are generally unavailable if you first became eligible in 2020 or
-          later.           High-deductible Plan F and high-deductible Plan G exist and are not in this chart.
+          later. High-deductible Plan F and high-deductible Plan G exist and are not in this chart.
           Plan N’s Part B coinsurance uses copays of up to $20 for some office visits and up to $50
           for emergency room visits. The emergency-room copay is waived if you are admitted. The
           federal chart is on{" "}

@@ -90,7 +90,7 @@ export function PathQuizTool() {
                     className="absolute top-1/2 size-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[var(--brand-ink)]"
                     style={{ left: `${marker}%` }}
                     role="img"
-                    aria-label={`Lean marker. Advantage points ${result.advantage}, Original plus Medigap points ${result.original}.`}
+                    aria-label={`Position marker. Advantage points ${result.advantage}, Original plus Medigap points ${result.original}.`}
                   />
                 </div>
               </div>
@@ -109,7 +109,7 @@ export function PathQuizTool() {
               </p>
               {chips.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium text-[var(--brand-ink)]">What pushed you this way</p>
+                  <p className="text-sm font-medium text-[var(--brand-ink)]">Answers that match this structure</p>
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {chips.map((chip) => (
                       <li
@@ -128,10 +128,11 @@ export function PathQuizTool() {
                 Enrollment timing
               </p>
               <p className="mt-1 text-base leading-relaxed text-[var(--brand-ink)]">
-                Medigap is usually easiest to buy in the 6-month window that starts when you are 65
-                or older and enrolled in Part B. Medicare Advantage generally uses your Initial
-                Enrollment Period, October 15–December 7, or a Special Enrollment Period. A consult
-                is optional.
+                Medigap is usually easiest to buy in the 6-month window that starts the first month
+                you have Part B and are 65 or older. You can generally join a Medicare Advantage
+                Plan when you first get Medicare (your Initial Enrollment Period), during Open
+                Enrollment from October 15 to December 7, or during a Special Enrollment Period. A
+                consult is optional.
               </p>
             </div>
             <ul className="space-y-2 text-base text-[var(--brand-ink)]">

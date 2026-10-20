@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PoweredBy } from "@/components/powered-by";
+import { TPMO_COUNTS, TPMO_DISCLAIMER } from "@/lib/medicare/tpmo";
 import { btnAmber, btnOutline, consultMailto } from "@/lib/visual";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,7 @@ export function ConsultCta({
         Optional
       </p>
       <h2 className="mt-2 max-w-xl font-[family-name:var(--font-display)] text-3xl leading-snug text-balance text-white md:text-4xl">
-        The tools explain the rules. A free consult applies them to you.
+        Questions about your own situation? A licensed agent can talk them through with you.
       </h2>
       <p className="mt-3 max-w-lg text-base leading-relaxed text-white/80">
         You can stop here. If you want, a licensed agent can look at your doctors, prescriptions,
@@ -41,6 +42,15 @@ export function ConsultCta({
         />
         .
       </p>
+      <p className="mt-3 text-base text-white">
+        Or call{" "}
+        <a href="tel:+17026272605" className="font-medium text-[var(--brand-amber)] underline underline-offset-4">
+          702-627-2605
+        </a>{" "}
+        (TTY 711).
+      </p>
+      <p className="mt-4 max-w-3xl text-base leading-relaxed text-white">{TPMO_DISCLAIMER}</p>
+      <p className="mt-2 max-w-3xl text-base leading-relaxed text-white/90">{TPMO_COUNTS}</p>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <a href={href} className={btnAmber}>
           {label}

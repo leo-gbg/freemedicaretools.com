@@ -56,7 +56,7 @@ export const TOOLS: ToolMeta[] = [
   },
   {
     slug: "client-worksheet",
-    title: "Medicare Client Consult Worksheet",
+    title: "Medicare Worksheet",
     shortTitle: "Client Worksheet",
     audience: "both",
     blurb:

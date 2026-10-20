@@ -106,7 +106,7 @@ export function MedigapPrintDocument() {
 
       <footer className="mt-6 border-t border-[var(--brand-line)] pt-3 text-[8pt] text-[var(--brand-ink-soft)]">
         Educational comparison only—not Medicare, CMS, or Social Security advice. Not affiliated with
-        the U.S. government. {BRAND.domain} · <PoweredBy className="inline" linkClassName="text-[var(--brand-ink-soft)]" />.
+        or endorsed by the U.S. government or the federal Medicare program. {BRAND.domain} · <PoweredBy className="inline" linkClassName="text-[var(--brand-ink-soft)]" />.
         Compare letters side by side. If you&apos;d like help later, a licensed agent can walk you
         through your options.
         <OfficialSourceNote

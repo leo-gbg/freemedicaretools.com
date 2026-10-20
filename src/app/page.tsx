@@ -29,7 +29,7 @@ export default function HomePage() {
               Free · No account · Plain English
             </p>
             <h1 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] text-[2.625rem] leading-[1.05] tracking-tight text-balance text-[var(--brand-ink)] sm:text-[4.25rem]">
-              Know your Medicare deadlines before they cost you.
+              Know your Medicare enrollment dates.
             </h1>
             <p className="mt-4 max-w-xl text-lg leading-relaxed text-[var(--brand-ink-soft)]">
               Plain-English tools for people turning 65 and for anyone re-shopping during AEP or

@@ -25,10 +25,14 @@ export const MEDICARE_WORKING_PAST_65 =
   "https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65";
 export const MEDICARE_CREDITABLE =
   "https://www.medicare.gov/health-drug-plans/part-d/basics/creditable-coverage";
+export const MEDICARE_WHEN_CAN_I_SIGN_UP =
+  "https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-can-i-sign-up-for-medicare";
 
 /** Deep links that fit each tool. Labels name the official page, not a plan. */
 export const TOOL_OFFICIAL_LINKS: Record<string, OfficialLink[]> = {
-  "iep-timeline": [{ href: MEDICARE_ENROLLMENT_PERIODS, label: "Enrollment periods" }],
+  "iep-timeline": [
+    { href: MEDICARE_WHEN_CAN_I_SIGN_UP, label: "When can I sign up for Medicare?" },
+  ],
   "penalty-estimator": [
     { href: MEDICARE_PENALTIES, label: "Part B and Part D late penalties" },
   ],

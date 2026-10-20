@@ -6,6 +6,7 @@ import { OfficialSourceNote } from "@/components/official-source";
 import { PoweredBy } from "@/components/powered-by";
 import { Wordmark } from "@/components/wordmark";
 import { BRAND } from "@/lib/brand";
+import { TPMO_COUNTS, TPMO_DISCLAIMER } from "@/lib/medicare/tpmo";
 import { btnAmber, consultMailto } from "@/lib/visual";
 
 const LINKS = [
@@ -93,7 +94,8 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-[var(--brand-line)] bg-[var(--brand-paper)]">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-base text-[var(--brand-ink-soft)] sm:px-6 md:flex-row md:items-start md:justify-between">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="flex flex-col gap-4 text-base text-[var(--brand-ink-soft)] md:flex-row md:items-start md:justify-between">
         <div className="space-y-2">
           <Wordmark className="h-8" />
           <p>
@@ -107,8 +109,8 @@ export function SiteFooter() {
         </div>
         <div className="max-w-md md:text-right">
           <p>
-            Not affiliated with the U.S. government, CMS, or Medicare. Not legal, tax, or official
-            benefits advice.
+            Not affiliated with or endorsed by the U.S. government or the federal Medicare program.
+            Not legal, tax, or official benefits advice.
           </p>
           <nav aria-label="Footer" className="mt-2">
             <ul className="flex flex-wrap gap-x-6 md:justify-end">
@@ -139,6 +141,11 @@ export function SiteFooter() {
             </ul>
           </nav>
         </div>
+      </div>
+      <div className="mt-6 border-t border-[var(--brand-line)] pt-6">
+        <p className="text-base font-medium leading-relaxed text-[var(--brand-ink)]">{TPMO_DISCLAIMER}</p>
+        <p className="mt-2 text-base leading-relaxed text-[var(--brand-ink)]">{TPMO_COUNTS}</p>
+      </div>
       </div>
     </footer>
   );

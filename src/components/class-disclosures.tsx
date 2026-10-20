@@ -9,6 +9,7 @@ export function ClassDisclosures() {
         Important information
       </h2>
       <p>{CLASS_PAGE.tpmo}</p>
+      <p>{CLASS_PAGE.tpmoCounts}</p>
       <p>{CLASS_PAGE.affiliation}</p>
       <p>
         {CLASS_PAGE.questionsLabel}{" "}
