@@ -97,7 +97,7 @@ describe("class page copy", () => {
     );
     assert.equal(
       CLASS_PAGE.tpmo,
-      "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area. Please contact Medicare.gov or 1-800-MEDICARE to get information on all of your options.",
+      "We do not offer every plan available in your area. Currently we represent 8 organizations which offer 50 products in your area. Please contact Medicare.gov or 1-800-MEDICARE to get information on all of your options.",
     );
     assert.equal(
       CLASS_PAGE.tpmoCounts,
