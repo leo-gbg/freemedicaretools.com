@@ -39,8 +39,10 @@ export const TOOLS: ToolMeta[] = [
     title: "Coverage Path Quiz",
     shortTitle: "Path Quiz",
     audience: "both",
-    blurb: "See whether your priorities lean Advantage or Original + Medigap.",
-    problem: "Parts A/B/C/D and “supplement vs Advantage” overwhelm first-time shoppers.",
+    blurb:
+      "See how your answers line up with Original Medicare plus Medigap or with Medicare Advantage.",
+    problem:
+      "Original Medicare plus Medigap and Medicare Advantage are structured differently, and that difference is easy to miss.",
   },
   {
     slug: "med-supp-compare",
@@ -54,13 +56,13 @@ export const TOOLS: ToolMeta[] = [
   },
   {
     slug: "client-worksheet",
-    title: "Medicare Client Consult Worksheet",
+    title: "Medicare Worksheet",
     shortTitle: "Client Worksheet",
     audience: "both",
     blurb:
-      "List your doctors, prescriptions, and contact details—then print a PDF to bring to your agent.",
+      "List your doctors, prescriptions, and contact details for your own records. A consult is optional.",
     problem:
-      "Consults stall when clients forget drug lists, must-keep doctors, or ZIP details that drive plan options.",
+      "People lose track of the doctors, prescriptions, and ZIP details they need when they read Medicare.gov.",
   },
   {
     slug: "irmaa-checker",

@@ -106,7 +106,7 @@ function CoverageCell({ value }: { value: CoverageValue }) {
   const label = coverageLabel(value);
   const title =
     value === "copay"
-      ? "Part B coinsurance covered except for set office/ER copays"
+      ? "Up to $20 for some office visits and up to $50 for emergency room visits that do not lead to admission"
       : value === "partial"
         ? "Limited foreign travel emergency benefits after a deductible; caps apply"
         : undefined;

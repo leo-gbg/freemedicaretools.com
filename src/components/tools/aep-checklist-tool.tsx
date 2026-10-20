@@ -16,7 +16,7 @@ const ITEMS = [
   "If on Original + Medigap + Part D: re-shop Part D for drug costs.",
   "Ask whether Extra Help / state programs could lower costs.",
   "Note OEP (Jan 1–Mar 31) only helps if you stay in Advantage on Jan 1.",
-  "Have questions? Medicare.gov, your SHIP or a licensed agent can help before Dec 7.",
+  "Have questions? Visit Medicare.gov, call 1-800-MEDICARE (TTY 1-877-486-2048), or contact your State Health Insurance Assistance Program (SHIP).",
 ];
 
 const GROUPS = [
@@ -82,10 +82,10 @@ export function AepChecklistTool() {
                 className="mt-3 flex flex-col gap-1 rounded-[20px] border-2 border-[var(--brand-amber)] bg-[var(--brand-amber-tint)] px-4 py-4 text-[var(--brand-ink)]"
               >
                 <span className="text-sm font-medium tracking-[0.12em] text-[var(--brand-amber-text)] uppercase">
-                  Bring this to your agent
+                  Optional worksheet
                 </span>
                 <span className="font-[family-name:var(--font-display)] text-2xl leading-snug">
-                  Get the free worksheet you can give to your agent
+                  Keep your doctors and prescriptions on one page
                 </span>
                 <span className="text-base text-[var(--brand-ink-soft)]">
                   Doctors, prescriptions, and contact details on one page. Open the worksheet →

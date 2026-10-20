@@ -45,8 +45,8 @@ export type ClientWorksheet = {
   travelsOutOfState: boolean | null;
   travelMonths: string;
   tobaccoUse: boolean | null;
-  wantsDentalVisionHearing: boolean | null;
-  monthlyPremiumBudget: string;
+  comfortableWithNetwork: boolean | null;
+  providerAccess: string;
   dualEligibleMedicaid: boolean | null;
   hasVaBenefits: boolean | null;
   caregiverName: string;
@@ -103,8 +103,8 @@ export function emptyWorksheet(): ClientWorksheet {
     travelsOutOfState: null,
     travelMonths: "",
     tobaccoUse: null,
-    wantsDentalVisionHearing: null,
-    monthlyPremiumBudget: "",
+    comfortableWithNetwork: null,
+    providerAccess: "",
     dualEligibleMedicaid: null,
     hasVaBenefits: null,
     caregiverName: "",
@@ -120,7 +120,14 @@ export function emptyWorksheet(): ClientWorksheet {
 export function restoreWorksheet(saved: Partial<ClientWorksheet> | null): ClientWorksheet {
   const base = emptyWorksheet();
   if (!saved) return base;
-  const merged = { ...base, ...saved };
+  const picked: Partial<ClientWorksheet> = {};
+  for (const key of Object.keys(base) as (keyof ClientWorksheet)[]) {
+    if (key === "prescriptions" || key === "providers") continue;
+    if (key in saved && saved[key] !== undefined) {
+      picked[key] = saved[key] as never;
+    }
+  }
+  const merged = { ...base, ...picked };
   return {
     ...merged,
     prescriptions:
@@ -154,6 +161,12 @@ export function isWorksheetBlank(data: ClientWorksheet): boolean {
   );
   return fieldsBlank && rxBlank && providersBlank;
 }
+
+export const PROVIDER_ACCESS_OPTIONS = [
+  "Any provider who accepts Medicare",
+  "A network of doctors and hospitals is fine",
+  "Not sure yet",
+] as const;
 
 export const CURRENT_COVERAGE_OPTIONS = [
   "Not on Medicare yet",
@@ -197,8 +210,8 @@ export function worksheetToPlainText(data: ClientWorksheet): string {
     `Preferred hospital: ${data.preferredHospital || "—"}`,
     `Travels out of state: ${yn(data.travelsOutOfState)} ${data.travelMonths ? `(${data.travelMonths})` : ""}`,
     `Tobacco use: ${yn(data.tobaccoUse)}`,
-    `Dental/vision/hearing priority: ${yn(data.wantsDentalVisionHearing)}`,
-    `Monthly premium budget: ${data.monthlyPremiumBudget || "—"}`,
+    `Comfortable with a network: ${yn(data.comfortableWithNetwork)}`,
+    `How you want to see doctors: ${data.providerAccess || "—"}`,
     `Medicaid dual eligible: ${yn(data.dualEligibleMedicaid)}`,
     `VA benefits: ${yn(data.hasVaBenefits)}`,
     `Caregiver: ${data.caregiverName || "—"} ${data.caregiverPhone ? `/ ${data.caregiverPhone}` : ""}`,

@@ -8,7 +8,9 @@ import {
   MedigapComparisonTable,
   orderedMedigapPlans,
 } from "@/components/tools/medigap-comparison-table";
+import { OfficialSourceNote } from "@/components/official-source";
 import { BRAND } from "@/lib/brand";
+import { MEDICARE_MEDIGAP, MEDICARE_MEDIGAP_BENEFITS } from "@/lib/medicare/official";
 import { cn } from "@/lib/utils";
 
 export function MedigapPrintDocument() {
@@ -83,7 +85,8 @@ export function MedigapPrintDocument() {
               <strong>50% / 75%</strong> — plan pays that share (K / L style)
             </li>
             <li>
-              <strong>Copays</strong> — Plan N Part B coinsurance with office/ER copays
+              <strong>Copays</strong> — Plan N Part B coinsurance: up to $20 for some office visits and
+              up to $50 for emergency room visits that do not lead to admission
             </li>
             <li>
               <strong>Limited</strong> — foreign travel emergency with caps/deductible
@@ -103,9 +106,16 @@ export function MedigapPrintDocument() {
 
       <footer className="mt-6 border-t border-[var(--brand-line)] pt-3 text-[8pt] text-[var(--brand-ink-soft)]">
         Educational comparison only—not Medicare, CMS, or Social Security advice. Not affiliated with
-        the U.S. government. {BRAND.domain} · <PoweredBy className="inline" linkClassName="text-[var(--brand-ink-soft)]" />.
+        or endorsed by the U.S. government or the federal Medicare program. {BRAND.domain} · <PoweredBy className="inline" linkClassName="text-[var(--brand-ink-soft)]" />.
         Compare letters side by side. If you&apos;d like help later, a licensed agent can walk you
         through your options.
+        <OfficialSourceNote
+          className="mt-2"
+          links={[
+            { href: MEDICARE_MEDIGAP, label: "Medigap basics" },
+            { href: MEDICARE_MEDIGAP_BENEFITS, label: "Medigap benefits by letter" },
+          ]}
+        />
       </footer>
     </div>
   );

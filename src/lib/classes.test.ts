@@ -97,8 +97,13 @@ describe("class page copy", () => {
     );
     assert.equal(
       CLASS_PAGE.tpmo,
-      "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area (Clark County, NV, 2027 plan year). Please contact Medicare.gov, 1-800-MEDICARE (TTY 1-877-486-2048), or your local State Health Insurance Program (SHIP) to get information on all of your options.",
+      "We do not offer every plan available in your area. Currently we represent 8 organizations which offer 50 products in your area. Please contact Medicare.gov or 1-800-MEDICARE to get information on all of your options.",
     );
+    assert.equal(
+      CLASS_PAGE.tpmoCounts,
+      "Counts are for Clark County, NV, 2027 plan year. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).",
+    );
+    assert.doesNotMatch(CLASS_PAGE.tpmo, /SHIP/);
     assert.equal(
       CLASS_PAGE.affiliation,
       "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",

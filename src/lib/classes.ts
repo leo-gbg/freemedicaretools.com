@@ -1,3 +1,5 @@
+import { TPMO_COUNTS, TPMO_DISCLAIMER } from "./medicare/tpmo";
+
 /**
  * Free Medicare 101 classes.
  *
@@ -96,8 +98,8 @@ export const CLASS_PAGE = {
   reserve: "Reserve my seat",
   meet: "Google Meet",
   duration: "about 1 hour",
-  tpmo:
-    "We do not offer every plan available in your area. Currently we represent 11 organizations which offer 50 products in your area (Clark County, NV, 2027 plan year). Please contact Medicare.gov, 1-800-MEDICARE (TTY 1-877-486-2048), or your local State Health Insurance Program (SHIP) to get information on all of your options.",
+  tpmo: TPMO_DISCLAIMER,
+  tpmoCounts: TPMO_COUNTS,
   affiliation:
     "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
   questionsLabel: "Questions:",

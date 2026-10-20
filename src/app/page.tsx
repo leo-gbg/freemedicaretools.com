@@ -11,7 +11,7 @@ const WORKSHEET = getTool("client-worksheet")!;
 const YOU_GET: Record<string, string> = {
   "iep-timeline": "your 7-month window with exact dates",
   "working-past-65": "whether your job coverage lets you wait",
-  "path-quiz": "your lean, Medigap or Medicare Advantage",
+  "path-quiz": "how Original Medicare plus Medigap and Medicare Advantage differ",
   "penalty-estimator": "one year of the late penalty in dollars",
   "period-finder": "what you are allowed to change today",
   "aep-checklist": "a re-shop list for Oct 15–Dec 7",
@@ -29,7 +29,7 @@ export default function HomePage() {
               Free · No account · Plain English
             </p>
             <h1 className="mt-3 max-w-3xl font-[family-name:var(--font-display)] text-[2.625rem] leading-[1.05] tracking-tight text-balance text-[var(--brand-ink)] sm:text-[4.25rem]">
-              Know your Medicare deadlines before they cost you.
+              Know your Medicare enrollment dates.
             </h1>
             <p className="mt-4 max-w-xl text-lg leading-relaxed text-[var(--brand-ink-soft)]">
               Plain-English tools for people turning 65 and for anyone re-shopping during AEP or
@@ -88,13 +88,13 @@ export default function HomePage() {
         >
           <span>
             <span className="block text-sm font-medium tracking-[0.14em] text-[var(--brand-teal-deep)] uppercase">
-              Before a consult
+              Optional worksheet
             </span>
             <span className="mt-1 block font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
               {WORKSHEET.title}
             </span>
             <span className="mt-1 block text-base text-[var(--brand-ink-soft)]">
-              Your drugs, must-keep doctors, and ZIP on one page, so the consult goes faster.
+              Your doctors, prescriptions, and contact details on one page. A consult is optional.
             </span>
           </span>
           <span className="shrink-0 text-base font-medium text-[var(--brand-teal-deep)]">

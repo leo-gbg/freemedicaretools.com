@@ -80,7 +80,6 @@ export type MedigapPlan = {
   name: string;
   newlyEligible: boolean;
   popularityNote: string;
-  premiumTendency: "higher" | "mid" | "lower";
   summary: string;
   coverage: Record<MedigapBenefitId, CoverageValue>;
 };
@@ -95,7 +94,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan G",
     newlyEligible: true,
     popularityNote: "Covers Part B excess charges. Does not cover the Part B deductible.",
-    premiumTendency: "higher",
     summary:
       "Covers almost all standardized gaps except the Part B deductible. Includes Part B excess charges.",
     coverage: {
@@ -115,10 +113,10 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "N",
     name: "Plan N",
     newlyEligible: true,
-    popularityNote: "Part B coinsurance uses copays. Does not cover Part B excess charges.",
-    premiumTendency: "mid",
+    popularityNote:
+      "Part B coinsurance uses copays of up to $20 for some office visits and up to $50 for emergency room visits that do not lead to admission. Does not cover Part B excess charges.",
     summary:
-      "Similar to Plan G on many hospital benefits, but Part B coinsurance uses copays ($20 office / $50 ER, amounts set by CMS rules). The emergency-room copay is waived if you are admitted. Plan N does not cover Part B excess charges.",
+      "Similar to Plan G on many hospital benefits. Part B coinsurance uses copays of up to $20 for some office visits and up to $50 for emergency room visits that do not lead to admission. Plan N does not cover Part B excess charges.",
     coverage: {
       partACoinsurance: "yes",
       partBCoinsurance: "copay",
@@ -137,7 +135,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan F",
     newlyEligible: false,
     popularityNote: "Only if you were first eligible for Medicare before January 1, 2020.",
-    premiumTendency: "higher",
     summary:
       "Historically the most comprehensive letter—includes the Part B deductible. Not sold to newly eligible people.",
     coverage: {
@@ -158,7 +155,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan C",
     newlyEligible: false,
     popularityNote: "Only if you were first eligible for Medicare before January 1, 2020.",
-    premiumTendency: "higher",
     summary: "Comprehensive like older designs; includes Part B deductible. Closed to newly eligible buyers.",
     coverage: {
       partACoinsurance: "yes",
@@ -178,7 +174,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan D",
     newlyEligible: true,
     popularityNote: "Does not cover Part B excess charges.",
-    premiumTendency: "mid",
     summary: "Covers key coinsurance and the Part A deductible, but not Part B excess charges.",
     coverage: {
       partACoinsurance: "yes",
@@ -199,7 +194,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     newlyEligible: true,
     popularityNote:
       "Covers core coinsurance. Does not cover the Part A deductible, skilled nursing coinsurance, or Part B excess charges.",
-    premiumTendency: "lower",
     summary: "Core coinsurance help only; does not cover Part A/B deductibles or SNF coinsurance.",
     coverage: {
       partACoinsurance: "yes",
@@ -219,7 +213,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan B",
     newlyEligible: true,
     popularityNote: "Adds the Part A deductible to the core coinsurance benefits.",
-    premiumTendency: "mid",
     summary: "Plan A benefits plus the Part A deductible; no SNF coinsurance or excess charges.",
     coverage: {
       partACoinsurance: "yes",
@@ -238,8 +231,7 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     letter: "K",
     name: "Plan K",
     newlyEligible: true,
-    popularityNote: "Lower premium / higher cost-sharing design with an annual out-of-pocket limit.",
-    premiumTendency: "lower",
+    popularityNote: "Pays a share of several benefits and includes a yearly out-of-pocket limit.",
     summary: "Pays 50% of several benefits until you hit the plan’s yearly out-of-pocket limit.",
     coverage: {
       partACoinsurance: "yes",
@@ -259,7 +251,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan L",
     newlyEligible: true,
     popularityNote: "Like Plan K but 75% cost-sharing and a lower out-of-pocket limit.",
-    premiumTendency: "mid",
     summary: "Pays 75% of several benefits until you hit the plan’s yearly out-of-pocket limit.",
     coverage: {
       partACoinsurance: "yes",
@@ -279,7 +270,6 @@ export const MEDIGAP_PLANS: MedigapPlan[] = [
     name: "Plan M",
     newlyEligible: true,
     popularityNote: "Pays 50% of the Part A deductible.",
-    premiumTendency: "mid",
     summary: "Covers most coinsurance; pays 50% of the Part A deductible; no excess charges.",
     coverage: {
       partACoinsurance: "yes",
@@ -318,7 +308,6 @@ export function coverageLabel(value: CoverageValue): string {
 export type MedSuppAnswers = {
   newlyEligible: boolean;
   wantsLowestGaps: boolean;
-  wantsLowerPremium: boolean;
   okWithCopays: boolean;
   worriesExcessCharges: boolean;
   wantsOopCap: boolean;
@@ -352,9 +341,9 @@ function titleFor(letters: MedigapPlanLetter[]): string {
 export function describeMedigapComparison(a: MedSuppAnswers): MedSuppComparison {
   let chosen: MedigapPlanLetter[];
   if (!a.newlyEligible && a.wantsLowestGaps) chosen = ["F", "G", "N"];
-  else if (a.wantsOopCap && a.wantsLowerPremium) chosen = ["K", "L", "G"];
+  else if (a.wantsOopCap) chosen = ["K", "L", "G"];
   else if (a.wantsLowestGaps && a.worriesExcessCharges && !a.okWithCopays) chosen = ["G", "N", "D"];
-  else if (a.wantsLowerPremium && a.okWithCopays) chosen = ["N", "G", "D"];
+  else if (a.okWithCopays) chosen = ["N", "G", "D"];
   else if (a.travelsAbroad && a.wantsLowestGaps) chosen = ["G", "N", "M"];
   else chosen = ["G", "N", "D"];
 

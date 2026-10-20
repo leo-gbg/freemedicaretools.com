@@ -52,7 +52,7 @@ export function aepCountdown(asOf = new Date()): AepPhase {
     return {
       phase: "open",
       days,
-      headline: days === 1 ? "1 day left in AEP" : `${days} days left in AEP`,
+      headline: "Open Enrollment ends December 7.",
       detail: "Annual Enrollment runs Oct 15 – Dec 7. Changes start Jan 1.",
     };
   }
@@ -152,7 +152,7 @@ export function toolPlacement(slug: string): ToolPlacement {
     };
   }
   return {
-    groupLabel: "Before a consult",
+    groupLabel: "Optional worksheet",
     index: 0,
     total: 0,
     next: getTool(TURNING_SLUGS[0]),

@@ -9,6 +9,7 @@ import {
   emptyPrescription,
   emptyProvider,
   emptyWorksheet,
+  PROVIDER_ACCESS_OPTIONS,
   isWorksheetBlank,
   loadWorksheet,
   restoreWorksheet,
@@ -20,7 +21,7 @@ import {
 import { formatPhone } from "@/lib/format";
 import { areaClass, btnInk, btnOutline, cardClass, fieldClass } from "@/lib/visual";
 
-const STEPS = ["Contact", "Plan context", "Prescriptions", "Doctors", "Notes"] as const;
+const STEPS = ["Contact", "Your care", "Prescriptions", "Doctors", "Notes"] as const;
 
 export function ClientWorksheetTool() {
   const router = useRouter();
@@ -86,7 +87,7 @@ export function ClientWorksheetTool() {
 
   function goToPrint() {
     if (!data.fullName.trim() || !data.phone.trim()) {
-      setError("Add at least your full name and phone so your agent can reach you.");
+      setError("Add your full name and phone to print the worksheet.");
       setStep(0);
       return;
     }
@@ -201,12 +202,12 @@ export function ClientWorksheetTool() {
             {step === 4 && (
               <div className="space-y-3">
                 <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
-                  Notes for your agent
+                  Notes
                 </h2>
                 <textarea
                   className={areaClass}
                   rows={5}
-                  placeholder="Surgeries coming up, preferred language, hearing needs, who should join the consult…"
+                  placeholder="Surgeries coming up, preferred language, communication needs, who should join the consult…"
                   value={data.notesForAgent}
                   onChange={(event) => patch({ notesForAgent: event.target.value })}
                 />
@@ -385,11 +386,20 @@ function ContextStep({
   return (
     <div className="space-y-4">
       <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--brand-ink)]">
-        What else changes your plan options?
+        How you use care
       </h2>
       <p className="text-base text-[var(--brand-ink-soft)]">
-        ZIP, current coverage, pharmacy, travel, tobacco, and extra benefits affect which Advantage,
-        Part D, and Medigap plan options your agent can show.
+        ZIP, current coverage, pharmacy, and travel describe your situation. They do not pick a
+        plan. For plan-specific benefits and costs, use{" "}
+        <a
+          href="https://www.medicare.gov/plan-compare/"
+          className="font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Medicare.gov’s Plan Finder
+        </a>
+        . A consult is optional.
       </p>
       <Field label="Current coverage">
         <select className={fieldClass} value={data.currentCoverage} onChange={(e) => patch({ currentCoverage: e.target.value })}>
@@ -410,8 +420,15 @@ function ContextStep({
       <Field label="Preferred hospital">
         <input className={fieldClass} value={data.preferredHospital} onChange={(e) => patch({ preferredHospital: e.target.value })} />
       </Field>
-      <Field label="Comfortable monthly premium budget">
-        <input className={fieldClass} placeholder="e.g. under $150 / month total extras" value={data.monthlyPremiumBudget} onChange={(e) => patch({ monthlyPremiumBudget: e.target.value })} />
+      <Field label="How you want to see doctors">
+        <select className={fieldClass} value={data.providerAccess} onChange={(e) => patch({ providerAccess: e.target.value })}>
+          <option value="">Select…</option>
+          {PROVIDER_ACCESS_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
       </Field>
       <YesNo label="Do you spend 1+ months a year out of state?" value={data.travelsOutOfState} onChange={(v) => patch({ travelsOutOfState: v })} />
       {data.travelsOutOfState && (
@@ -420,7 +437,7 @@ function ContextStep({
         </Field>
       )}
       <YesNo label="Tobacco use in the last 12 months?" value={data.tobaccoUse} onChange={(v) => patch({ tobaccoUse: v })} />
-      <YesNo label="Are dental, vision, or hearing benefits a high priority?" value={data.wantsDentalVisionHearing} onChange={(v) => patch({ wantsDentalVisionHearing: v })} />
+      <YesNo label="Are you comfortable using a network of doctors and hospitals?" value={data.comfortableWithNetwork} onChange={(v) => patch({ comfortableWithNetwork: v })} />
       <YesNo label="Do you also have Medicaid (dual eligible)?" value={data.dualEligibleMedicaid} onChange={(v) => patch({ dualEligibleMedicaid: v })} />
       <YesNo label="Do you have VA benefits?" value={data.hasVaBenefits} onChange={(v) => patch({ hasVaBenefits: v })} />
       <Field label="Caregiver / helper name (optional)">

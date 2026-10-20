@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { withAcronymTips } from "@/components/acronym-tip";
+import { OfficialSourceNote } from "@/components/official-source";
 import { DISCLAIMER } from "@/lib/medicare/constants";
+import { TOOL_OFFICIAL_LINKS } from "@/lib/medicare/official";
+import { TPMO_COUNTS, TPMO_DISCLAIMER } from "@/lib/medicare/tpmo";
 import type { ToolMeta } from "@/lib/medicare/tools";
 import { btnAmber, cardClass, consultMailto, toolPlacement } from "@/lib/visual";
 
@@ -39,6 +42,8 @@ export function ToolShell({
 
       <div className="mt-8 min-w-0">{children}</div>
 
+      <OfficialSourceNote className="mt-8" links={TOOL_OFFICIAL_LINKS[tool.slug] ?? []} />
+
       <div className="mt-10 grid gap-4 lg:grid-cols-2">
         {place.next && (
           <Link
@@ -57,19 +62,29 @@ export function ToolShell({
         )}
         <aside className="rounded-[20px] bg-[var(--brand-ink)] p-5 text-white sm:p-6">
           <p className="text-sm font-medium tracking-[0.14em] text-[var(--brand-amber)] uppercase">
-            Talk it through
+            Optional
           </p>
           <p className="mt-2 font-[family-name:var(--font-display)] text-2xl leading-snug">
-            The tools explain the rules. A free consult applies them to you.
+            Questions about your own situation? A licensed agent can talk them through with you.
           </p>
           <p className="mt-2 text-base text-white/80">
-            This site is educational and does not sign you up for a plan.
+            You do not have to request a consult. This site is educational and does not sign you up
+            for a plan.
+          </p>
+          <p className="mt-2 text-base text-white">
+            Or call{" "}
+            <a href="tel:+17026272605" className="font-medium text-[var(--brand-amber)] underline underline-offset-4">
+              702-627-2605
+            </a>{" "}
+            (TTY 711).
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <a href={consultMailto(tool.shortTitle)} className={btnAmber}>
               Request a free consult
             </a>
           </div>
+          <p className="mt-4 text-base leading-relaxed text-white">{TPMO_DISCLAIMER}</p>
+          <p className="mt-2 text-base leading-relaxed text-white/90">{TPMO_COUNTS}</p>
         </aside>
       </div>
 
