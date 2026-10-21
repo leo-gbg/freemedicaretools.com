@@ -2,6 +2,9 @@
   "name": "freemedicaretools",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev -p 43127",
     "build": "next build --webpack",
@@ -23,12 +26,18 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "hono": "^4.13.11",
+    "sharp": "^0.35.5",
+    "source-map-js": "^1.2.2"
   }
 }
