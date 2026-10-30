@@ -128,7 +128,7 @@ export default function HomePage() {
                   className="mx-auto mb-4 block h-px w-12 bg-[var(--brand-amber)]"
                 />
                 <span className="block font-medium text-[var(--brand-ink)] sm:inline">
-                  Leopoldo Adaoag
+                  Leo Adaoag, MBA, RSSA®, NPN 21173691, 702-627-2605
                 </span>
                 <span aria-hidden className="hidden sm:inline">
                   {" · "}
@@ -138,6 +138,12 @@ export default function HomePage() {
                   {" · "}
                 </span>
                 <span className="block sm:inline">Guardian Benefits Group</span>
+                <span aria-hidden className="hidden sm:inline">
+                  {" · "}
+                </span>
+                <span className="block sm:inline">
+                  Licensed in NV, CA, TX, HI, UT and ID
+                </span>
               </figcaption>
             </figure>
             <ul className="mt-6 flex flex-wrap justify-center gap-2">
