@@ -95,7 +95,7 @@ export const CLASS_PAGE = {
   tpmo: TPMO_DISCLAIMER,
   tpmoCounts: TPMO_COUNTS,
   affiliation:
-    "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
+    "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT, ID. · NPN 21173691",
   questionsLabel: "Questions:",
   phoneDisplay: "702-627-2605",
   phoneHref: "tel:+17026272605",

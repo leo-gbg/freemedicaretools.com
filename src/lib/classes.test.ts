@@ -126,7 +126,7 @@ describe("class page copy", () => {
     assert.doesNotMatch(CLASS_PAGE.tpmo, /SHIP/);
     assert.equal(
       CLASS_PAGE.affiliation,
-      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
+      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT, ID. · NPN 21173691",
     );
     assert.equal(
       CLASS_PAGE.signupNote,
