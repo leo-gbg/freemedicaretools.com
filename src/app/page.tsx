@@ -128,7 +128,7 @@ export default function HomePage() {
                   className="mx-auto mb-4 block h-px w-12 bg-[var(--brand-amber)]"
                 />
                 <span className="block font-medium text-[var(--brand-ink)] sm:inline">
-                  Leo Adaoag, MBA, RSSA®, NPN 21173691, 702-627-2605
+                  Leo Adaoag, MBA, RSSA®, NPN 21173691, 702-627-2605 (TTY 711)
                 </span>
                 <span aria-hidden className="hidden sm:inline">
                   {" · "}

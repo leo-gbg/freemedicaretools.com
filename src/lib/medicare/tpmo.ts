@@ -6,4 +6,4 @@ export const TPMO_DISCLAIMER =
   "We do not offer every plan available in your area. Currently we represent 8 organizations which offer 50 products in your area. Please contact Medicare.gov or 1-800-MEDICARE to get information on all of your options.";
 
 export const TPMO_COUNTS =
-  "Counts are for Clark County, NV, 2027 plan year. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).";
+  "Counts are for Clark County, NV, 2027 plan year; counts vary by county. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).";

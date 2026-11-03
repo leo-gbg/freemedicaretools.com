@@ -121,7 +121,7 @@ describe("class page copy", () => {
     );
     assert.equal(
       CLASS_PAGE.tpmoCounts,
-      "Counts are for Clark County, NV, 2027 plan year. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).",
+      "Counts are for Clark County, NV, 2027 plan year; counts vary by county. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).",
     );
     assert.doesNotMatch(CLASS_PAGE.tpmo, /SHIP/);
     assert.equal(
