@@ -22,18 +22,6 @@ export type ClassSession = {
 
 export const CLASSES: ClassSession[] = [
   {
-    date: "2026-10-31",
-    start: "09:00",
-    end: "10:00",
-    rsvpUrl: "https://fantastical.app/i/OCUzRR5dMLHVFjo",
-  },
-  {
-    date: "2026-11-07",
-    start: "15:00",
-    end: "16:00",
-    rsvpUrl: "https://fantastical.app/i/CZaMCz66MUHoFoe",
-  },
-  {
     date: "2026-11-21",
     start: "15:00",
     end: "16:00",
@@ -101,7 +89,7 @@ export const CLASS_PAGE = {
   tpmo: TPMO_DISCLAIMER,
   tpmoCounts: TPMO_COUNTS,
   affiliation:
-    "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
+    "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT, ID. · NPN 21173691",
   questionsLabel: "Questions:",
   phoneDisplay: "702-627-2605",
   phoneHref: "tel:+17026272605",
@@ -171,7 +159,7 @@ function clock(hhmm: string): { hour: number; minute: string; suffix: "AM" | "PM
   return { hour, minute: rawMinute.padStart(2, "0"), suffix };
 }
 
-/** "Saturday, October 17, 2026" and "3:00–4:00 PM PT". */
+/** "Saturday, November 21, 2026" and "3:00–4:00 PM PT". */
 export function formatClassWhen(session: ClassSession): ClassWhen {
   const [year, month, day] = session.date.split("-").map(Number);
   const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];

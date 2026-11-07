@@ -8,8 +8,6 @@ describe("upcomingClasses", () => {
     assert.deepEqual(
       listed.map((session) => session.date),
       [
-        "2026-10-31",
-        "2026-11-07",
         "2026-11-21",
         "2026-12-05",
         "2027-01-09",
@@ -21,26 +19,47 @@ describe("upcomingClasses", () => {
     );
   });
 
+  it("does not schedule the removed October 17, October 31, or November 7 classes", () => {
+    const dates = CLASSES.map((session) => session.date);
+    assert.equal(dates.includes("2026-10-17"), false);
+    assert.equal(dates.includes("2026-10-31"), false);
+    assert.equal(dates.includes("2026-11-07"), false);
+  });
+
+  it("lists November 21 first after the November 7 class is removed", () => {
+    // 2026-11-07 23:30 UTC is 2026-11-07 3:30 PM PST, during the removed class.
+    const listed = upcomingClasses(new Date("2026-11-07T23:30:00Z"));
+    assert.equal(pacificDateString(new Date("2026-11-07T23:30:00Z")), "2026-11-07");
+    assert.equal(listed.some((session) => session.date === "2026-11-07"), false);
+    assert.equal(listed[0]?.date, "2026-11-21");
+    assert.equal(formatClassWhen(listed[0]!).dateLabel, "Saturday, November 21, 2026");
+    assert.equal(formatClassWhen(listed[0]!).timeLabel, "3:00–4:00 PM PT");
+  });
+
   it("keeps a class on its Pacific date, including late that evening", () => {
-    // 2026-11-01 06:30 UTC is still 2026-10-31 11:30 PM PDT.
-    const listed = upcomingClasses(new Date("2026-11-01T06:30:00Z"));
-    assert.equal(pacificDateString(new Date("2026-11-01T06:30:00Z")), "2026-10-31");
-    assert.equal(listed[0]?.date, "2026-10-31");
-    assert.equal(listed.length, 9);
+    // 2027-09-05 06:30 UTC is still 2027-09-04 11:30 PM PDT.
+    const listed = upcomingClasses(new Date("2027-09-05T06:30:00Z"));
+    assert.equal(pacificDateString(new Date("2027-09-05T06:30:00Z")), "2027-09-04");
+    assert.equal(listed[0]?.date, "2027-09-04");
+    assert.equal(listed.length, 1);
   });
 
   it("hides a class once the Pacific date has passed", () => {
-    // 2026-10-18 07:00 UTC is 2026-10-18 12:00 AM PDT.
-    const listed = upcomingClasses(new Date("2026-10-18T07:00:00Z"));
-    assert.equal(pacificDateString(new Date("2026-10-18T07:00:00Z")), "2026-10-18");
-    assert.equal(listed.some((session) => session.date === "2026-10-17"), false);
-    assert.equal(listed[0]?.date, "2026-10-31");
+    // 2026-11-22 08:00 UTC is 2026-11-22 12:00 AM PST, the day after November 21.
+    const listed = upcomingClasses(new Date("2026-11-22T08:00:00Z"));
+    assert.equal(pacificDateString(new Date("2026-11-22T08:00:00Z")), "2026-11-22");
+    assert.equal(listed.some((session) => session.date === "2026-11-21"), false);
+    assert.equal(listed[0]?.date, "2026-12-05");
   });
 
   it("uses Pacific standard time after the November clock change", () => {
     // 2026-11-08 07:30 UTC is still 2026-11-07 11:30 PM PST.
     assert.equal(pacificDateString(new Date("2026-11-08T07:30:00Z")), "2026-11-07");
-    assert.equal(upcomingClasses(new Date("2026-11-08T07:30:00Z"))[0]?.date, "2026-11-07");
+    assert.equal(upcomingClasses(new Date("2026-11-08T07:30:00Z"))[0]?.date, "2026-11-21");
+    assert.equal(
+      upcomingClasses(new Date("2026-11-08T07:30:00Z")).some((session) => session.date === "2026-11-07"),
+      false,
+    );
     // 2026-11-08 08:00 UTC is 2026-11-08 12:00 AM PST.
     assert.equal(pacificDateString(new Date("2026-11-08T08:00:00Z")), "2026-11-08");
     assert.equal(
@@ -61,21 +80,28 @@ describe("upcomingClasses", () => {
     ]);
     assert.deepEqual(
       listed.map((session) => session.date),
-      ["2026-10-31", "2026-11-07"],
+      ["2026-11-21", "2026-12-05"],
     );
   });
 });
 
 describe("formatClassWhen", () => {
   it("formats afternoon and morning Pacific times", () => {
-    assert.deepEqual(formatClassWhen(CLASSES[1]), {
-      id: "2026-11-07-1500",
-      dateLabel: "Saturday, November 7, 2026",
+    assert.deepEqual(formatClassWhen(CLASSES[0]), {
+      id: "2026-11-21-1500",
+      dateLabel: "Saturday, November 21, 2026",
       timeLabel: "3:00–4:00 PM PT",
     });
-    assert.equal(formatClassWhen(CLASSES[0]).dateLabel, "Saturday, October 31, 2026");
-    assert.equal(formatClassWhen(CLASSES[0]).timeLabel, "9:00–10:00 AM PT");
-    assert.equal(formatClassWhen(CLASSES[3]).dateLabel, "Saturday, December 5, 2026");
+    assert.equal(
+      formatClassWhen({
+        date: "2026-11-07",
+        start: "09:00",
+        end: "10:00",
+        rsvpUrl: "https://example.invalid/morning",
+      }).timeLabel,
+      "9:00–10:00 AM PT",
+    );
+    assert.equal(formatClassWhen(CLASSES[1]).dateLabel, "Saturday, December 5, 2026");
     const byDate = Object.fromEntries(CLASSES.map((session) => [session.date, session]));
     assert.equal(formatClassWhen(byDate["2027-01-09"]).timeLabel, "2:00–3:00 PM PT");
     assert.equal(formatClassWhen(byDate["2027-03-06"]).dateLabel, "Saturday, March 6, 2027");
@@ -101,12 +127,12 @@ describe("class page copy", () => {
     );
     assert.equal(
       CLASS_PAGE.tpmoCounts,
-      "Counts are for Clark County, NV, 2027 plan year. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).",
+      "Counts are for Clark County, NV, 2027 plan year; counts vary by county. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).",
     );
     assert.doesNotMatch(CLASS_PAGE.tpmo, /SHIP/);
     assert.equal(
       CLASS_PAGE.affiliation,
-      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
+      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT, ID. · NPN 21173691",
     );
     assert.equal(
       CLASS_PAGE.signupNote,
