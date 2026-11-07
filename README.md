@@ -27,6 +27,8 @@ Tool answers stay in the browser tab (`sessionStorage`). The site has no databas
 
 ## Run locally
 
+Requires Node.js 24 (see `.nvmrc`).
+
 ```bash
 npm install
 npm run dev
