@@ -22,12 +22,6 @@ export type ClassSession = {
 
 export const CLASSES: ClassSession[] = [
   {
-    date: "2026-11-07",
-    start: "15:00",
-    end: "16:00",
-    rsvpUrl: "https://fantastical.app/i/CZaMCz66MUHoFoe",
-  },
-  {
     date: "2026-11-21",
     start: "15:00",
     end: "16:00",
@@ -165,7 +159,7 @@ function clock(hhmm: string): { hour: number; minute: string; suffix: "AM" | "PM
   return { hour, minute: rawMinute.padStart(2, "0"), suffix };
 }
 
-/** "Saturday, November 7, 2026" and "3:00–4:00 PM PT". */
+/** "Saturday, November 21, 2026" and "3:00–4:00 PM PT". */
 export function formatClassWhen(session: ClassSession): ClassWhen {
   const [year, month, day] = session.date.split("-").map(Number);
   const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
