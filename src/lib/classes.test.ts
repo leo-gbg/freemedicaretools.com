@@ -127,12 +127,12 @@ describe("class page copy", () => {
     );
     assert.equal(
       CLASS_PAGE.tpmoCounts,
-      "Counts are for Clark County, NV, 2027 plan year. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).",
+      "Counts are for Clark County, NV, 2027 plan year; counts vary by county. 1-800-MEDICARE is available 24 hours a day, 7 days a week (TTY 1-877-486-2048).",
     );
     assert.doesNotMatch(CLASS_PAGE.tpmo, /SHIP/);
     assert.equal(
       CLASS_PAGE.affiliation,
-      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT. · NPN 21173691",
+      "Not affiliated with or endorsed by the U.S. government or the federal Medicare program. Licensed in NV, CA, TX, HI, UT, ID. · NPN 21173691",
     );
     assert.equal(
       CLASS_PAGE.signupNote,

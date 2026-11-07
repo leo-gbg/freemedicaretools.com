@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: `%s · ${BRAND.name}`,
   },
   description:
-    "Free Medicare tools for people turning 65 and current enrollees: IEP timelines, late penalties, IRMAA, path quiz, AEP checklist, and more — at FreeMedicareTools.com.",
+    "Free plain-English Medicare tools for enrollment dates and penalties. Powered by Guardian Benefits Group, licensed in NV, CA, TX, HI, UT and ID.",
   applicationName: BRAND.name,
   alternates: {
     canonical: "./",
