@@ -5,10 +5,11 @@ import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: `How ${BRAND.domain} handles your information. The tools run in your browser. Email to agent sends the worksheet by regular email to Leo Adaoag. The website keeps no copy; his mailbox does until he deletes it.`,
+  description: `How ${BRAND.domain} handles your information. The tools run in your browser. Email to agent sends the worksheet by regular email to Leo Adaoag. The website keeps no copy. Copies in the agent@ mailbox (Inbox, Sent, and Trash) are deleted within 14 days.`,
 };
 
-const EFFECTIVE_DATE = "November 24, 2026";
+/** Replace with the real publish date right before merge. Not a publish date yet. */
+const EFFECTIVE_DATE = "To be set at publish";
 
 export default function PrivacyPage() {
   return (
@@ -20,7 +21,8 @@ export default function PrivacyPage() {
           The short version: the tools run in your browser. Worksheet answers stay in this browser
           tab unless you check the consent box and click Email to agent. That sends them by regular
           email to Leo Adaoag, a licensed insurance agent with Guardian Benefits Group. The website
-          itself keeps no copy, but Leo&apos;s mailbox does until he deletes it (see section 4). If
+          itself keeps no copy. Copies in the agent@freemedicaretools.com mailbox (Inbox, Sent, and
+          Trash) are deleted within 14 days (see section 4). If
           you email us any other way, we get what you choose to send.
         </p>
       }
@@ -71,10 +73,8 @@ export default function PrivacyPage() {
             If you check the consent box and click Email to agent, the worksheet you entered
             (contact details, date of birth, coverage answers, prescriptions, doctors, and notes)
             is sent by regular email, with a PDF copy, to Leo Adaoag at agent@freemedicaretools.com.
-            The website doesn&apos;t store it. The email stays in that mailbox, which our email
-            provider hosts, until Leo copies what he needs into our client records and deletes it,
-            within [3] business days. If you become a client, we keep your records for [10 years].
-            If you don&apos;t, we delete your information [within __ of our last contact]. Please
+            The website doesn&apos;t store it. Copies in the agent@freemedicaretools.com mailbox
+            (Inbox, Sent, and Trash) are deleted within 14 days. Please
             don&apos;t type a Medicare number (MBI), Social Security number, or bank or card details
             anywhere on the worksheet.
           </li>
