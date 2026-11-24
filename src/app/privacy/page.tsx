@@ -5,7 +5,7 @@ import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: `How ${BRAND.domain} handles your information. The tools run in your browser. Email to agent sends the worksheet by regular email to Leo Adaoag. The website keeps no copy. Copies in the agent@ mailbox (Inbox, Sent, and Trash) are deleted within 14 days.`,
+  description: `How ${BRAND.domain} handles your information. The tools run in your browser. Email to agent sends the worksheet by regular email to Leo Adaoag. The website keeps no copy. Copies in the agent@ mailbox (Inbox, Sent, and Trash) are deleted within 14 days after they arrive.`,
 };
 
 /** Replace with the real publish date right before merge. Not a publish date yet. */
@@ -22,8 +22,9 @@ export default function PrivacyPage() {
           tab unless you check the consent box and click Email to agent. That sends them by regular
           email to Leo Adaoag, a licensed insurance agent with Guardian Benefits Group. The website
           itself keeps no copy. Copies in the agent@freemedicaretools.com mailbox (Inbox, Sent, and
-          Trash) are deleted within 14 days (see section 4). If
-          you email us any other way, we get what you choose to send.
+          Trash) are deleted within 14 days after they arrive. Leo may keep what he needs to
+          compare plans for you in our client records (see section 4). If you email us any other
+          way, we get what you choose to send.
         </p>
       }
     >
@@ -74,9 +75,12 @@ export default function PrivacyPage() {
             (contact details, date of birth, coverage answers, prescriptions, doctors, and notes)
             is sent by regular email, with a PDF copy, to Leo Adaoag at agent@freemedicaretools.com.
             The website doesn&apos;t store it. Copies in the agent@freemedicaretools.com mailbox
-            (Inbox, Sent, and Trash) are deleted within 14 days. Please
-            don&apos;t type a Medicare number (MBI), Social Security number, or bank or card details
-            anywhere on the worksheet.
+            (Inbox, Sent, and Trash) are deleted within 14 days after they arrive. Before then, Leo
+            may copy what he needs to compare plans for you into our client records. If you become a
+            client, we keep those records for as long as the law and our insurance company contracts
+            require. If you don&apos;t, we delete them [within __ months/years of our last contact].
+            Please don&apos;t type a Medicare number (MBI), Social Security number, or bank or card
+            details anywhere on the worksheet.
           </li>
         </ul>
       </LegalSection>
@@ -107,8 +111,10 @@ export default function PrivacyPage() {
         <p>
           We use your email and phone number only to reply to your request and, if you sent the
           worksheet and agreed, to compare Medicare plans for you and contact you about that. We
-          don&apos;t sell or share your
-          information, and we don&apos;t add you to marketing lists without your permission.
+          don&apos;t sell your information. We share it only with service providers that help us run
+          our agency, such as our email host and client management system, and, if you decide to
+          apply for a plan, with that insurance company. We don&apos;t add you to marketing lists
+          without your permission.
         </p>
       </LegalSection>
 
