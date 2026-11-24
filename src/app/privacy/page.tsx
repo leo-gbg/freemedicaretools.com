@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             (Inbox, Sent, and Trash) are deleted within 14 days after they arrive. Before then, Leo
             may copy what he needs to compare plans for you into our client records. If you become a
             client, we keep those records for as long as the law and our insurance company contracts
-            require. If you don&apos;t, we delete them [within __ months/years of our last contact].
+            require. If you don&apos;t, we delete them within 1 year of our last contact.
             Please don&apos;t type a Medicare number (MBI), Social Security number, or bank or card
             details anywhere on the worksheet.
           </li>
