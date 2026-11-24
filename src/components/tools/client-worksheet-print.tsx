@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { PoweredBy } from "@/components/powered-by";
 import { Wordmark } from "@/components/wordmark";
@@ -14,14 +14,22 @@ import {
   type WorksheetPrescription,
   type WorksheetProvider,
 } from "@/lib/medicare/client-worksheet";
+import { WORKSHEET_CONSENT_TEXT, WORKSHEET_CONSENT_VERSION } from "@/lib/medicare/worksheet-email";
 import { worksheetLayout, worksheetTier, type WorksheetTier } from "@/lib/medicare/worksheet-layout";
 import { cn } from "@/lib/utils";
 
 const BRING = ["Medicare card", "Pill bottles or label photos", "Current plan cards", "Annual Notice of Change"];
+const PRINT_RETENTION =
+  "This page doesn't save what you type. If you choose Email to agent, your worksheet is emailed to Leo Adaoag; the site keeps no copy.";
 
 export function ClientWorksheetPrintDocument() {
   const [data, setData] = useState<ClientWorksheet | null>(null);
   const [ready, setReady] = useState(false);
+  const [emailState, setEmailState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [consentChecked, setConsentChecked] = useState(false);
+  const sendingRef = useRef(false);
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,21 +45,46 @@ export function ClientWorksheetPrintDocument() {
     };
   }, []);
 
-  const mailtoHref = useMemo(() => {
-    const subject = encodeURIComponent("Medicare consult worksheet");
-    const body = encodeURIComponent(
-      [
-        "Hello,",
-        "",
-        "I used the FreeMedicareTools worksheet and saved a PDF on my own device.",
-        "This message does not include my worksheet.",
-        "I will not put medications, date of birth, Medicaid, VA benefits, or similar details in email.",
-        "",
-        `Sent via ${BRAND.domain}`,
-      ].join("\n")
-    );
-    return `mailto:${BRAND.email}?subject=${subject}&body=${body}`;
-  }, []);
+  async function emailToAgent() {
+    if (!data || !consentChecked || sendingRef.current || emailState === "sent") return;
+    sendingRef.current = true;
+    setEmailState("sending");
+    setEmailMessage("");
+    try {
+      const response = await fetch("/api/worksheet-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          worksheet: data,
+          fmt_hp: honeypotRef.current?.value ?? "",
+          consent: true,
+          consentVersion: WORKSHEET_CONSENT_VERSION,
+        }),
+      });
+      let payload: { ok?: boolean; message?: string } | null = null;
+      try {
+        payload = (await response.json()) as { ok?: boolean; message?: string };
+      } catch {
+        payload = null;
+      }
+      const message = typeof payload?.message === "string" ? payload.message.slice(0, 300) : "";
+      if (!response.ok || !payload?.ok) {
+        sendingRef.current = false;
+        setEmailState("error");
+        setEmailMessage(message || "We couldn't send the email. Please try again, or use Print / Save as PDF.");
+        return;
+      }
+      setEmailState("sent");
+      setEmailMessage(
+        message ||
+          "Sent to Leo Adaoag at Guardian Benefits Group. The site did not keep a copy. Leo may contact you by the phone or email you gave.",
+      );
+    } catch {
+      sendingRef.current = false;
+      setEmailState("error");
+      setEmailMessage("We couldn't send the email. Please try again, or use Print / Save as PDF.");
+    }
+  }
 
   if (!ready) {
     return (
@@ -85,7 +118,44 @@ export function ClientWorksheetPrintDocument() {
         <Link href="/tools/client-worksheet" className="inline-flex min-h-12 items-center text-[var(--brand-teal-deep)]">
           ← Edit worksheet
         </Link>
-        <div className="flex max-w-xl flex-col items-stretch gap-2 sm:items-end">
+        <div className="flex max-w-xl flex-col items-stretch gap-3 sm:items-end">
+          <p className="text-left text-sm leading-relaxed text-[var(--brand-ink-soft)]">
+            <strong className="text-[var(--brand-ink)]">Before you send:</strong> Email to agent sends
+            everything on this worksheet (your contact details, date of birth, coverage answers,
+            prescriptions, doctors, and notes) to Leo Adaoag, a licensed insurance agent with Guardian
+            Benefits Group, at agent@freemedicaretools.com. It travels by regular email, with a PDF copy
+            attached. Don&apos;t include your Social Security number, Medicare number, or bank or card
+            details. Sending is optional. You can call{" "}
+            <a href="tel:+17026272605" className="font-medium text-[var(--brand-teal-deep)] underline underline-offset-4">
+              702-627-2605
+            </a>{" "}
+            (TTY 711) instead. Leo calls and texts personally, never with automated calls or texts.{" "}
+            <Link
+              href="/privacy"
+              className="inline-flex min-h-12 items-center font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+            >
+              Privacy
+            </Link>
+          </p>
+          <label className="flex items-start gap-3 text-left text-sm leading-relaxed text-[var(--brand-ink)]">
+            <input
+              type="checkbox"
+              className="mt-1 size-6 shrink-0 accent-[var(--brand-teal)]"
+              checked={consentChecked}
+              onChange={(event) => setConsentChecked(event.target.checked)}
+            />
+            <span>{WORKSHEET_CONSENT_TEXT}</span>
+          </label>
+          <input
+            ref={honeypotRef}
+            type="text"
+            name="fmt_hp"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            defaultValue=""
+            className="pointer-events-none absolute -left-[9999px] h-px w-px opacity-0"
+          />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -94,21 +164,30 @@ export function ClientWorksheetPrintDocument() {
             >
               Print / Save as PDF
             </button>
-            <a href={mailtoHref} className={cn(buttonVariants({ size: "lg", variant: "outline" }))}>
-              Email to agent
-            </a>
+            <button
+              type="button"
+              onClick={emailToAgent}
+              disabled={!consentChecked || emailState === "sending" || emailState === "sent"}
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                "disabled:cursor-not-allowed disabled:opacity-60",
+              )}
+            >
+              {emailState === "sending" ? "Sending…" : "Email to agent"}
+            </button>
           </div>
           <OfficialSourceNote className="sm:text-right" />
-          <p className="text-sm text-[var(--brand-ink-soft)] sm:text-right">
-            The email does not include your worksheet. Do not add medications, date of birth, Medicaid,
-            VA benefits, or similar details to the message.{" "}
-            <Link
-              href="/privacy"
-              className="inline-flex min-h-12 items-center font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
+          {emailMessage ? (
+            <p
+              role="status"
+              className={cn(
+                "text-sm sm:text-right",
+                emailState === "error" ? "text-[var(--brand-red-text)]" : "text-[var(--brand-teal-deep)]",
+              )}
             >
-              Privacy
-            </Link>
-          </p>
+              {emailMessage}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -241,7 +320,7 @@ function PageOne({
       </div>
 
       <footer className="mt-2 shrink-0 border-t border-[var(--brand-line)] pt-1.5 text-[10px] leading-snug text-[var(--brand-text-3)]">
-        Made in your browser at {BRAND.domain}. Nothing you typed was sent to or stored by the site.
+        Made in your browser at {BRAND.domain}. {PRINT_RETENTION}
         Educational use only, not affiliated with or endorsed by the U.S. government or the federal Medicare program.{" "}
         {OFFICIAL_SOURCE_SENTENCE}
       </footer>
@@ -306,7 +385,7 @@ function PageTwo({
 
       <footer className="mt-auto shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Never write your Medicare number or Social Security number on this form. Made in your browser
-        at {BRAND.domain}. Nothing you typed was sent to or stored by the site. Educational use only,
+        at {BRAND.domain}. {PRINT_RETENTION} Educational use only,
         not affiliated with or endorsed by the U.S. government or the federal Medicare program.
       </footer>
     </article>
@@ -349,7 +428,7 @@ function PageThree({
 
       <footer className="mt-auto shrink-0 border-t border-[var(--brand-line)] pt-2 text-[10px] leading-snug text-[var(--brand-text-3)]">
         Never write your Medicare number or Social Security number on this form. Made in your browser
-        at {BRAND.domain}. Nothing you typed was sent to or stored by the site. Educational use only,
+        at {BRAND.domain}. {PRINT_RETENTION} Educational use only,
         not affiliated with or endorsed by the U.S. government or the federal Medicare program.
       </footer>
     </article>

@@ -10,7 +10,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import ./src/lib/medicare/register-test.mjs --experimental-strip-types --test src/lib/classes.test.ts src/lib/medicare/iep.test.ts src/lib/medicare/worksheet-layout.test.ts src/lib/medicare/client-worksheet.test.ts src/lib/medicare/irmaa.test.ts src/lib/medicare/retirement.test.ts src/lib/medicare/education-copy.test.ts"
+    "test": "node --import ./src/lib/medicare/register-test.mjs --experimental-strip-types --test src/lib/classes.test.ts src/lib/medicare/iep.test.ts src/lib/medicare/worksheet-layout.test.ts src/lib/medicare/client-worksheet.test.ts src/lib/medicare/irmaa.test.ts src/lib/medicare/retirement.test.ts src/lib/medicare/education-copy.test.ts src/lib/medicare/worksheet-pdf.test.ts src/lib/medicare/worksheet-email.test.ts src/lib/medicare/privacy-effective-date.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -18,6 +18,8 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.47.0",
     "next": "16.4.5",
+    "nodemailer": "^10.6.1",
+    "pdfkit": "^0.21.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.7.0",
@@ -26,6 +28,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pdfkit": "^0.17.7",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
