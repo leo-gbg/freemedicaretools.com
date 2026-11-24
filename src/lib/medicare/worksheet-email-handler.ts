@@ -22,6 +22,8 @@ export const WORKSHEET_IP_LIMIT = 5;
 export const WORKSHEET_IP_WINDOW_MS = 15 * 60 * 1000;
 export const WORKSHEET_PHONE_LIMIT = 5;
 export const WORKSHEET_PHONE_WINDOW_MS = 60 * 60 * 1000;
+export const WORKSHEET_UNTRUSTED_LIMIT = 60;
+export const WORKSHEET_UNTRUSTED_WINDOW_MS = 60 * 60 * 1000;
 
 export type WorksheetEmailResult = {
   status: number;
@@ -94,7 +96,12 @@ export async function handleWorksheetEmail(input: {
   const trustProxy = input.env.WORKSHEET_TRUST_PROXY === "true";
   const ip = trustProxy ? input.ip.slice(0, 64) || "unknown" : "untrusted";
 
-  if (ip !== "untrusted" && !takeRateLimit(`ip:${ip}`, now, WORKSHEET_IP_LIMIT, WORKSHEET_IP_WINDOW_MS)) {
+  if (trustProxy) {
+    if (ip !== "untrusted" && !takeRateLimit(`ip:${ip}`, now, WORKSHEET_IP_LIMIT, WORKSHEET_IP_WINDOW_MS)) {
+      log("worksheet_email_rate_limited");
+      return json(429, WorksheetEmailMessage.rate);
+    }
+  } else if (!takeRateLimit("global-untrusted", now, WORKSHEET_UNTRUSTED_LIMIT, WORKSHEET_UNTRUSTED_WINDOW_MS)) {
     log("worksheet_email_rate_limited");
     return json(429, WorksheetEmailMessage.rate);
   }

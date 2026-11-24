@@ -22,6 +22,7 @@ import {
   logWorksheetEvent,
   resetRateLimits,
   WORKSHEET_PHONE_LIMIT,
+  WORKSHEET_UNTRUSTED_LIMIT,
 } from "./worksheet-email-handler.ts";
 import type { WorksheetMail } from "./worksheet-mail.ts";
 
@@ -156,7 +157,11 @@ describe("worksheet email payload", () => {
       if (!line) continue;
       assert.ok(mail.text.includes(line), `missing email line: ${line}`);
     }
-    assert.ok(mail.text.startsWith(`Consent: ${WORKSHEET_CONSENT_VERSION} checked by the visitor at ${CONSENT_AT}.`));
+    assert.ok(
+      mail.text.startsWith(
+        `Consent: ${WORKSHEET_CONSENT_VERSION} checked by the visitor; request received at ${CONSENT_AT}.`,
+      ),
+    );
     assert.ok(mail.text.includes(`Consent text: "${WORKSHEET_CONSENT_TEXT}"`));
     assert.ok(mail.text.includes("Email and phone are not verified."));
     assert.ok(
@@ -281,6 +286,21 @@ describe("handleWorksheetEmail", { concurrency: false }, () => {
     }
     const blocked = request(data, configured, "198.51.100.40");
     const result = await blocked.run();
+    assert.equal(result.status, 429);
+    assert.equal(result.body.message, WorksheetEmailMessage.rate);
+    assert.equal(blocked.sent.length, 0);
+  });
+
+  it("caps sends site-wide when the client IP is not trusted", async () => {
+    resetRateLimits();
+    for (let count = 0; count < WORKSHEET_UNTRUSTED_LIMIT; count += 1) {
+      const call = request(sampleWorksheet(), configured, `198.51.100.${count % 200}`);
+      const result = await call.run({ omitConsent: true });
+      assert.equal(result.status, 400);
+      assert.equal(call.sent.length, 0);
+    }
+    const blocked = request({ ...sampleWorksheet(), phone: "(555) 010-0101" }, configured, "203.0.113.200");
+    const result = await blocked.run({ omitConsent: true });
     assert.equal(result.status, 429);
     assert.equal(result.body.message, WorksheetEmailMessage.rate);
     assert.equal(blocked.sent.length, 0);

@@ -199,18 +199,24 @@ export function hasWorksheetConsent(payload: object): boolean {
   return record.consent === true && record.consentVersion === WORKSHEET_CONSENT_VERSION;
 }
 
-/** ISO-8601 UTC instant, the only consent timestamp the email records. */
+/** Server receipt time, ISO-8601 UTC. The label line is the consent record. */
 export function consentRecordLines(consentAt: string): string[] {
   return [
-    `Consent: ${WORKSHEET_CONSENT_VERSION} checked by the visitor at ${consentAt}. Consent text: "${WORKSHEET_CONSENT_TEXT}" Email and phone are not verified.`,
+    `Consent: ${WORKSHEET_CONSENT_VERSION} checked by the visitor; request received at ${consentAt}.`,
+    `Consent text: "${WORKSHEET_CONSENT_TEXT}" Email and phone are not verified.`,
     "This worksheet is not a Scope of Appointment. Complete an SOA before discussing specific Medicare Advantage or Part D plans.",
   ];
 }
 
 export function worksheetEmailText(data: ClientWorksheet, env: MailEnv, consentAt: string): string {
-  const lines = [
-    ...consentRecordLines(consentAt),
-    "",
+  const lines = [...consentRecordLines(consentAt), ""];
+  if ((env.WORKSHEET_EMAIL_TO ?? "").trim() && previewOverrideAllowed(env)) {
+    lines.push(
+      "Test delivery. This message was sent to the test inbox configured for this environment, not the production agent address.",
+      "",
+    );
+  }
+  lines.push(
     "MEDICARE CLIENT WORKSHEET",
     "",
     "The worksheet is included below and in the attached PDF.",
@@ -221,15 +227,7 @@ export function worksheetEmailText(data: ClientWorksheet, env: MailEnv, consentA
     "",
     "Educational use only, not affiliated with or endorsed by the U.S. government or the federal Medicare program.",
     OFFICIAL_SOURCE_SENTENCE,
-  ];
-  if ((env.WORKSHEET_EMAIL_TO ?? "").trim() && previewOverrideAllowed(env)) {
-    lines.splice(
-      2,
-      0,
-      "",
-      "Test delivery. This message was sent to the test inbox configured for this environment, not the production agent address.",
-    );
-  }
+  );
   return lines.join("\n");
 }
 
