@@ -1,5 +1,5 @@
 import { buildWorksheetMail, sendWorksheetMail } from "@/lib/medicare/worksheet-mail";
-import { clientAddress, handleWorksheetEmail } from "@/lib/medicare/worksheet-email-handler";
+import { clientAddress, handleWorksheetEmail, isSecureRequest } from "@/lib/medicare/worksheet-email-handler";
 import { WorksheetEmailMessage } from "@/lib/medicare/worksheet-email";
 
 export const runtime = "nodejs";
@@ -33,7 +33,12 @@ export async function POST(request: Request) {
     host: request.headers.get("host"),
     origin: request.headers.get("origin"),
     forwardedHost: request.headers.get("x-forwarded-host"),
-    ip: clientAddress(request.headers),
+    ip: clientAddress(request.headers, process.env.WORKSHEET_TRUST_PROXY === "true"),
+    secure: isSecureRequest({
+      protocol: new URL(request.url).protocol,
+      forwardedProto: request.headers.get("x-forwarded-proto"),
+      host: request.headers.get("host"),
+    }),
     env: process.env,
     build: buildWorksheetMail,
     send: (mail) => sendWorksheetMail(mail, process.env),

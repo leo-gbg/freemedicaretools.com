@@ -20,8 +20,13 @@ export const DEFAULT_AGENT_EMAIL = "agent@freemedicaretools.com";
 export const WORKSHEET_EMAIL_SUBJECT = "Medicare consult worksheet";
 export const WORKSHEET_PDF_FILENAME = "medicare-worksheet.pdf";
 
+export const WORKSHEET_CONSENT_VERSION = "fmt-worksheet-consent-v1";
+export const WORKSHEET_CONSENT_TEXT =
+  "I agree that Leo Adaoag, a licensed insurance agent with Guardian Benefits Group, may use what I share to compare Medicare plans for me, and may contact me about that by the email or phone number I gave. This is not an enrollment, and I don't have to buy anything.";
+
 export const WorksheetEmailMessage = {
-  sent: "Sent. The agent has your worksheet and the PDF. We did not keep a copy on the site.",
+  sent: "Sent to Leo Adaoag at Guardian Benefits Group. The site did not keep a copy. Leo may contact you by the phone or email you gave.",
+  consent: "Please check the box to agree before sending, or use Print / Save as PDF instead.",
   invalid: "Add your full name and a phone number, then try again.",
   tooLong: "Please shorten the worksheet and try again.",
   sensitive:
@@ -189,8 +194,23 @@ export function worksheetSummaryLines(data: ClientWorksheet): string[] {
   return lines;
 }
 
-export function worksheetEmailText(data: ClientWorksheet, env: MailEnv): string {
+export function hasWorksheetConsent(payload: object): boolean {
+  const record = payload as { consent?: unknown; consentVersion?: unknown };
+  return record.consent === true && record.consentVersion === WORKSHEET_CONSENT_VERSION;
+}
+
+/** ISO-8601 UTC instant, the only consent timestamp the email records. */
+export function consentRecordLines(consentAt: string): string[] {
+  return [
+    `Consent: ${WORKSHEET_CONSENT_VERSION} checked by the visitor at ${consentAt}. Consent text: "${WORKSHEET_CONSENT_TEXT}" Email and phone are not verified.`,
+    "This worksheet is not a Scope of Appointment. Complete an SOA before discussing specific Medicare Advantage or Part D plans.",
+  ];
+}
+
+export function worksheetEmailText(data: ClientWorksheet, env: MailEnv, consentAt: string): string {
   const lines = [
+    ...consentRecordLines(consentAt),
+    "",
     "MEDICARE CLIENT WORKSHEET",
     "",
     "The worksheet is included below and in the attached PDF.",
@@ -202,10 +222,12 @@ export function worksheetEmailText(data: ClientWorksheet, env: MailEnv): string 
     "Educational use only, not affiliated with or endorsed by the U.S. government or the federal Medicare program.",
     OFFICIAL_SOURCE_SENTENCE,
   ];
-  if ((env.WORKSHEET_EMAIL_TO ?? "").trim()) {
-    lines.unshift(
-      "Test delivery. This message was sent to the test inbox configured for this environment, not the production agent address.",
+  if ((env.WORKSHEET_EMAIL_TO ?? "").trim() && previewOverrideAllowed(env)) {
+    lines.splice(
+      2,
+      0,
       "",
+      "Test delivery. This message was sent to the test inbox configured for this environment, not the production agent address.",
     );
   }
   return lines.join("\n");
@@ -218,13 +240,34 @@ export class MailConfigError extends Error {
   }
 }
 
+/** WORKSHEET_EMAIL_TO is set on a production process without the preview flag. */
+export class RecipientOverrideError extends Error {
+  constructor() {
+    super("recipient_override_blocked");
+    this.name = "RecipientOverrideError";
+  }
+}
+
+/**
+ * A personal or preview inbox is allowed only outside production, or when
+ * WORKSHEET_EMAIL_PREVIEW=true is set on purpose. Production with
+ * WORKSHEET_EMAIL_TO and no flag is refused, not silently redirected.
+ */
+export function previewOverrideAllowed(env: MailEnv): boolean {
+  const override = (env.WORKSHEET_EMAIL_TO ?? "").trim();
+  if (!override) return true;
+  if (env.NODE_ENV !== "production") return true;
+  return env.WORKSHEET_EMAIL_PREVIEW === "true";
+}
+
 export function smtpConfigured(env: MailEnv): boolean {
   return Boolean(env.SMTP_HOST?.trim() && env.SMTP_USER?.trim() && env.SMTP_PASSWORD);
 }
 
-/** Production default is the agent mailbox. WORKSHEET_EMAIL_TO overrides it for a test deploy. */
+/** Production default is the agent mailbox. WORKSHEET_EMAIL_TO is refused in production unless the preview flag is set. */
 export function agentRecipient(env: MailEnv): string {
   const override = (env.WORKSHEET_EMAIL_TO ?? "").trim();
+  if (override && !previewOverrideAllowed(env)) throw new RecipientOverrideError();
   const chosen = override || (env.WORKSHEET_AGENT_EMAIL ?? "").trim() || DEFAULT_AGENT_EMAIL;
   if (!isEmail(chosen)) throw new MailConfigError();
   return chosen;

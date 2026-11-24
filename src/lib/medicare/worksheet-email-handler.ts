@@ -8,9 +8,11 @@ import type { ClientWorksheet } from "./client-worksheet";
 import { resetRateLimits, takeRateLimit } from "./rate-limit";
 import type { WorksheetMail } from "./worksheet-mail";
 import {
+  hasWorksheetConsent,
   isHoneypot,
   MailConfigError,
   parseWorksheet,
+  RecipientOverrideError,
   smtpConfigured,
   WorksheetEmailMessage,
   type MailEnv,
@@ -18,8 +20,6 @@ import {
 
 export const WORKSHEET_IP_LIMIT = 5;
 export const WORKSHEET_IP_WINDOW_MS = 15 * 60 * 1000;
-export const WORKSHEET_GLOBAL_LIMIT = 30;
-export const WORKSHEET_GLOBAL_WINDOW_MS = 60 * 60 * 1000;
 export const WORKSHEET_PHONE_LIMIT = 5;
 export const WORKSHEET_PHONE_WINDOW_MS = 60 * 60 * 1000;
 
@@ -36,11 +36,30 @@ export function logWorksheetEvent(event: string, extra?: { code?: string }): voi
   console.info(JSON.stringify(line));
 }
 
-export function clientAddress(headers: { get(name: string): string | null }): string {
+/**
+ * Forwarded IP headers are ignored unless WORKSHEET_TRUST_PROXY=true.
+ * Set that only when the host proxy replaces X-Forwarded-For, so a caller
+ * cannot pick their own rate-limit bucket.
+ */
+export function clientAddress(headers: { get(name: string): string | null }, trustProxy: boolean): string {
+  if (!trustProxy) return "untrusted";
   const forwarded = headers.get("x-forwarded-for");
   const candidate = forwarded?.split(",")[0]?.trim() || headers.get("x-real-ip")?.trim() || "unknown";
   const cleaned = candidate.slice(0, 64).replace(/[^\w.:]/g, "");
   return cleaned || "unknown";
+}
+
+/** Localhost may use HTTP. Every other host must be HTTPS, including via the proxy proto. */
+export function isSecureRequest(input: {
+  protocol: string | null;
+  forwardedProto: string | null;
+  host: string | null;
+}): boolean {
+  const host = (input.host ?? "").replace(/:\d+$/, "").toLowerCase();
+  if (host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]") return true;
+  const forwarded = input.forwardedProto?.split(",")[0]?.trim().toLowerCase();
+  if (forwarded === "https") return true;
+  return (input.protocol ?? "").toLowerCase() === "https:";
 }
 
 export function isAllowedOrigin(origin: string | null, host: string | null, forwardedHost: string | null): boolean {
@@ -63,20 +82,19 @@ export async function handleWorksheetEmail(input: {
   origin: string | null;
   forwardedHost: string | null;
   ip: string;
+  secure: boolean;
   env: MailEnv;
   send: (mail: WorksheetMail) => Promise<void>;
-  build: (data: ClientWorksheet, env: MailEnv) => Promise<WorksheetMail>;
+  build: (data: ClientWorksheet, env: MailEnv, consentAt: string) => Promise<WorksheetMail>;
   now?: number;
   log?: LogFn;
 }): Promise<WorksheetEmailResult> {
   const now = input.now ?? Date.now();
   const log = input.log ?? logWorksheetEvent;
-  const ip = input.ip.slice(0, 64) || "unknown";
+  const trustProxy = input.env.WORKSHEET_TRUST_PROXY === "true";
+  const ip = trustProxy ? input.ip.slice(0, 64) || "unknown" : "untrusted";
 
-  const allowed =
-    takeRateLimit(`ip:${ip}`, now, WORKSHEET_IP_LIMIT, WORKSHEET_IP_WINDOW_MS) &&
-    takeRateLimit("global", now, WORKSHEET_GLOBAL_LIMIT, WORKSHEET_GLOBAL_WINDOW_MS);
-  if (!allowed) {
+  if (ip !== "untrusted" && !takeRateLimit(`ip:${ip}`, now, WORKSHEET_IP_LIMIT, WORKSHEET_IP_WINDOW_MS)) {
     log("worksheet_email_rate_limited");
     return json(429, WorksheetEmailMessage.rate);
   }
@@ -84,6 +102,10 @@ export async function handleWorksheetEmail(input: {
   if (!isJson(input.contentType)) {
     log("worksheet_email_rejected");
     return json(415, WorksheetEmailMessage.rejected);
+  }
+  if (!input.secure) {
+    log("worksheet_email_rejected");
+    return json(403, WorksheetEmailMessage.rejected);
   }
   if (!isAllowedOrigin(input.origin, input.host, input.forwardedHost)) {
     log("worksheet_email_rejected");
@@ -96,6 +118,10 @@ export async function handleWorksheetEmail(input: {
   if (isHoneypot(input.payload)) {
     log("worksheet_email_spam");
     return json(200, WorksheetEmailMessage.sent);
+  }
+  if (!hasWorksheetConsent(input.payload)) {
+    log("worksheet_email_rejected");
+    return json(400, WorksheetEmailMessage.consent);
   }
 
   const parsed = parseWorksheet(worksheetFromPayload(input.payload));
@@ -122,11 +148,16 @@ export async function handleWorksheetEmail(input: {
   }
 
   try {
-    const mail = await input.build(parsed.data, input.env);
+    const consentAt = new Date(now).toISOString();
+    const mail = await input.build(parsed.data, input.env, consentAt);
     await input.send(mail);
     log("worksheet_email_sent");
     return json(200, WorksheetEmailMessage.sent);
   } catch (error) {
+    if (error instanceof RecipientOverrideError) {
+      log("worksheet_email_override_blocked");
+      return json(503, WorksheetEmailMessage.unavailable);
+    }
     if (error instanceof MailConfigError) {
       log("worksheet_email_unconfigured");
       return json(503, WorksheetEmailMessage.unavailable);

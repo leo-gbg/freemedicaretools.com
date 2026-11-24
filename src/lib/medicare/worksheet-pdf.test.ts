@@ -98,7 +98,11 @@ describe("renderWorksheetPdf", () => {
 
   it("keeps the print-page privacy note and does not add the TPMO disclaimer there", () => {
     const source = readFileSync(new URL("../../components/tools/client-worksheet-print.tsx", import.meta.url), "utf8");
-    assert.ok(source.includes("Nothing you typed was sent to or stored by the site."));
+    const retention =
+      "This page doesn't save what you type. If you choose Email to agent, your worksheet is emailed to Leo Adaoag; the site keeps no copy.";
+    assert.ok(source.includes(retention));
+    assert.equal(source.includes("Nothing you typed was sent to or stored by the site."), false);
+    assert.ok(source.includes('name="fmt_hp"'));
     assert.equal(source.includes(TPMO_DISCLAIMER), false);
     assert.equal(source.includes("mailto:"), false);
   });

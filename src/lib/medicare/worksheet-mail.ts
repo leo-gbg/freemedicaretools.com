@@ -9,10 +9,12 @@
  *   SMTP_PASSWORD=<mailbox password>
  *   WORKSHEET_EMAIL_FROM=agent@freemedicaretools.com
  *   WORKSHEET_AGENT_EMAIL=agent@freemedicaretools.com
- * Preview only, leave unset in production:
- *   WORKSHEET_EMAIL_TO=<test inbox>
+ * WORKSHEET_EMAIL_TO must stay unset in production. Never point it at a
+ * personal inbox for real worksheet information. A preview inbox is allowed
+ * only when NODE_ENV is not production, or WORKSHEET_EMAIL_PREVIEW=true.
  *
- * Port 587 needs SMTP_SECURE=false. Do not log this module's mail objects.
+ * Port 587 needs SMTP_SECURE=false. TLS 1.2 is required either way.
+ * Do not set tls.rejectUnauthorized to false. Do not log mail objects.
  */
 
 import { createTransport } from "nodemailer";
@@ -41,14 +43,38 @@ export type WorksheetMail = {
   contentType: "application/pdf";
 };
 
-export async function buildWorksheetMail(data: ClientWorksheet, env: MailEnv): Promise<WorksheetMail> {
+export function smtpTransportOptions(env: MailEnv) {
+  const port = Number(env.SMTP_PORT);
+  return {
+    host: env.SMTP_HOST?.trim(),
+    port: Number.isInteger(port) && port > 0 ? port : 465,
+    secure: env.SMTP_SECURE !== "false",
+    requireTLS: true,
+    tls: { minVersion: "TLSv1.2" as const },
+    auth: {
+      user: env.SMTP_USER?.trim() ?? "",
+      pass: env.SMTP_PASSWORD ?? "",
+    },
+    connectionTimeout: 20_000,
+    greetingTimeout: 20_000,
+    socketTimeout: 20_000,
+  };
+}
+
+export async function buildWorksheetMail(
+  data: ClientWorksheet,
+  env: MailEnv,
+  consentAt: string,
+): Promise<WorksheetMail> {
+  const to = agentRecipient(env);
+  const from = agentFrom(env);
   const replyTo = isEmail(data.email) ? data.email : undefined;
   return {
-    to: agentRecipient(env),
-    from: agentFrom(env),
+    to,
+    from,
     replyTo,
     subject: WORKSHEET_EMAIL_SUBJECT,
-    text: worksheetEmailText(data, env),
+    text: worksheetEmailText(data, env, consentAt),
     pdf: await renderWorksheetPdf(data),
     filename: WORKSHEET_PDF_FILENAME,
     contentType: "application/pdf",
@@ -57,19 +83,7 @@ export async function buildWorksheetMail(data: ClientWorksheet, env: MailEnv): P
 
 export async function sendWorksheetMail(mail: WorksheetMail, env: MailEnv = process.env): Promise<void> {
   if (!smtpConfigured(env)) throw new MailConfigError();
-  const port = Number(env.SMTP_PORT);
-  const transporter = createTransport({
-    host: env.SMTP_HOST?.trim(),
-    port: Number.isInteger(port) && port > 0 ? port : 465,
-    secure: env.SMTP_SECURE !== "false",
-    auth: {
-      user: env.SMTP_USER?.trim() ?? "",
-      pass: env.SMTP_PASSWORD ?? "",
-    },
-    connectionTimeout: 20_000,
-    greetingTimeout: 20_000,
-    socketTimeout: 20_000,
-  });
+  const transporter = createTransport(smtpTransportOptions(env));
   try {
     await transporter.sendMail({
       from: mail.from,

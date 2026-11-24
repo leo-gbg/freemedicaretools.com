@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { emptyWorksheet, type ClientWorksheet } from "./client-worksheet.ts";
-import { buildWorksheetMail } from "./worksheet-mail.ts";
+import { buildWorksheetMail, smtpTransportOptions } from "./worksheet-mail.ts";
 import {
   DEFAULT_AGENT_EMAIL,
   hasSensitiveNumber,
   parseWorksheet,
+  WORKSHEET_CONSENT_TEXT,
+  WORKSHEET_CONSENT_VERSION,
   worksheetEmailText,
   worksheetSummaryLines,
   WORKSHEET_EMAIL_SUBJECT,
@@ -14,10 +16,12 @@ import {
   WorksheetEmailMessage,
 } from "./worksheet-email.ts";
 import {
+  clientAddress,
   handleWorksheetEmail,
+  isSecureRequest,
   logWorksheetEvent,
   resetRateLimits,
-  WORKSHEET_IP_LIMIT,
+  WORKSHEET_PHONE_LIMIT,
 } from "./worksheet-email-handler.ts";
 import type { WorksheetMail } from "./worksheet-mail.ts";
 
@@ -67,6 +71,8 @@ function sampleWorksheet(): ClientWorksheet {
   return data;
 }
 
+const CONSENT_AT = "2026-11-24T01:00:00.000Z";
+
 const configured = {
   SMTP_HOST: "smtp.example.com",
   SMTP_PORT: "465",
@@ -82,16 +88,35 @@ function request(data: ClientWorksheet, env: Record<string, string | undefined>,
   return {
     sent,
     events,
-    run: (overrides?: { origin?: string; contentType?: string | null; honeypot?: string; ip?: string }) =>
+    run: (overrides?: {
+      origin?: string;
+      contentType?: string | null;
+      honeypot?: string;
+      ip?: string;
+      consent?: boolean;
+      consentVersion?: string;
+      omitConsent?: boolean;
+      secure?: boolean;
+    }) =>
       handleWorksheetEmail({
-        payload: { worksheet: data, fmt_hp: overrides?.honeypot ?? "" },
+        payload: {
+          worksheet: data,
+          fmt_hp: overrides?.honeypot ?? "",
+          ...(overrides?.omitConsent
+            ? {}
+            : {
+                consent: overrides?.consent ?? true,
+                consentVersion: overrides?.consentVersion ?? WORKSHEET_CONSENT_VERSION,
+              }),
+        },
         contentType: overrides && "contentType" in overrides ? overrides.contentType ?? null : "application/json",
         host: "127.0.0.1:43127",
         origin: overrides?.origin ?? "http://127.0.0.1:43127",
         forwardedHost: null,
         ip: overrides?.ip ?? ip,
+        secure: overrides?.secure ?? true,
         env,
-        build: (worksheet, mailEnv) => buildWorksheetMail(worksheet, mailEnv),
+        build: (worksheet, mailEnv, consentAt) => buildWorksheetMail(worksheet, mailEnv, consentAt),
         send: async (mail) => {
           sent.push(mail);
         },
@@ -119,7 +144,7 @@ describe("worksheet email payload", () => {
 
   it("puts every field in the body and attaches the PDF for the agent mailbox", async () => {
     const data = sampleWorksheet();
-    const mail = await buildWorksheetMail(data, configured);
+    const mail = await buildWorksheetMail(data, configured, CONSENT_AT);
     assert.equal(mail.to, DEFAULT_AGENT_EMAIL);
     assert.equal(mail.from, "agent@freemedicaretools.com");
     assert.equal(mail.replyTo, "jordan.sample@example.com");
@@ -131,6 +156,14 @@ describe("worksheet email payload", () => {
       if (!line) continue;
       assert.ok(mail.text.includes(line), `missing email line: ${line}`);
     }
+    assert.ok(mail.text.startsWith(`Consent: ${WORKSHEET_CONSENT_VERSION} checked by the visitor at ${CONSENT_AT}.`));
+    assert.ok(mail.text.includes(`Consent text: "${WORKSHEET_CONSENT_TEXT}"`));
+    assert.ok(mail.text.includes("Email and phone are not verified."));
+    assert.ok(
+      mail.text.includes(
+        "This worksheet is not a Scope of Appointment. Complete an SOA before discussing specific Medicare Advantage or Part D plans.",
+      ),
+    );
     assert.equal(mail.text.includes("Test delivery."), false);
     assert.ok(mail.text.includes("Examplevastatin"));
     assert.ok(mail.text.includes("Pretendpril"));
@@ -141,14 +174,19 @@ describe("worksheet email payload", () => {
 
   it("sends the override recipient only when WORKSHEET_EMAIL_TO is set", async () => {
     const data = sampleWorksheet();
-    const mail = await buildWorksheetMail(data, {
-      ...configured,
-      WORKSHEET_EMAIL_TO: "preview-inbox@example.com",
-    });
+    const mail = await buildWorksheetMail(
+      data,
+      {
+        ...configured,
+        WORKSHEET_EMAIL_TO: "preview-inbox@example.com",
+      },
+      CONSENT_AT,
+    );
     assert.equal(mail.to, "preview-inbox@example.com");
-    assert.ok(mail.text.startsWith("Test delivery."));
+    assert.ok(mail.text.startsWith("Consent:"));
+    assert.ok(mail.text.includes("Test delivery."));
     assert.ok(mail.text.includes("Jordan Q Sample"));
-    assert.equal(worksheetEmailText(data, {}).includes("preview-inbox@example.com"), false);
+    assert.equal(worksheetEmailText(data, {}, CONSENT_AT).includes("preview-inbox@example.com"), false);
   });
 });
 
@@ -233,19 +271,90 @@ describe("handleWorksheetEmail", { concurrency: false }, () => {
     assert.equal(call.sent.length, 0);
   });
 
-  it("rate limits repeated sends from one address", async () => {
+  it("rate limits repeated sends for one phone even when the address changes", async () => {
     resetRateLimits();
     const data = sampleWorksheet();
-    for (let count = 0; count < WORKSHEET_IP_LIMIT; count += 1) {
-      const call = request(data, configured, "203.0.113.30");
+    for (let count = 0; count < WORKSHEET_PHONE_LIMIT; count += 1) {
+      const call = request(data, configured, `203.0.113.${count + 1}`);
       const result = await call.run();
       assert.equal(result.status, 200);
     }
-    const blocked = request(data, configured, "203.0.113.30");
+    const blocked = request(data, configured, "198.51.100.40");
     const result = await blocked.run();
     assert.equal(result.status, 429);
     assert.equal(result.body.message, WorksheetEmailMessage.rate);
     assert.equal(blocked.sent.length, 0);
+  });
+
+  it("rejects a send that does not include consent", async () => {
+    resetRateLimits();
+    const missing = request(sampleWorksheet(), configured, "203.0.113.50");
+    const missingResult = await missing.run({ omitConsent: true });
+    assert.equal(missingResult.status, 400);
+    assert.equal(missingResult.body.message, WorksheetEmailMessage.consent);
+    assert.equal(missing.sent.length, 0);
+
+    const unchecked = request(sampleWorksheet(), configured, "203.0.113.51");
+    const uncheckedResult = await unchecked.run({ consent: false });
+    assert.equal(uncheckedResult.status, 400);
+    assert.equal(uncheckedResult.body.message, WorksheetEmailMessage.consent);
+    assert.equal(unchecked.sent.length, 0);
+  });
+
+  it("refuses a personal inbox override in production unless the preview flag is set", async () => {
+    resetRateLimits();
+    const blocked = request(
+      sampleWorksheet(),
+      { ...configured, NODE_ENV: "production", WORKSHEET_EMAIL_TO: "preview-inbox@example.com" },
+      "203.0.113.60",
+    );
+    const blockedResult = await blocked.run();
+    assert.equal(blockedResult.status, 503);
+    assert.equal(blocked.sent.length, 0);
+    const logged = blocked.events.join("\n");
+    assert.ok(logged.includes("worksheet_email_override_blocked"));
+    assert.equal(logged.includes("preview-inbox@example.com"), false);
+
+    resetRateLimits();
+    const allowed = request(
+      sampleWorksheet(),
+      {
+        ...configured,
+        NODE_ENV: "production",
+        WORKSHEET_EMAIL_TO: "preview-inbox@example.com",
+        WORKSHEET_EMAIL_PREVIEW: "true",
+      },
+      "203.0.113.61",
+    );
+    const allowedResult = await allowed.run();
+    assert.equal(allowedResult.status, 200);
+    assert.equal(allowed.sent[0]?.to, "preview-inbox@example.com");
+  });
+
+  it("ignores a spoofed forwarded IP unless the proxy flag is set, and requires HTTPS off localhost", () => {
+    const headers = { get: (name: string) => (name === "x-forwarded-for" ? "203.0.113.9, 10.0.0.1" : null) };
+    assert.equal(clientAddress(headers, false), "untrusted");
+    assert.equal(clientAddress(headers, true), "203.0.113.9");
+    assert.equal(isSecureRequest({ protocol: "http:", forwardedProto: null, host: "127.0.0.1:43127" }), true);
+    assert.equal(isSecureRequest({ protocol: "http:", forwardedProto: "https", host: "freemedicaretools.com" }), true);
+    assert.equal(isSecureRequest({ protocol: "https:", forwardedProto: null, host: "freemedicaretools.com" }), true);
+    assert.equal(isSecureRequest({ protocol: "http:", forwardedProto: "http", host: "freemedicaretools.com" }), false);
+  });
+
+  it("requires TLS 1.2 and does not disable certificate checks", () => {
+    const options = smtpTransportOptions(configured);
+    assert.equal(options.requireTLS, true);
+    assert.equal(options.tls.minVersion, "TLSv1.2");
+    assert.equal(Object.hasOwn(options.tls, "rejectUnauthorized"), false);
+    assert.equal(JSON.stringify(options).includes("rejectUnauthorized"), false);
+  });
+
+  it("rejects worksheet email that is not HTTPS", async () => {
+    resetRateLimits();
+    const call = request(sampleWorksheet(), configured, "203.0.113.70");
+    const result = await call.run({ secure: false });
+    assert.equal(result.status, 403);
+    assert.equal(call.sent.length, 0);
   });
 
   it("logs an SMTP failure code without the error text", async () => {
@@ -266,14 +375,15 @@ describe("handleWorksheetEmail", { concurrency: false }, () => {
     const data = sampleWorksheet();
     const events: string[] = [];
     const result = await handleWorksheetEmail({
-      payload: { worksheet: data, fmt_hp: "" },
+      payload: { worksheet: data, fmt_hp: "", consent: true, consentVersion: WORKSHEET_CONSENT_VERSION },
       contentType: "application/json",
       host: "127.0.0.1:43127",
       origin: "http://127.0.0.1:43127",
       forwardedHost: null,
       ip: "203.0.113.40",
+      secure: true,
       env: configured,
-      build: (worksheet, env) => buildWorksheetMail(worksheet, env),
+      build: (worksheet, env, consentAt) => buildWorksheetMail(worksheet, env, consentAt),
       send: async () => {
         const error = new Error("550 Jordan Q Sample rejected") as Error & { code?: string };
         error.code = "EENVELOPE";

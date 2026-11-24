@@ -5,7 +5,7 @@ import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: `How ${BRAND.domain} handles your information. The tools run in your browser. Email to agent sends the worksheet only when you click it, and the site does not keep a copy.`,
+  description: `How ${BRAND.domain} handles your information. The tools run in your browser. Email to agent sends the worksheet by regular email to Leo Adaoag. The website keeps no copy; his mailbox does until he deletes it.`,
 };
 
 const EFFECTIVE_DATE = "November 24, 2026";
@@ -18,8 +18,10 @@ export default function PrivacyPage() {
       intro={
         <p>
           The short version: the tools run in your browser. Worksheet answers stay in this browser
-          tab unless you click Email to agent, which sends them to the agent and does not save a
-          copy on the site. If you email us any other way, we get what you choose to send.
+          tab unless you check the consent box and click Email to agent. That sends them by regular
+          email to Leo Adaoag, a licensed insurance agent with Guardian Benefits Group. The website
+          itself keeps no copy, but Leo&apos;s mailbox does until he deletes it (see section 4). If
+          you email us any other way, we get what you choose to send.
         </p>
       }
     >
@@ -57,7 +59,7 @@ export default function PrivacyPage() {
       <LegalSection n={4} title="The Client Worksheet">
         <ul>
           <li>
-            Your answers are kept only in this browser tab (the browser&apos;s
+            Until you send it, your answers are kept only in this browser tab (the browser&apos;s
             &ldquo;sessionStorage&rdquo;), so you can print the worksheet and come back to edit it.
           </li>
           <li>
@@ -66,10 +68,14 @@ export default function PrivacyPage() {
           </li>
           <li>We never ask for your Medicare number (MBI) or Social Security number.</li>
           <li>
-            The &ldquo;Email to agent&rdquo; button sends the worksheet you entered, including
-            contact details, prescriptions, doctors, and notes, in the email and as a PDF
-            attachment. That happens only when you click the button. We do not store the worksheet
-            or the PDF. Please don&apos;t type a Medicare number (MBI) or Social Security number
+            If you check the consent box and click Email to agent, the worksheet you entered
+            (contact details, date of birth, coverage answers, prescriptions, doctors, and notes)
+            is sent by regular email, with a PDF copy, to Leo Adaoag at agent@freemedicaretools.com.
+            The website doesn&apos;t store it. The email stays in that mailbox, which our email
+            provider hosts, until Leo copies what he needs into our client records and deletes it,
+            within [3] business days. If you become a client, we keep your records for [10 years].
+            If you don&apos;t, we delete your information [within __ of our last contact]. Please
+            don&apos;t type a Medicare number (MBI), Social Security number, or bank or card details
             anywhere on the worksheet.
           </li>
         </ul>
@@ -99,14 +105,17 @@ export default function PrivacyPage() {
 
       <LegalSection n={7} title="How we use emails">
         <p>
-          We use your email only to reply to your request. We don&apos;t sell or share your
+          We use your email and phone number only to reply to your request and, if you sent the
+          worksheet and agreed, to compare Medicare plans for you and contact you about that. We
+          don&apos;t sell or share your
           information, and we don&apos;t add you to marketing lists without your permission.
         </p>
       </LegalSection>
 
       <LegalSection n={8} title="Your choices">
         <p>
-          Email <EmailLink /> to ask what we have from you, or to ask us to delete your messages.
+          Email <EmailLink /> to ask what we have from you, or to ask us to delete your messages or
+          to delete a worksheet you sent.
         </p>
       </LegalSection>
 
