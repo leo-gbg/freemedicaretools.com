@@ -242,10 +242,10 @@ export function ClientWorksheetTool() {
             Private by design
           </p>
           <p className="mt-2 text-base leading-relaxed text-white/85">
-            Nothing you type is posted to a server. A copy stays in this browser tab so the print
-            page can open. We do not ask for a Medicare number (MBI) or Social Security number — do
-            not type those in the notes. Do not email medications, date of birth, Medicaid, or VA
-            details.
+            Your answers stay in this browser tab. They are erased when you close the tab, or when
+            you clear the worksheet. Email to agent sends them once, and we do not keep a copy. We
+            do not ask for a Medicare number (MBI) or Social Security number — do not type those in
+            the notes.
           </p>
         </div>
         <div className={`${cardClass} p-5`}>
@@ -266,7 +266,7 @@ export function ClientWorksheetTool() {
             Print
           </button>
           <p className="mt-3 text-sm text-[var(--brand-text-3)]">
-            The email button on the print page does not include this worksheet.
+            Email to agent on the print page sends this worksheet and a PDF. We do not keep a copy.
           </p>
         </div>
         <div className={`${cardClass} p-5`} aria-live="polite">

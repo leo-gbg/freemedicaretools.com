@@ -5,10 +5,10 @@ import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Privacy",
-  description: `How ${BRAND.domain} handles your information: the tools run in your browser and nothing you type is sent to our servers.`,
+  description: `How ${BRAND.domain} handles your information. The tools run in your browser. Email to agent sends the worksheet only when you click it, and the site does not keep a copy.`,
 };
 
-const EFFECTIVE_DATE = "September 24, 2026";
+const EFFECTIVE_DATE = "November 24, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -17,8 +17,9 @@ export default function PrivacyPage() {
       effectiveDate={EFFECTIVE_DATE}
       intro={
         <p>
-          The short version: the tools run in your browser, and nothing you type into them is sent
-          to us. If you email us, we get what you choose to send.
+          The short version: the tools run in your browser. Worksheet answers stay in this browser
+          tab unless you click Email to agent, which sends them to the agent and does not save a
+          copy on the site. If you email us any other way, we get what you choose to send.
         </p>
       }
     >
@@ -33,8 +34,9 @@ export default function PrivacyPage() {
       <LegalSection n={2} title="What we collect">
         <ul>
           <li>
-            <strong>Through the tools:</strong> nothing is sent to us. There are no accounts and
-            no sign-up forms. Answers stay in this browser tab until you close it.
+            <strong>Through the tools:</strong> there are no accounts and no sign-up forms.
+            Answers stay in this browser tab until you close it. The worksheet email button,
+            described below, is the one action that sends what you typed.
           </li>
           <li>
             <strong>If you email us:</strong> we receive what you choose to send, such as your name,
@@ -47,7 +49,8 @@ export default function PrivacyPage() {
         <p>
           The calculators, quizzes, and checklists run in your web browser. Your answers are not
           sent to our servers. A copy stays in this browser tab (sessionStorage) so you can go
-          back and change an answer. Closing the tab erases that copy.
+          back and change an answer. Closing the tab erases that copy. The Client Worksheet email
+          button is the exception, and it is described in the next section.
         </p>
       </LegalSection>
 
@@ -63,8 +66,11 @@ export default function PrivacyPage() {
           </li>
           <li>We never ask for your Medicare number (MBI) or Social Security number.</li>
           <li>
-            The &ldquo;Email to agent&rdquo; button does not include your worksheet. Please
-            don&apos;t put medications, date of birth, Medicaid, or VA details in an email.
+            The &ldquo;Email to agent&rdquo; button sends the worksheet you entered, including
+            contact details, prescriptions, doctors, and notes, in the email and as a PDF
+            attachment. That happens only when you click the button. We do not store the worksheet
+            or the PDF. Please don&apos;t type a Medicare number (MBI) or Social Security number
+            anywhere on the worksheet.
           </li>
         </ul>
       </LegalSection>

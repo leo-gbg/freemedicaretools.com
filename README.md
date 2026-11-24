@@ -14,7 +14,7 @@ Educational Medicare navigation tools. Each tool answers one question in the bro
 | Enrollment Window Today | `/tools/period-finder` | Names which of IEP, AEP, OEP, GEP, or SEP can apply |
 | Coverage Path Quiz | `/tools/path-quiz` | Directional lean: Advantage, or Original Medicare plus Medigap |
 | Medigap Plan Letter Guide | `/tools/med-supp-compare` | Compares standardized Medigap letters |
-| Consult Worksheet | `/tools/client-worksheet` | Doctors, drugs, and contact details for a consult; print only |
+| Consult Worksheet | `/tools/client-worksheet` | Doctors, drugs, and contact details for a consult; print, or email the worksheet and PDF to the agent |
 | IRMAA Bracket Checker | `/tools/irmaa-checker` | Estimates 2026 Part B and Part D income-related amounts from 2024 income |
 | Still Working Past 65? | `/tools/working-past-65` | Checks whether delaying Part B may be OK, so confirm with your HR or benefits office |
 | AEP Annual Review Checklist | `/tools/aep-checklist` | October 15–December 7 review list |
@@ -23,7 +23,7 @@ Also: `/glossary`, `/research`, `/privacy`, `/terms`.
 
 ## How data is kept
 
-Tool answers stay in the browser tab (`sessionStorage`). The site has no database and no accounts. The consult action is a `mailto` to `hello@freemedicaretools.com`. Dollar figures are educational estimates, not an official Medicare determination.
+Tool answers stay in the browser tab (`sessionStorage`) until the tab closes. The site has no database and no accounts. On the consult worksheet, Email to agent sends that worksheet and a PDF through the server and does not store a copy. Other consult buttons are a `mailto` to `hello@freemedicaretools.com`. Dollar figures are educational estimates, not an official Medicare determination.
 
 ## Run locally
 

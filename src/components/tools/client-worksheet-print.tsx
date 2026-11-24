@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { PoweredBy } from "@/components/powered-by";
 import { Wordmark } from "@/components/wordmark";
@@ -22,6 +22,9 @@ const BRING = ["Medicare card", "Pill bottles or label photos", "Current plan ca
 export function ClientWorksheetPrintDocument() {
   const [data, setData] = useState<ClientWorksheet | null>(null);
   const [ready, setReady] = useState(false);
+  const [emailState, setEmailState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [emailMessage, setEmailMessage] = useState("");
+  const sendingRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,21 +40,38 @@ export function ClientWorksheetPrintDocument() {
     };
   }, []);
 
-  const mailtoHref = useMemo(() => {
-    const subject = encodeURIComponent("Medicare consult worksheet");
-    const body = encodeURIComponent(
-      [
-        "Hello,",
-        "",
-        "I used the FreeMedicareTools worksheet and saved a PDF on my own device.",
-        "This message does not include my worksheet.",
-        "I will not put medications, date of birth, Medicaid, VA benefits, or similar details in email.",
-        "",
-        `Sent via ${BRAND.domain}`,
-      ].join("\n")
-    );
-    return `mailto:${BRAND.email}?subject=${subject}&body=${body}`;
-  }, []);
+  async function emailToAgent() {
+    if (!data || sendingRef.current || emailState === "sent") return;
+    sendingRef.current = true;
+    setEmailState("sending");
+    setEmailMessage("");
+    try {
+      const response = await fetch("/api/worksheet-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ worksheet: data, fmt_hp: "" }),
+      });
+      let payload: { ok?: boolean; message?: string } | null = null;
+      try {
+        payload = (await response.json()) as { ok?: boolean; message?: string };
+      } catch {
+        payload = null;
+      }
+      const message = typeof payload?.message === "string" ? payload.message.slice(0, 300) : "";
+      if (!response.ok || !payload?.ok) {
+        sendingRef.current = false;
+        setEmailState("error");
+        setEmailMessage(message || "We couldn't send the email. Please try again, or use Print / Save as PDF.");
+        return;
+      }
+      setEmailState("sent");
+      setEmailMessage(message || "Sent. The agent has your worksheet and the PDF. We did not keep a copy on the site.");
+    } catch {
+      sendingRef.current = false;
+      setEmailState("error");
+      setEmailMessage("We couldn't send the email. Please try again, or use Print / Save as PDF.");
+    }
+  }
 
   if (!ready) {
     return (
@@ -94,14 +114,22 @@ export function ClientWorksheetPrintDocument() {
             >
               Print / Save as PDF
             </button>
-            <a href={mailtoHref} className={cn(buttonVariants({ size: "lg", variant: "outline" }))}>
-              Email to agent
-            </a>
+            <button
+              type="button"
+              onClick={emailToAgent}
+              disabled={emailState === "sending" || emailState === "sent"}
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                "disabled:cursor-not-allowed disabled:opacity-60",
+              )}
+            >
+              {emailState === "sending" ? "Sending…" : "Email to agent"}
+            </button>
           </div>
           <OfficialSourceNote className="sm:text-right" />
           <p className="text-sm text-[var(--brand-ink-soft)] sm:text-right">
-            The email does not include your worksheet. Do not add medications, date of birth, Medicaid,
-            VA benefits, or similar details to the message.{" "}
+            Email to agent sends this worksheet and a PDF to the agent. We do not keep a copy. Do not
+            include a Medicare number or Social Security number.{" "}
             <Link
               href="/privacy"
               className="inline-flex min-h-12 items-center font-medium text-[var(--brand-teal-deep)] underline underline-offset-4"
@@ -109,6 +137,17 @@ export function ClientWorksheetPrintDocument() {
               Privacy
             </Link>
           </p>
+          {emailMessage ? (
+            <p
+              role="status"
+              className={cn(
+                "text-sm sm:text-right",
+                emailState === "error" ? "text-[var(--brand-red-text)]" : "text-[var(--brand-teal-deep)]",
+              )}
+            >
+              {emailMessage}
+            </p>
+          ) : null}
         </div>
       </div>
 

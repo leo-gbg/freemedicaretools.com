@@ -32,6 +32,8 @@ function shortRedirects() {
 }
 
 const nextConfig = {
+  // pdfkit loads standard fonts from its package directory. Bundling it breaks that.
+  serverExternalPackages: ["pdfkit", "fontkit", "nodemailer"],
   // Next's automatic slash redirect runs before redirects() and would send
   // /worksheet/ to /worksheet before the short link can match. Turn that off,
   // match the short links (with and without a slash) first, then strip a
